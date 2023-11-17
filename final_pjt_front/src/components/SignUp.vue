@@ -1,11 +1,11 @@
 <template>
-  <dialog @click="closeModal" ref="signUp">
+  <dialog @click="closeModal" ref="signUpDom">
     <div class="position-relative p-4">
       <form method="dialog" class="position-absolute move">
         <button value="close" class="m-0">❌</button>
       </form>
       <h2 class="text-center">회원가입</h2>
-      <form>
+      <form @submit.prevent="signUp">
         <div class="d-flex flex-column gap-3">
           <h5 class="m-0">기본정보</h5>
           <div>
@@ -78,20 +78,37 @@
 
 <script setup>
 import { ref } from "vue";
+import { useAuthStore } from "../stores/auth";
 
-const signUp = ref(null);
-const signUpId = ref("");
-const signUpPw = ref("");
-const signUpPwCk = ref("");
-const signUpName = ref("");
-const signUpAge = ref("");
-const signUpEmail = ref("");
-const signUpMoney = ref("");
-const signUpSalary = ref("");
+const signUpDom = ref(null);
+const signUpId = ref(null);
+const signUpPw = ref(null);
+const signUpPwCk = ref(null);
+const signUpName = ref(null);
+const signUpAge = ref(null);
+const signUpEmail = ref(null);
+const signUpMoney = ref(null);
+const signUpSalary = ref(null);
+
+const authStore = useAuthStore();
+
+const signUp = function () {
+  const payload = {
+    password1: signUpPw.value,
+    password2: signUpPwCk.value,
+    username: signUpId.value,
+    name: signUpName.value,
+    email: signUpEmail.value,
+    age: signUpAge.value,
+    asset: signUpMoney.value,
+    salary: signUpSalary.value,
+  };
+  authStore.signUp(payload);
+};
 
 const closeModal = (e) => {
   if (e.target.nodeName === "DIALOG") {
-    signUp.value.close();
+    signUpDom.value.close();
   }
 };
 </script>

@@ -1,18 +1,18 @@
 <template>
-  <dialog @click="closeModal" ref="logIn">
+  <dialog @click="closeModal" ref="logInDom">
     <div id="hhh" class="position-relative p-4">
       <form method="dialog" class="position-absolute move">
         <button value="close">❌</button>
       </form>
       <h2 class="text-center">로그인</h2>
-      <form class="d-flex flex-column gap-3">
+      <form @submit.prevent="logIn" class="d-flex flex-column gap-3">
         <div>
           <label for="LogInId"
             >아이디
             <span>*</span>
           </label>
           <br />
-          <input type="text" style="width: 100%" id="LogInId" />
+          <input v-model.trim="logInId" type="text" style="width: 100%" id="LogInId" />
         </div>
         <div>
           <label for="LogInMail"
@@ -20,7 +20,7 @@
             <span>*</span>
           </label>
           <br />
-          <input type="password" style="width: 100%" id="LogInPw" autoComplete="off" />
+          <input v-model.trim="logInPw" type="password" style="width: 100%" id="LogInPw" autoComplete="off" />
         </div>
         <button class="btn btn-primary">로그인</button>
       </form>
@@ -32,18 +32,33 @@
 
 <script setup>
 import { onMounted, ref } from "vue";
-const logIn = ref(null);
+import { useAuthStore } from "../stores/auth";
+
+const authStore = useAuthStore();
+const logInDom = ref(null);
+
+const logInId = ref("");
+const logInPw = ref("");
 
 const closeModal = (e) => {
   if (e.target.nodeName === "DIALOG") {
-    logIn.value.close();
+    logInDom.value.close();
   }
 };
 
 const moveSignUp = () => {
-  logIn.value.close();
+  logInDom.value.close();
   const dialog = document.querySelector("#moveSignUpPage");
   dialog.showModal();
+};
+
+const logIn = () => {
+  const payload = {
+    username: logInId.value,
+    password: logInPw.value,
+  };
+
+  authStore.logIn(payload);
 };
 </script>
 

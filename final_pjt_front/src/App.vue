@@ -2,6 +2,7 @@
   <header>
     <nav class="navbar navbar-expand-lg bg-body-tertiary mt-0 py-4">
       <div class="container-fluid">
+        <img src="https://item.kakaocdn.net/do/218bdb82c9a7456ee2080fe14a464292617ea012db208c18f6e83b1a90a7baa7" clas="logo" alt="" />
         <RouterLink to="/" class="navbar-brand">Jiho Bank</RouterLink>
         <button
           class="navbar-toggler"
@@ -30,8 +31,11 @@
               <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
                 <RouterLink to="/bankMap" class="nav-link">은행 지도</RouterLink>
               </li>
+              <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
+                <RouterLink to="/post" class="nav-link">게시판</RouterLink>
+              </li>
             </ul>
-            <ul class="navbar-nav mb-lg-0">
+            <ul v-if="!authStore.isAuthenticated" class="navbar-nav mb-lg-0">
               <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
                 <span @click="signUp" class="nav-link" style="cursor: pointer">회원가입</span>
                 <!-- <RouterLink to="/signUp" class="nav-link">회원가입</RouterLink> -->
@@ -41,6 +45,14 @@
                 <!-- <RouterLink to="/logIn" class="nav-link">로그인</RouterLink> -->
               </li>
             </ul>
+            <ul v-else class="navbar-nav mb-lg-0">
+              <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
+                <span class="nav-link" style="cursor: pointer">마이페이지</span>
+              </li>
+              <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
+                <span @click="authStore.logOut" class="nav-link" style="cursor: pointer">로그아웃</span>
+              </li>
+            </ul>
           </div>
         </div>
       </div>
@@ -48,7 +60,8 @@
   </header>
   <SignUp id="moveSignUpPage" />
   <LogIn id="moveLogInPage" />
-  <RouterView style="height: 90vh" />
+  <RouterView />
+  <!-- style="height: 90vh" -->
 </template>
 
 <script setup>
@@ -56,6 +69,9 @@ import { RouterLink, RouterView } from "vue-router";
 import SignUp from "./components/SignUp.vue";
 import LogIn from "./components/LogIn.vue";
 import Nav from "./components/Nav.vue";
+import { useAuthStore } from "./stores/auth";
+
+const authStore = useAuthStore();
 
 const signUp = () => {
   const dialog = document.querySelector("#moveSignUpPage");
@@ -74,5 +90,9 @@ const logIn = () => {
   /* text-decoration-line: underline;
   text-decoration-thickness: 5px;
   text-decoration-color: red; */
+}
+
+img {
+  width: 100px;
 }
 </style>
