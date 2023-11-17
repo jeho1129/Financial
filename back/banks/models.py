@@ -18,7 +18,7 @@ class DepositOptions(models.Model):
     product = models.ForeignKey(DepositProducts, on_delete=models.CASCADE)  # 금융 상품
     fin_prdt_cd = models.TextField()  # 금융상품 코드
     intr_rate_type_nm = models.TextField()  # 저축 금리 유형명
-    intr_rate = models.FloatField()  # 저축 금리
+    intr_rate = models.FloatField(null=True)  # 저축 금리
     intr_rate2 = models.FloatField()  # 최고 우대 금리
     save_trm = models.IntegerField()  # 저축 기간
 

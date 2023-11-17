@@ -8,7 +8,7 @@ class DepositProductsSerializer(serializers.ModelSerializer):
             model = get_user_model()
             fields = '__all__'
 
-    user = UserSerializer(many=True)
+    user = UserSerializer(many=True, read_only=True)
 
     class Meta:
         model = DepositProducts
