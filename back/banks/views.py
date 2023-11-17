@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_list_or_404, get_object_or_404
 from django.conf import settings
 from django.http import JsonResponse
 from rest_framework import status
@@ -26,7 +26,7 @@ def save_deposits(request):
             'join_deny' : li.get('join_deny')
         }
         if not DepositProducts.objects.filter(fin_prdt_cd=save_data['fin_prdt_cd']).exists():
-            serializer = DepositProductsSerializer(data=save_data, many=True)
+            serializer = DepositProductsSerializer(data=save_data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save()
     for li in response.get("result").get("optionList"):
@@ -43,3 +43,11 @@ def save_deposits(request):
             if serializer.is_valid(raise_exception=True):
                 serializer.save(product=product)
     return Response({'message' : 'okay'})
+
+
+@api_view(['GET'])
+def list_deposits(request):
+    if request.method == 'GET':
+        deposits = DepositProducts.objects.all()
+        serializer = DepositProductsSerializer(deposits, many=True)
+        return Response(serializer.data)

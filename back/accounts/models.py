@@ -4,13 +4,13 @@ from allauth.account.adapter import DefaultAccountAdapter
 
 # Create your models here.
 class User(AbstractUser):
-    username = models.CharField(max_length=30, unique=True)
-    name = models.CharField(max_length=30)
-    email = models.EmailField(max_length=250, blank=True, null=True)
-    age = models.IntegerField(blank=True, null=True)
-    asset = models.IntegerField(blank=True, null=True)
-    salary = models.IntegerField(blank=True, null=True)
-    financial_products = models.TextField(blank=True, null=True)
+    username = models.CharField(max_length=30, unique=True)  # 유저 ID
+    name = models.CharField(max_length=30)  # 이름
+    email = models.EmailField(max_length=250, blank=True, null=True)  # Email
+    age = models.IntegerField(blank=True, null=True)  # 나이
+    asset = models.IntegerField(blank=True, null=True)  # 자산
+    salary = models.IntegerField(blank=True, null=True)  # 연봉
+    financial_products = models.TextField(blank=True, null=True)  # 가입한 상품 목록
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
