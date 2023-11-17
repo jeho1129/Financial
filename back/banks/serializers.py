@@ -23,20 +23,36 @@ class DepositOptionsSerializer(serializers.ModelSerializer):
 
 
 class DepositReviewsSerializer(serializers.ModelSerializer):
+    class UserSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = get_user_model()
+            fields = ('pk', 'username')
+    
+    user = UserSerializer(read_only=True)
+
     class Meta:
         model = DepositReviews
         fields = '__all__'
-        read_only_fields = ('product', 'user')
+        read_only_fields = ('product',)
 
+
+class DepositProductsViewSerializer(serializers.ModelSerializer):
+    depositreviews_set = DepositReviewsSerializer(many=True, read_only=True)
+    depositreviews_count = serializers.IntegerField(source='depositreviews_set.count', read_only=True)
     
+    class Meta:
+        model = DepositProducts
+        exclude = ('user',)
+
+ 
 class SavingProductsSerializer(serializers.ModelSerializer):
     class UserSerializer(serializers.ModelSerializer):
         class Meta:
             model = get_user_model()
             fields = '__all__'
 
-    user = UserSerializer(many=True)
-    
+    user = UserSerializer(many=True, read_only=True)
+
     class Meta:
         model = SavingProducts
         fields = '__all__'
@@ -50,7 +66,23 @@ class SavingOptionsSerializer(serializers.ModelSerializer):
 
 
 class SavingReviewsSerializer(serializers.ModelSerializer):
+    class UserSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = get_user_model()
+            fields = ('pk', 'username')
+    
+    user = UserSerializer(read_only=True)
+
     class Meta:
         model = SavingReviews
         fields = '__all__'
-        read_only_fields = ('product', 'user')
+        read_only_fields = ('product',)
+
+
+class SavingProductsViewSerializer(serializers.ModelSerializer):
+    savingreviews_set = SavingReviewsSerializer(many=True, read_only=True)
+    savingreviews_count = serializers.IntegerField(source='savingreviews_set.count', read_only=True)
+    
+    class Meta:
+        model = SavingProducts
+        exclude = ('user',)
