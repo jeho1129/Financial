@@ -1,15 +1,16 @@
 from django.shortcuts import render, get_list_or_404, get_object_or_404
 from django.conf import settings
-from django.http import JsonResponse
 from rest_framework import status
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
+from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
 import requests
 from .models import DepositProducts, DepositOptions, DepositReviews, SavingProducts, SavingOptions, SavingReviews
 from .serializers import DepositProductsSerializer, DepositOptionsSerializer, DepositReviewsSerializer, DepositProductsViewSerializer, SavingProductsSerializer, SavingOptionsSerializer, SavingReviewsSerializer, SavingProductsViewSerializer
 
 # Create your views here.
 @api_view(['GET'])
+@permission_classes([IsAdminUser])
 def save_deposits(request):
     API_KEY = settings.API_KEY
     url = f'http://finlife.fss.or.kr/finlifeapi/depositProductsSearch.json?auth={API_KEY}&topFinGrpNo=020000&pageNo=1'
@@ -45,10 +46,11 @@ def save_deposits(request):
             serializer = DepositOptionsSerializer(data=save_data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save(product=product)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response({ 'message': 'okay' }, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def list_deposits(request):
     if request.method == 'GET':
         deposits = DepositProducts.objects.all()
@@ -57,6 +59,7 @@ def list_deposits(request):
     
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def detail_deposits(request, fin_prdt_cd):
     deposit = DepositProducts.objects.get(fin_prdt_cd=fin_prdt_cd)
     serializer = DepositProductsViewSerializer(deposit)
@@ -64,6 +67,7 @@ def detail_deposits(request, fin_prdt_cd):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def comment_deposits(request, fin_prdt_cd):
     deposit = DepositProducts.objects.get(fin_prdt_cd=fin_prdt_cd)
     serializer = DepositReviewsSerializer(data=request.data)
@@ -72,7 +76,23 @@ def comment_deposits(request, fin_prdt_cd):
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
 
+@api_view(['PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def comment_deposits_detail(request, comment_pk):
+    comment = DepositReviews.objects.get(pk=comment_pk)
+    if request.method == 'PUT':
+        serializer = DepositReviewsSerializer(comment, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+    
+    elif request.method == 'DELETE':
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
 @api_view(['GET'])
+@permission_classes([IsAdminUser])
 def save_savings(request):
     API_KEY = settings.API_KEY
     url = f'http://finlife.fss.or.kr/finlifeapi/savingProductsSearch.json?auth={API_KEY}&topFinGrpNo=020000&pageNo=1'
@@ -108,10 +128,11 @@ def save_savings(request):
             serializer = SavingOptionsSerializer(data=save_data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save(product=product)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    return Response({ 'message': 'okay' }, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def list_savings(request):
     if request.method == 'GET':
         savings = SavingProducts.objects.all()
@@ -120,6 +141,7 @@ def list_savings(request):
     
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def detail_savings(request, fin_prdt_cd):
     saving = SavingProducts.objects.get(fin_prdt_cd=fin_prdt_cd)
     serializer = SavingProductsViewSerializer(saving)
@@ -127,9 +149,34 @@ def detail_savings(request, fin_prdt_cd):
 
 
 @api_view(['POST'])
+@permission_classes([IsAuthenticated])
 def comment_savings(request, fin_prdt_cd):
     saving = SavingProducts.objects.get(fin_prdt_cd=fin_prdt_cd)
     serializer = SavingReviewsSerializer(data=request.data)
     if serializer.is_valid(raise_exception=True):
         serializer.save(product=saving, user=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+
+@api_view(['PUT', 'DELETE'])
+@permission_classes([IsAuthenticated])
+def comment_savings_detail(request, comment_pk):
+    comment = SavingReviews.objects.get(pk=comment_pk)
+    if request.method == 'PUT':
+        serializer = SavingReviewsSerializer(comment, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+    
+    elif request.method == 'DELETE':
+        comment.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+@api_view(['GET'])
+@permission_classes([IsAdminUser])
+def exchanges(request):
+    API_KEY = settings.API_KEY_2
+    url = f'https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={API_KEY}&data=AP01'
+    response = requests.get(url).json()
+    return Response(response)
