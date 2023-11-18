@@ -12,7 +12,12 @@
             <span>*</span>
           </label>
           <br />
-          <input v-model.trim="logInId" type="text" style="width: 100%" id="LogInId" />
+          <input
+            v-model.trim="logInId"
+            type="text"
+            style="width: 100%"
+            id="LogInId"
+          />
         </div>
         <div>
           <label for="LogInMail"
@@ -20,12 +25,23 @@
             <span>*</span>
           </label>
           <br />
-          <input v-model.trim="logInPw" type="password" style="width: 100%" id="LogInPw" autoComplete="off" />
+          <input
+            v-model.trim="logInPw"
+            type="password"
+            style="width: 100%"
+            id="LogInPw"
+            autoComplete="off"
+          />
         </div>
         <button class="btn btn-primary">로그인</button>
       </form>
       <hr />
-      <div class="text-center">계정이 없으신가요? <span @click="moveSignUp" id="moveSignUp" class="text-primary">가입하기</span></div>
+      <div class="text-center">
+        계정이 없으신가요?
+        <span @click="moveSignUp" id="moveSignUp" class="text-primary"
+          >가입하기</span
+        >
+      </div>
     </div>
   </dialog>
 </template>
@@ -69,7 +85,7 @@ dialog::backdrop {
 dialog {
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
   border: 0;
-  border-radius: 20px;
+  border-radius: 10px;
   padding: 0;
   height: 500px;
   width: 500px;
