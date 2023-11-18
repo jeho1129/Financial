@@ -27,6 +27,7 @@ environ.Env.read_env(
 
 # API_KEY = env('API_KEY')
 # API_KEY_2 = env('API_KEY_2')
+API_KEY_2 = 't8IZ0R3uXmZQzsTzgeg1KOyFMKjyk5gq'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/

@@ -14,7 +14,13 @@
               <span>*</span>
             </label>
             <br />
-            <input type="text" v-model="signUpId" id="signUpId" style="width: 100%" required />
+            <input
+              type="text"
+              v-model="signUpId"
+              id="signUpId"
+              style="width: 100%"
+              required
+            />
           </div>
           <div>
             <label for="signUpPw"
@@ -22,7 +28,14 @@
               <span>*</span>
             </label>
             <br />
-            <input type="password" v-model="signUpPw" id="signUpPw" autoComplete="off" style="width: 100%" required />
+            <input
+              type="password"
+              v-model="signUpPw"
+              id="signUpPw"
+              autoComplete="off"
+              style="width: 100%"
+              required
+            />
           </div>
           <div>
             <label for="signUpPwCk"
@@ -30,7 +43,14 @@
               <span>*</span>
             </label>
             <br />
-            <input type="password" v-model="signUpPwCk" id="signUpPwCk" autoComplete="off" style="width: 100%" required />
+            <input
+              type="password"
+              v-model="signUpPwCk"
+              id="signUpPwCk"
+              autoComplete="off"
+              style="width: 100%"
+              required
+            />
           </div>
           <div class="d-flex gap-3">
             <div style="width: 70%">
@@ -39,7 +59,13 @@
                 <span>*</span>
               </label>
               <br />
-              <input type="text" v-model="signUpName" id="signUpName" style="width: 100%" required />
+              <input
+                type="text"
+                v-model="signUpName"
+                id="signUpName"
+                style="width: 100%"
+                required
+              />
             </div>
             <div style="width: 30%">
               <label for="signUpAge"
@@ -47,13 +73,24 @@
                 <span>*</span>
               </label>
               <br />
-              <input type="number" v-model="signUpAge" id="signUpAge" style="width: 100%" required />
+              <input
+                type="number"
+                v-model="signUpAge"
+                id="signUpAge"
+                style="width: 100%"
+                required
+              />
             </div>
           </div>
           <div>
             <label for="signUpMail">이메일 </label>
             <br />
-            <input type="email" v-model="signUpEmail" id="signUpMail" style="width: 100%" />
+            <input
+              type="email"
+              v-model="signUpEmail"
+              id="signUpMail"
+              style="width: 100%"
+            />
           </div>
         </div>
         <hr />
@@ -62,12 +99,23 @@
           <div>
             <label for="signUpMoney">자산</label>
             <br />
-            <input type="text" v-model="signUpMoney" id="signUpMoney" style="width: 100%" />
+            <input
+              type="text"
+              v-model="signUpMoney"
+              id="signUpMoney"
+              style="width: 100%"
+            />
           </div>
           <div>
             <label for="signUpSalary">연봉</label>
             <br />
-            <input type="password" v-model="signUpSalary" id="signUpSalary" autoComplete="off" style="width: 100%" />
+            <input
+              type="password"
+              v-model="signUpSalary"
+              id="signUpSalary"
+              autoComplete="off"
+              style="width: 100%"
+            />
           </div>
         </div>
         <button class="btn btn-primary position-sticky">회원가입</button>
@@ -121,7 +169,7 @@ dialog::backdrop {
 dialog {
   box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 0 10px 10px rgba(0, 0, 0, 0.22);
   border: 0;
-  border-radius: 20px;
+  border-radius: 10px;
   padding: 0;
   height: 500px;
   width: 500px;
