@@ -1,12 +1,20 @@
 from django.shortcuts import render, get_list_or_404, get_object_or_404
 from django.conf import settings
+from django_pandas.io import read_frame
+from django.contrib.auth import get_user_model
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
+from sklearn.metrics.pairwise import cosine_similarity
+import numpy as np
+import pandas as pd
 import requests
+import random
+import lorem
 from .models import DepositProducts, DepositOptions, DepositReviews, SavingProducts, SavingOptions, SavingReviews
 from .serializers import DepositProductsSerializer, DepositOptionsSerializer, DepositReviewsSerializer, DepositProductsViewSerializer, SavingProductsSerializer, SavingOptionsSerializer, SavingReviewsSerializer, SavingProductsViewSerializer
+
 
 # Create your views here.
 @api_view(['GET'])
@@ -180,3 +188,77 @@ def exchanges(request):
     url = f'https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={API_KEY}&data=AP01'
     response = requests.get(url).json()
     return Response(response)
+
+
+@api_view(['GET'])
+def saving_dummy_reviews(request):
+    user_count = get_user_model().objects.count()
+    product_count = SavingProducts.objects.count()
+
+    # 더미 데이터를 생성합니다.
+    for _ in range(1000):  # 10,000개의 더미 데이터를 생성합니다.
+        # 랜덤한 사용자와 상품을 선택합니다.
+        random_user = get_user_model().objects.all()[random.randint(0, user_count - 1)]
+        random_product = SavingProducts.objects.all()[random.randint(0, product_count - 1)]
+    
+        # 랜덤한 평점과 내용을 생성합니다.
+        random_rating = random.randint(1, 5)  # 1부터 5까지의 랜덤한 정수
+        random_content = lorem.text()  # 랜덤한 텍스트
+    
+        # SavingReviews 객체를 생성하고 데이터베이스에 저장합니다.
+        review = SavingReviews(product=random_product, user=random_user, rating=random_rating, content=random_content)
+        review.save()
+
+    return Response("Dummy reviews created successfully.")
+
+
+item_similarity_df = None
+
+
+@api_view(['GET'])
+def saving_rating_matrix(request):
+    reviews = SavingReviews.objects.all()
+    df = read_frame(reviews, fieldnames=['user__id', 'product__id', 'rating'])
+    df = df.rename(columns={'user__id': 'user_id', 'product__id': 'product_id'})
+    df = df.groupby(['user_id', 'product_id']).mean().reset_index()
+    rating_matrix = df.pivot(
+        index='user_id',
+        columns='product_id',
+        values='rating'
+    )
+    item_similarity = cosine_similarity(rating_matrix.T.fillna(0))
+    item_similarity_df = pd.DataFrame(
+        item_similarity,
+        index = rating_matrix.columns,
+        columns = rating_matrix.columns
+    )
+    return Response(item_similarity_df.to_dict())
+
+
+@api_view(['GET'])
+def saving_recommend_items(request, user_pk, item_numbers):
+    item_similarity_dict = saving_rating_matrix(request._request).data
+    item_similarity_df = pd.DataFrame.from_dict(item_similarity_dict)
+    # user_pk를 가진 사용자의 리뷰를 가져옴
+    user_reviews = SavingReviews.objects.filter(user__id=user_pk)
+    print(item_similarity_df)
+    user_product_ids = [review.product_id for review in user_reviews]
+    
+    # user_product_ids가 DataFrame의 인덱스에 존재하는지 확인
+    if not set(user_product_ids).intersection(set(item_similarity_df.index)):
+        popular_items = item_similarity_df.sum().sort_values(ascending=False)
+        recommended_items = popular_items.index[:item_numbers]
+        return Response({'recommended_items': recommended_items.tolist()})
+
+    user_ratings = item_similarity_df.loc[user_product_ids].mean().dropna()
+    sorted_user_ratings = user_ratings.sort_values(ascending=False)
+    if user_ratings.sum() == 0:
+        # 유사도 대신 인기도 높은 아이템 추천 또는 랜덤하게 선택
+        popular_items = item_similarity_df.sum().sort_values(ascending=False)
+        recommended_items = popular_items.index[:item_numbers]
+    else:
+        item_similarity_df = item_similarity_df.drop(user_product_ids, errors='ignore')
+        top_item_id = sorted_user_ratings.index[0]
+        similar_items = item_similarity_df[top_item_id].sort_values(ascending=False)
+        recommended_items = similar_items.head(item_numbers).index
+    return Response({'recommended_items': recommended_items.tolist()})
