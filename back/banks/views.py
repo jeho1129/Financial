@@ -10,7 +10,7 @@ from .serializers import DepositProductsSerializer, DepositOptionsSerializer, De
 
 # Create your views here.
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticatedOrReadOnly])
 def save_deposits(request):
     API_KEY = settings.API_KEY
     url = f'http://finlife.fss.or.kr/finlifeapi/depositProductsSearch.json?auth={API_KEY}&topFinGrpNo=020000&pageNo=1'

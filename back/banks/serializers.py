@@ -37,12 +37,19 @@ class DepositReviewsSerializer(serializers.ModelSerializer):
 
 
 class DepositProductsViewSerializer(serializers.ModelSerializer):
+    depositoptions_set = DepositOptionsSerializer(many=True, read_only=True)
     depositreviews_set = DepositReviewsSerializer(many=True, read_only=True)
     depositreviews_count = serializers.IntegerField(source='depositreviews_set.count', read_only=True)
+    class UserSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = get_user_model()
+            fields = '__all__'
+    user_set = UserSerializer(many=True, read_only=True)
+    user_count = serializers.IntegerField(source='user_set.count', read_only=True)
     
     class Meta:
         model = DepositProducts
-        exclude = ('user',)
+        fields = '__all__'
 
  
 class SavingProductsSerializer(serializers.ModelSerializer):
@@ -80,9 +87,16 @@ class SavingReviewsSerializer(serializers.ModelSerializer):
 
 
 class SavingProductsViewSerializer(serializers.ModelSerializer):
+    savingoptions_set = SavingOptionsSerializer(many=True, read_only=True)
     savingreviews_set = SavingReviewsSerializer(many=True, read_only=True)
     savingreviews_count = serializers.IntegerField(source='savingreviews_set.count', read_only=True)
+    class UserSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = get_user_model()
+            fields = '__all__'
+    user_set = UserSerializer(many=True, read_only=True)
+    user_count = serializers.IntegerField(source='user_set.count', read_only=True)
     
     class Meta:
         model = SavingProducts
-        exclude = ('user',)
+        fields = '__all__'
