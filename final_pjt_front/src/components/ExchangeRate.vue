@@ -21,7 +21,9 @@
           />
         </div>
         <div class="d-flex my-2 justify-content-between">
-          <button class="btn btn-success">swap</button>
+          <button class="px-4 py-2" id="exChange">
+            <font-awesome-icon :icon="['fas', 'arrow-right-arrow-left']" />
+          </button>
           <span>
             {{ exchangeRatePrevMoney || 0 }}{{ exchangeRatePrevUnit }} -
             {{ exchangeRateNextMoney || 0 }}{{ exchangeRateNextUnit }}
@@ -92,6 +94,16 @@ dialog {
   background-color: whitesmoke;
   /* height: 500px; */
   width: 500px;
+}
+
+#exChange {
+  background-color: #5fb9a6;
+  border: 0px;
+  border-radius: 5px;
+}
+
+#exChange:hover {
+  filter: brightness(0.9);
 }
 
 .move {

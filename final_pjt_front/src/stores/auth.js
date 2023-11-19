@@ -86,6 +86,7 @@ export const useAuthStore = defineStore(
       })
         .then((res) => {
           token.value = null;
+          user.value = null;
           router.push({ name: "home" });
         })
         .catch((err) => {

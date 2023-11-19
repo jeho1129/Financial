@@ -1,57 +1,33 @@
 <template>
   <div v-if="depositStore.deposit" class="container">
     <h1>금융상품 비교</h1>
-    <table class="table text-center">
-      <thead>
-        <tr class="table-primary">
-          <!-- <th scope="col">공시 제출월</th> -->
-          <th scope="col">금융 회사명</th>
-          <th scope="col">상품명</th>
-          <!-- <th scope="'col'">6개월</th> -->
-          <!-- <th scope="'col'">12개월</th>
-          <th scope="'col'">24개월</th>
-          <th scope="'col'">36개월</th> -->
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="base in depositStore.deposit" :key="base.id">
-          <!-- <td>{{ base }}</td> -->
-          <td>{{ base.kor_co_nm }}</td>
-          <td>{{ base.fin_prdt_nm }}</td>
-          <!-- <td>{{ base.pr6 }}</td> -->
-          <td></td>
-        </tr>
-      </tbody>
-    </table>
+    <div class="d-flex gap-2 my-4">
+      <span @click="ck = !ck" :class="{ green: !ck }">정기예금</span>
+      |
+      <span @click="ck = !ck" :class="{ green: ck }">정기적금</span>
+    </div>
+    <Deposit v-if="!ck" />
+    <Saving v-if="ck" />
   </div>
 </template>
 
 <script setup>
-import { onMounted } from "vue";
+import { ref } from "vue";
+import Deposit from "../components/Deposit.vue";
+import Saving from "../components/Saving.vue";
 import { useDepositStore } from "../stores/deposit";
 
 const depositStore = useDepositStore();
 
-onMounted(() => {
-  if (!depositStore.deposit.length) {
-    depositStore.callDeposit();
-  }
-  // baseList.filter((baseItem) => {
-  //   baseItem.pr6 = optionList.find((optionItem) => {
-  //     return optionItem.fin_prdt_cd === baseItem.fin_prdt_cd && optionItem.save_trm == 6;
-  //   });
-  //   baseItem.pr12 = optionList.find((optionItem) => {
-  //     return optionItem.fin_prdt_cd === baseItem.fin_prdt_cd && optionItem.save_trm == 12;
-  //   });
-  //   baseItem.pr24 = optionList.find((optionItem) => {
-  //     return optionItem.fin_prdt_cd === baseItem.fin_prdt_cd && optionItem.save_trm == 24;
-  //   });
-  //   baseItem.pr36 = optionList.find((optionItem) => {
-  //     return optionItem.fin_prdt_cd === baseItem.fin_prdt_cd && optionItem.save_trm == 36;
-  //   });
-  // });
-  // console.log(baseList);
-});
+const ck = ref(0);
 </script>
 
-<style scoped></style>
+<style scoped>
+.green {
+  color: #5fb9a6;
+}
+
+span {
+  cursor: pointer;
+}
+</style>
