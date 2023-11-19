@@ -3,29 +3,29 @@ import { defineStore } from "pinia";
 import { useAuthStore } from "../stores/auth";
 import axios from "axios";
 
-export const useDepositStore = defineStore(
-  "deposit",
+export const useSavingStore = defineStore(
+  "saving",
   () => {
-    const deposit = ref([]);
+    const saving = ref([]);
 
     const authStore = useAuthStore();
 
-    const callDeposit = () => {
+    const callSaving = () => {
       axios({
         method: "get",
-        url: `${authStore.API_URL}/banking/deposits/list/`,
+        url: `${authStore.API_URL}/banking/savings/list/`,
       })
         .then((res) => {
           console.log(res.data);
-          deposit.value = res.data;
+          saving.value = res.data;
         })
         .catch((err) => {
           console.log(err);
         });
     };
 
-    const popularDeposits = computed(() => {
-      return deposit.value
+    const popularSaving = computed(() => {
+      return saving.value
         .toSorted((a, b) => b.user.length - a.user.length)
         .splice(0, 5);
     });
@@ -33,37 +33,37 @@ export const useDepositStore = defineStore(
     const categoryBank = computed(() => {
       return Array.from(
         new Set(
-          deposit.value.map((item) => {
+          saving.value.map((item) => {
             return item.kor_co_nm;
           })
         )
       );
     });
 
-    const searchDeposits = computed(() => {
+    const searchSaving = computed(() => {
       return (period, bank) => {
         if (period === "all") {
-          return deposit.value.filter((item) => item.kor_co_nm === bank);
+          return saving.value.filter((item) => item.kor_co_nm === bank);
         } else if (bank === "all") {
-          return deposit.value.filter((item) =>
-            item.depositoptions_set.some((item) => item.save_trm == period)
+          return saving.value.filter((item) =>
+            item.savingoptions_set.some((item) => item.save_trm == period)
           );
         } else {
-          return deposit.value.filter(
+          return saving.value.filter(
             (item) =>
               item.kor_co_nm === bank &&
-              item.depositoptions_set.some((item) => item.save_trm == period)
+              item.savingoptions_set.some((item) => item.save_trm == period)
           );
         }
       };
     });
 
     return {
-      callDeposit,
-      deposit,
-      popularDeposits,
+      saving,
+      callSaving,
+      popularSaving,
       categoryBank,
-      searchDeposits,
+      searchSaving,
     };
   },
   { persist: true }

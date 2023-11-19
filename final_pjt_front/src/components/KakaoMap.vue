@@ -5,26 +5,26 @@
 </template>
 
 <script setup>
-// import { ref, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 
-// let map = null;
+let map = null;
 // let infowindow = null;
 // let ps = null;
 
-// const initMap = () => {
-//   const container = document.getElementById("map");
-//   const options = {
-//     center: new kakao.maps.LatLng(35.2091686314065, 126.879717024296),
-//     level: 5,
-//   };
-//   // 지도 객체를 등록합니다.
-//   // 지도 객체는 반응형 관리 대상이 아니므로 initMap에서 선언합니다.
-//   map = new kakao.maps.Map(container, options);
+const initMap = () => {
+  const container = document.getElementById("map");
+  const options = {
+    center: new kakao.maps.LatLng(35.2091686314065, 126.879717024296),
+    level: 5,
+  };
+  // 지도 객체를 등록합니다.
+  // 지도 객체는 반응형 관리 대상이 아니므로 initMap에서 선언합니다.
+  map = new kakao.maps.Map(container, options);
 
-//   infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
-//   ps = new kakao.maps.services.Places(map);
-//   ps.categorySearch("BK9", placesSearchCB, { useMapBounds: true });
-// };
+  // infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
+  // ps = new kakao.maps.services.Places(map);
+  // ps.categorySearch("BK9", placesSearchCB, { useMapBounds: true });
+};
 
 // // 키워드 검색 완료 시 호출되는 콜백함수 입니다
 // function placesSearchCB(data, status, pagination) {
@@ -53,20 +53,20 @@
 //   });
 // }
 
-// onMounted(async () => {
-//   if (window.kakao && window.kakao.maps) {
-//     initMap();
-//     console.log("if b", infowindow);
-//   } else {
-//     const script = document.createElement("script");
-//     /* global kakao */
-//     script.src = `//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=41e58afe859c2949686e1c1b46012a3f&libraries=services`;
-//     document.head.appendChild(script);
-//     script.onload = () => {
-//       kakao.maps.load(initMap);
-//     };
-//   }
-// });
+onMounted(async () => {
+  if (window.kakao && window.kakao.maps) {
+    initMap();
+    // console.log("if b", infowindow);
+  } else {
+    const script = document.createElement("script");
+    /* global kakao */
+    script.src = `//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=41e58afe859c2949686e1c1b46012a3f&libraries=services`;
+    document.head.appendChild(script);
+    script.onload = () => {
+      kakao.maps.load(initMap);
+    };
+  }
+});
 </script>
 
 <style scoped></style>

@@ -36,7 +36,7 @@
                 data-bs-dismiss="offcanvas"
                 aria-label="Close"
               >
-                <RouterLink to="/financial" class="nav-link"
+                <RouterLink to="/deposit" class="nav-link"
                   >금융상품 비교</RouterLink
                 >
               </li>
@@ -156,7 +156,7 @@ const exchangeRate = () => {
 
 <style scoped>
 .nav-link:hover {
-  color: orange;
+  color: #5fb9a6;
   /* text-decoration-line: underline;
   text-decoration-thickness: 5px;
   text-decoration-color: red; */

@@ -1,8 +1,9 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import FinancialView from "../views/FinancialView.vue";
+import DepositView from "../views/DepositView.vue";
+import SavingView from "../views/SavingView.vue";
 import FinancialDetailView from "../views/FinancialDetailView.vue";
-import CurrencyView from "../views/CurrencyView.vue";
 import BankMapView from "../views/BankMapView.vue";
 import PostListView from "../views/PostListView.vue";
 import PostCreateView from "../views/PostCreateView.vue";
@@ -22,14 +23,19 @@ const router = createRouter({
       component: FinancialView,
     },
     {
+      path: "/deposit",
+      name: "deposit",
+      component: DepositView,
+    },
+    {
+      path: "/saving",
+      name: "saving",
+      component: SavingView,
+    },
+    {
       path: "/financial/:financialId",
       name: "financialDetail",
       component: FinancialDetailView,
-    },
-    {
-      path: "/currency",
-      name: "currency",
-      component: CurrencyView,
     },
     {
       path: "/bankMap",
@@ -47,7 +53,7 @@ const router = createRouter({
       component: PostCreateView,
     },
     {
-      path: "/postDetail/:postId",
+      path: "/post/:postId",
       name: "postDetail",
       component: PostDetailView,
     },
