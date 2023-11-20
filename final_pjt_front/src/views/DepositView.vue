@@ -6,7 +6,7 @@
       <RouterLink class="fs-4" :to="{ name: 'saving' }">정기적금</RouterLink>
     </div>
     <div class="d-flex justify-content-between align-items-center my-2">
-      <p>전체 {{ depositStore.deposit.length }} 건</p>
+      <p>전체 {{ deposit.length }} 건</p>
       <form @submit.prevent="changeDeposit" class="d-flex gap-2">
         <select v-model="category">
           <option value="all">은행전체</option>
@@ -129,6 +129,7 @@ button:hover {
 
 #fromDeposit {
   color: #5fb9a6;
+  font-weight: bold;
 }
 
 a {
