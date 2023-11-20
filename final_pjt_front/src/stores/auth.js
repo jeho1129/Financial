@@ -58,31 +58,6 @@ export const useAuthStore = defineStore(
         });
     };
 
-    const signUp = function (payload) {
-      const di = {};
-      for (const key in payload) {
-        if (payload[key]) {
-          di[key] = payload[key];
-        }
-      }
-
-      // const { username, password1, password2, email, name, age, salary, asset } = payload;
-
-      axios({
-        method: "post",
-        url: `${API_URL}/accounts/signup/`,
-        data: di,
-      })
-        .then((res) => {
-          console.log("회원가입이 완료되었습니다.");
-          // logIn({ username, password: password1 });
-        })
-        .catch((err) => {
-          console.log(err);
-        });
-      console.log(payload);
-    };
-
     const logIn = function (payload) {
       const { username, password } = payload;
 
@@ -105,6 +80,30 @@ export const useAuthStore = defineStore(
         });
     };
 
+    const signUp = function (payload) {
+      const di = {};
+      for (const key in payload) {
+        if (payload[key]) {
+          di[key] = payload[key];
+        }
+      }
+
+      // const { username, password1, password2, email, name, age, salary, asset } = payload;
+
+      axios({
+        method: "post",
+        url: `${API_URL}/accounts/signup/`,
+        data: di,
+      })
+        .then((res) => {
+          console.log("회원가입이 완료되었습니다.");
+          logIn({ username: di.username, password: di.password1 });
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
+
     const logOut = function () {
       axios({
         method: "post",
@@ -120,7 +119,16 @@ export const useAuthStore = defineStore(
         });
     };
 
-    return { token, signUp, logIn, isAuthenticated, logOut, user, API_URL, editUser };
+    return {
+      token,
+      signUp,
+      logIn,
+      isAuthenticated,
+      logOut,
+      user,
+      API_URL,
+      editUser,
+    };
   },
   { persist: true }
 );

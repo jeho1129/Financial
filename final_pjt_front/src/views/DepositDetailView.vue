@@ -1,14 +1,26 @@
 <template>
   <div class="container">
-    <div v-if="deposit" class="d-flex justify-content-between align-items-center my-4">
+    <div
+      v-if="deposit"
+      class="d-flex justify-content-between align-items-center my-4"
+    >
       <h1 class="mb-0">정기예금 상세</h1>
 
-      <form v-if="authStore.user.financial_products.includes(deposit.fin_prdt_cd)" @submit.prevent="joinDeposit">
-        <button>가입취소</button>
-      </form>
-      <form v-else @submit.prevent="joinDeposit">
-        <button>가입하기</button>
-      </form>
+      <div v-if="authStore.user">
+        <form
+          v-if="
+            authStore.user.financial_products
+              .split(', ')
+              .includes(deposit.fin_prdt_cd)
+          "
+          @submit.prevent="joinDeposit"
+        >
+          <button>가입취소</button>
+        </form>
+        <form v-else @submit.prevent="joinDeposit">
+          <button>가입하기</button>
+        </form>
+      </div>
     </div>
 
     <table v-if="deposit">

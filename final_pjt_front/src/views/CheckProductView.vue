@@ -1,14 +1,21 @@
 <template>
-  <div class="container">
-    <h1 class="text-center">{{ authStore.user.username }} 님의 프로필 페이지</h1>
+  <div class="container" v-if="authStore.user">
+    <h1 class="text-center">
+      {{ authStore.user.username }} 님의 프로필 페이지
+    </h1>
     <div id="editProfile">
-      <div>
+      <div class="d-flex flex-column">
         <RouterLink :to="{ name: 'myProfile' }">기본 정보 수정</RouterLink>
-        <RouterLink :to="{ name: 'myProfile' }" style="color: #5fb9a6">가입 상품 확인</RouterLink>
+        <RouterLink :to="{ name: 'myProfile' }" style="color: #5fb9a6"
+          >가입 상품 확인</RouterLink
+        >
         <p>상품 추천 받기</p>
       </div>
-      <div>
-        <p v-for="product in authStore.user.financial_products.split(', ')" :key="product">
+      <div v-if="authStore.user.financial_products">
+        <p
+          v-for="product in authStore.user.financial_products.split(', ')"
+          :key="product"
+        >
           {{ product }}
         </p>
       </div>
