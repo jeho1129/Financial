@@ -39,7 +39,7 @@ SP_URL = 'http://finlife.fss.or.kr/finlifeapi/savingProductsSearch.json'
 
 API_KEY = '4c24af94e7076bcdd04fccf91d56b3a4'
 
-financial_products = []
+financial_products = {}
 
 params = {
   'auth': API_KEY,
@@ -53,14 +53,14 @@ response = requests.get(DP_URL, params=params).json()
 baseList = response.get('result').get('baseList')   # 상품 목록
 
 for product in baseList:
-    financial_products.append(product['fin_prdt_cd'])
+    financial_products[product['fin_prdt_cd']] = product
 
 # 적금 목록 저장
 response = requests.get(SP_URL, params=params).json()
 baseList = response.get('result').get('baseList')   # 상품 목록
 
 for product in baseList:
-    financial_products.append(product['fin_prdt_cd'])
+    financial_products[product['fin_prdt_cd']] = product
 
 dict_keys = ['username', 'email', 'name', 'financial_products', 'age', 'asset', 'salary']
 
@@ -92,10 +92,12 @@ with open(save_dir, 'w', encoding="utf-8") as f:
         # 랜덤한 데이터를 삽입
         file["model"] = "accounts.User"
         file["pk"] = i+1
+        chosen_products = random.sample(list(financial_products.keys()), random.randint(0, 5))
+        financial_products_dict = {product: financial_products[product] for product in chosen_products}
         file["fields"] = {
             'username': username_list[i],  # 유저 이름 랜덤 생성
             # 랜덤한 0~5개의 상품을 가입하도록 삽입됨
-            'financial_products': ','.join([random.choice(financial_products) for _ in range(random.randint(0, 5))]), # 금융 상품 리스트
+            'financial_products': financial_products_dict, # 금융 상품 리스트
             'age': random.randint(1, 100),  # 나이
             'asset': random.randrange(0, 100000000, 100000),    # 현재 가진 금액
             'salary': random.randrange(0, 1500000000, 1000000), # 연봉
