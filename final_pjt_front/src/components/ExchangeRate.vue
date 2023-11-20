@@ -13,32 +13,19 @@
           <select id="exchangeRatePrevUnit" v-model="exchangeRatePrevUnit">
             <option value="KRW">KRW</option>
           </select>
-          <input
-            v-model.trim="exchangeRatePrevMoney"
-            type="number"
-            style="width: 100%"
-            id="exchangeRatePrevMoney"
-          />
+          <input v-model.trim="exchangeRatePrevMoney" type="number" style="width: 100%" id="exchangeRatePrevMoney" />
         </div>
         <div class="d-flex my-2 justify-content-between">
           <button class="px-4 py-2" id="exChange">
             <font-awesome-icon :icon="['fas', 'arrow-right-arrow-left']" />
           </button>
-          <span>
-            {{ exchangeRatePrevMoney || 0 }}{{ exchangeRatePrevUnit }} -
-            {{ exchangeRateNextMoney || 0 }}{{ exchangeRateNextUnit }}
-          </span>
+          <span> {{ exchangeRatePrevMoney || 0 }}{{ exchangeRatePrevUnit }} - {{ exchangeRateNextMoney || 0 }}{{ exchangeRateNextUnit }} </span>
         </div>
         <div class="d-flex" id="exchangeRateNext">
           <select id="exchangeRateNextUnit" v-model="exchangeRateNextUnit">
             <option value="USD">USD</option>
           </select>
-          <input
-            v-model.trim="exchangeRateNextMoney"
-            type="number"
-            style="width: 100%"
-            id="exchangeRateNextMoney"
-          />
+          <input v-model.trim="exchangeRateNextMoney" type="number" style="width: 100%" id="exchangeRateNextMoney" />
         </div>
       </div>
     </div>
