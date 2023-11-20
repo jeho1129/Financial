@@ -8,7 +8,7 @@ class DepositProducts(models.Model):
     kor_co_nm = models.TextField()  # 금융회사명
     fin_prdt_cd = models.TextField(unique=True)  # 금융상품 코드
     fin_prdt_nm = models.TextField()  # 금융 상품명
-    join_way = models.TextField()  # 가입 방법
+    join_way = models.TextField(null=True)  # 가입 방법
     join_member = models.TextField()  # 가입 대상
     spcl_cnd = models.TextField()  # 우대 조건
     join_deny = models.IntegerField()  # 가입 제한(1: 제한 없음, 2: 서민 전용, 3: 일부 제한)
@@ -38,7 +38,7 @@ class SavingProducts(models.Model):
     kor_co_nm = models.TextField()  # 금융회사명
     fin_prdt_cd = models.TextField(unique=True)  # 금융상품 코드
     fin_prdt_nm = models.TextField()  # 금융 상품명
-    join_way = models.TextField()  # 가입 방법
+    join_way = models.TextField(null=True)  # 가입 방법
     join_member = models.TextField()  # 가입 대상
     spcl_cnd = models.TextField()  # 우대 조건
     join_deny = models.IntegerField()  # 가입 제한(1: 제한 없음, 2: 서민 전용, 3: 일부 제한)
@@ -52,7 +52,7 @@ class SavingOptions(models.Model):
     fin_prdt_cd = models.TextField()  # 금융상품 코드
     intr_rate_type_nm = models.TextField()  # 저축 금리 유형명
     intr_rate = models.FloatField(null=True)  # 저축 금리
-    intr_rate2 = models.FloatField()  # 최고 우대 금리
+    intr_rate2 = models.FloatField(null=True)  # 최고 우대 금리
     save_trm = models.IntegerField()  # 저축 기간
 
 
