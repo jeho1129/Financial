@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Carousel />
+    <Carousel style="z-index: -999" />
     <div
       v-if="depositStore.deposit.length"
       class="container mt-5 d-flex flex-column gap-5"

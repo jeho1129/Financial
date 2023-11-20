@@ -1,6 +1,6 @@
 <template>
   <dialog @click="closeModal" ref="exchangeRateDom">
-    <div id="hhh" class="position-relative p-5">
+    <div v-if="exchangeData.length" id="hhh" class="position-relative p-5">
       <form method="dialog" class="position-absolute move">
         <button value="close">❌</button>
       </form>
@@ -10,22 +10,61 @@
       <h2 class="text-center mb-5">환율계산기</h2>
       <div class="d-flex flex-column gap-3">
         <div class="d-flex" id="exchangeRatePrev">
-          <select id="exchangeRatePrevUnit" v-model="exchangeRatePrevUnit">
-            <option value="KRW">KRW</option>
+          <select
+            @click="calculateExchange"
+            id="exchangeRatePrevUnit"
+            v-model="exchangeRatePrevUnit"
+          >
+            <option
+              v-for="unit in exchangeData.map((item) => {
+                return item.cur_unit;
+              })"
+              :key="unit"
+              :value="unit"
+            >
+              {{ unit }}
+            </option>
           </select>
-          <input v-model.trim="exchangeRatePrevMoney" type="number" style="width: 100%" id="exchangeRatePrevMoney" />
+          <input
+            v-model.trim="exchangeRatePrevMoney"
+            type="number"
+            style="width: 100%"
+            id="exchangeRatePrevMoney"
+            @input="calculateExchange"
+          />
         </div>
         <div class="d-flex my-2 justify-content-between">
-          <button class="px-4 py-2" id="exChange">
+          <button @click="changeUnit" class="px-4 py-2" id="exChange">
             <font-awesome-icon :icon="['fas', 'arrow-right-arrow-left']" />
           </button>
-          <span> {{ exchangeRatePrevMoney || 0 }}{{ exchangeRatePrevUnit }} - {{ exchangeRateNextMoney || 0 }}{{ exchangeRateNextUnit }} </span>
+          <span>
+            {{ exchangeRatePrevMoney || 0 }}{{ exchangeRatePrevUnit }} -
+            {{ exchangeRateNextMoney || 0 }}{{ exchangeRateNextUnit }}
+          </span>
         </div>
         <div class="d-flex" id="exchangeRateNext">
-          <select id="exchangeRateNextUnit" v-model="exchangeRateNextUnit">
-            <option value="USD">USD</option>
+          <select
+            @click="calculateExchange"
+            id="exchangeRateNextUnit"
+            v-model="exchangeRateNextUnit"
+          >
+            <option
+              v-for="unit in exchangeData.map((item) => {
+                return item.cur_unit;
+              })"
+              :key="unit"
+              :value="unit"
+            >
+              {{ unit }}
+            </option>
           </select>
-          <input v-model.trim="exchangeRateNextMoney" type="number" style="width: 100%" id="exchangeRateNextMoney" />
+          <input
+            v-model.trim="exchangeRateNextMoney"
+            type="number"
+            style="width: 100%"
+            id="exchangeRateNextMoney"
+            readonly
+          />
         </div>
       </div>
     </div>
@@ -34,8 +73,9 @@
 
 <script setup>
 import axios from "axios";
-import { onMounted, ref } from "vue";
+import { onMounted, onUpdated, ref, watch } from "vue";
 import { useAuthStore } from "../stores/auth";
+import { computed } from "@vue/reactivity";
 
 const authStore = useAuthStore();
 
@@ -48,25 +88,37 @@ const exchangeRateNextUnit = ref("USD");
 
 const closeModal = (e) => {
   if (e.target.nodeName === "DIALOG") {
+    // console.log(exchangeRateDom);
     exchangeRateDom.value.close();
   }
 };
 
-// onMounted(() => {
-//   axios({
-//     method: "get",
-//     url: `${authStore.API_URL}/banking/exchanges/`,
-//     headers: {
-//       Authorization: `Token ${authStore.token}`,
-//     },
-//   })
-//     .then((res) => {
-//       console.log(res);
-//     })
-//     .catch((err) => {
-//       console.log(err);
-//     });
-// });
+const props = defineProps({
+  exchangeData: Array,
+});
+
+const calculateExchange = () => {
+  // 선택된 통화에 해당하는 환율 찾기
+  const fromRate = props.exchangeData.find(
+    (rate) => rate.cur_unit === exchangeRatePrevUnit.value
+  );
+  const toRate = props.exchangeData.find(
+    (rate) => rate.cur_unit === exchangeRateNextUnit.value
+  );
+
+  // 환율 계산
+  exchangeRateNextMoney.value =
+    (exchangeRatePrevMoney.value / toRate.deal_bas_r.replace(",", "")) *
+    fromRate.deal_bas_r.replace(",", "");
+};
+
+const changeUnit = () => {
+  [exchangeRatePrevUnit.value, exchangeRateNextUnit.value] = [
+    exchangeRateNextUnit.value,
+    exchangeRatePrevUnit.value,
+  ];
+  calculateExchange();
+};
 </script>
 
 <style scoped>
