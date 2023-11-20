@@ -76,6 +76,7 @@ def detail_deposits(request, fin_prdt_cd):
         serializer = DepositProductsViewSerializer(deposit)
         return Response(serializer.data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
+<<<<<<< Updated upstream
         if deposit.user.filter(id=request.user.id).exists():
             deposit.user.remove(request.user)
             updated_products = [product.strip() for product in request.user.financial_products.split(',') if product.strip() != deposit.fin_prdt_cd]
@@ -83,13 +84,20 @@ def detail_deposits(request, fin_prdt_cd):
             request.user.save()
             return Response({'message': '가입이 취소되었습니다.'}, status=status.HTTP_200_OK)
         elif request.user.financial_products:
+=======
+        print(1)
+        if request.user.financial_products:
+>>>>>>> Stashed changes
             # 이미 가입한 상품이 있으면 콤마로 구분하여 추가
             request.user.financial_products += ', ' + deposit.fin_prdt_cd
         else:
             # 가입한 상품이 없으면 그대로 추가
             request.user.financial_products = deposit.fin_prdt_cd
+            print(2)
         deposit.user.add(request.user)
+        print(3)
         request.user.save()
+        print(4)
         return Response({'message': 'Product added successfully'}, status=status.HTTP_201_CREATED)
 
 

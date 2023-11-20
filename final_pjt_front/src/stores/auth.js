@@ -111,9 +111,9 @@ export const useAuthStore = defineStore(
         url: `${API_URL}/accounts/logout/`,
       })
         .then((res) => {
+          router.push({ name: "home" });
           token.value = null;
           user.value = null;
-          router.push({ name: "home" });
         })
         .catch((err) => {
           console.log(err);

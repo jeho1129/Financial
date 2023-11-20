@@ -1,8 +1,12 @@
 <template>
   <div class="container">
-    <div class="d-flex justify-content-between align-items-center my-4">
+    <div v-if="deposit" class="d-flex justify-content-between align-items-center my-4">
       <h1 class="mb-0">정기예금 상세</h1>
-      <form>
+
+      <form v-if="authStore.user.financial_products.includes(deposit.fin_prdt_cd)" @submit.prevent="joinDeposit">
+        <button>가입취소</button>
+      </form>
+      <form v-else @submit.prevent="joinDeposit">
         <button>가입하기</button>
       </form>
     </div>
@@ -55,7 +59,7 @@ onMounted(() => {
     url: `${authStore.API_URL}/banking/deposits/${depositId}/`,
     headers: {
       Authorization: `Token ${authStore.token}`,
-      "Content-Type": "text/plain",
+      // "Content-Type": "text/plain",
     },
   })
     .then((res) => {
@@ -66,11 +70,21 @@ onMounted(() => {
     });
 });
 
-// const joinDeposit = ()=>{
-//   axios({
-
-//   })
-// }
+const joinDeposit = () => {
+  axios({
+    method: "post",
+    url: `${authStore.API_URL}/banking/deposits/${deposit.value.fin_prdt_cd}/`,
+    headers: {
+      Authorization: `Token ${authStore.token}`,
+    },
+  })
+    .then((res) => {
+      console.log(res.data);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+};
 </script>
 
 <style scoped>

@@ -21,9 +21,20 @@
           </div>
           <div class="offcanvas-body">
             <ul class="navbar-nav me-auto mb-lg-0">
-              <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
-                <RouterLink to="/deposit" class="nav-link">금융상품 비교</RouterLink>
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="hover" data-bs-toggle="dropdown" aria-expanded="false"> 금융상품 비교 </a>
+                <ul class="dropdown-menu">
+                  <li data-bs-dismiss="offcanvas" aria-label="Close">
+                    <RouterLink :to="{ name: 'deposit' }" class="dropdown-item">정기예금</RouterLink>
+                  </li>
+                  <li data-bs-dismiss="offcanvas" aria-label="Close">
+                    <RouterLink :to="{ name: 'saving' }" class="dropdown-item">정기적금</RouterLink>
+                  </li>
+                </ul>
               </li>
+              <!-- <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
+                <RouterLink to="/deposit" class="nav-link">금융상품 비교</RouterLink>
+              </li> -->
               <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
                 <!-- <RouterLink to="/currency" class="nav-link"
                   >환율계산기</RouterLink
@@ -48,10 +59,23 @@
               </li>
             </ul>
             <ul v-else class="navbar-nav mb-lg-0">
-              <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
-                <RouterLink to="/myProfile" class="nav-link">마이페이지</RouterLink>
-                <!-- <span class="nav-link" style="cursor: pointer">마이페이지</span> -->
+              <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false"> 마이페이지 </a>
+                <ul class="dropdown-menu">
+                  <li data-bs-dismiss="offcanvas" aria-label="Close">
+                    <RouterLink :to="{ name: 'myProfile' }" class="dropdown-item">기본 정보 수정</RouterLink>
+                  </li>
+                  <!-- <li><a class="dropdown-item" href="#">기본 정보 수정</a></li> -->
+                  <li data-bs-dismiss="offcanvas" aria-label="Close">
+                    <RouterLink :to="{ name: 'checkProduct' }" class="dropdown-item">가입상품 확인</RouterLink>
+                  </li>
+                  <li data-bs-dismiss="offcanvas" aria-label="Close"><a class="dropdown-item" href="#">상품 추천 받기</a></li>
+                </ul>
               </li>
+              <!-- <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
+                <RouterLink to="/myProfile" class="nav-link">마이페이지</RouterLink>
+                <span class="nav-link" style="cursor: pointer">마이페이지</span>
+              </li> -->
               <li class="nav-item" data-bs-dismiss="offcanvas" aria-label="Close">
                 <span @click="authStore.logOut" class="nav-link" style="cursor: pointer">로그아웃</span>
               </li>
@@ -98,6 +122,7 @@ const exchangeRate = () => {
 <style scoped>
 .nav-link:hover {
   color: #5fb9a6;
+  font-weight: bold;
   /* text-decoration-line: underline;
   text-decoration-thickness: 5px;
   text-decoration-color: red; */
@@ -105,5 +130,15 @@ const exchangeRate = () => {
 
 img {
   width: 100px;
+}
+
+ul.navbar-nav li.dropdown:hover > ul.dropdown-menu {
+  display: block;
+  margin: 0;
+}
+
+header {
+  position: sticky;
+  top: 0;
 }
 </style>
