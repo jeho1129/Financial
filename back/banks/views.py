@@ -76,7 +76,9 @@ def detail_deposits(request, fin_prdt_cd):
         serializer = DepositProductsViewSerializer(deposit)
         return Response(serializer.data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
-        if request.user.financial_products:
+        if deposit.user.filter(id=request.user.id).exists():
+            return Response({'message': '이미 가입한 상품입니다'}, status=status.HTTP_400_BAD_REQUEST)
+        elif request.user.financial_products:
             # 이미 가입한 상품이 있으면 콤마로 구분하여 추가
             request.user.financial_products += ', ' + deposit.fin_prdt_cd
         else:
@@ -193,7 +195,9 @@ def detail_savings(request, fin_prdt_cd):
         serializer = SavingProductsViewSerializer(saving)
         return Response(serializer.data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
-        if request.user.financial_products:
+        if saving.user.filter(id=request.user.id).exists():
+            return Response({'message': '이미 가입한 상품입니다'}, status=status.HTTP_400_BAD_REQUEST)
+        elif request.user.financial_products:
             # 이미 가입한 상품이 있으면 콤마로 구분하여 추가
             request.user.financial_products += ', ' + saving.fin_prdt_cd
         else:

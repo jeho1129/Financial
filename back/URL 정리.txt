@@ -10,7 +10,10 @@ BANK(banking/)
 1. 정기 예금
 - deposits/save/ : 정기 예금 데이터 저장(GET)
 - deposits/list/ : 정기 예금 상품 전체 조회(GET)
-- deposits/<str:fin_prdt_cd>/ : 정기 예금 상품 상세 조회(GET)
+- deposits/<str:fin_prdt_cd>/
+  - GET : 정기 예금 상품 상세 조회
+  - POST : 정기 예금 상품 가입
+- deposits/change/<str:fin_prdt_cd>/ : 관리자 권한으로 정기 예금 상품 수정 및 해당 가입자에게 이메일 발송(PUT)
 - deposits/<str:fin_prdt_cd>/comments/ : 정기 예금 상품 리뷰 등록(POST)
 - deposits/comments/<int:comment_pk>/
   - PUT : 리뷰 수정
@@ -19,7 +22,10 @@ BANK(banking/)
 2. 적금
 - savings/save/ : 적금 데이터 저장(GET)
 - savings/list/ : 적금 상품 전체 조회(GET)
-- savings/<str:fin_prdt_cd>/ : 적금 상품 상세 조회(GET)
+- savings/<str:fin_prdt_cd>/
+  - GET : 적금 상품 상세 조회
+  - POST : 적금 상품 가입
+- savings/change/<str:fin_prdt_cd>/ : 관리자 권한으로 적금 상품 수정 및 해당 가입자에게 이메일 발송(PUT)
 - savings/<str:fin_prdt_cd>/comments/ : 적금 상품 리뷰 등록(POST)
 - savings/comments/<int:comment_pk>/
   - PUT : 리뷰 수정
@@ -27,6 +33,13 @@ BANK(banking/)
 
 3. 환율
 - exchanges/ : 환율 데이터 Response
+
+4. 알고리즘
+- recommends/dummy/ : 더미 리뷰 데이터베이스 생성(GET)(FRONT에서 만질 필요 없음)
+- deposits/recommends/load/ : 사용자와 상품에 대한 평점 행렬 생성 및 유사도 계산(GET)(예금)
+- deposits/recommends/<int:user_pk>/<int:item_numbers>/ : 해당 상품 개수만큼 해당 유저에게 상품 추천(GET)(적금)
+- savings/recommends/load/ : 사용자와 상품에 대한 평점 행렬 생성 및 유사도 계산(GET)(적금)
+- savings/recommends/<int:user_pk>/<int:item_numbers>/ : 해당 상품 개수만큼 해당 유저에게 상품 추천(GET)(적금)
 
 ARTICLE(community/)
 - articles/
