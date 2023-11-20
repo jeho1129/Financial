@@ -93,7 +93,7 @@
 - 커뮤니티 기능 구현
   - 글, 댓글 Model을 구현하고, 게시글 및 댓글 조회, 생성, 삭제, 수정 기능을 구현할 수 있도록 이에 해당하는 URL과 View 함수를 구현하였습니다.
 - URL
-  ![URL](back/URLs.JPG)
+  ![URL](back/URL.JPG)
 
 ### Front
 
