@@ -51,6 +51,18 @@ class DepositProductsViewSerializer(serializers.ModelSerializer):
         model = DepositProducts
         fields = '__all__'
 
+
+class DepositProductsChangeSerializer(serializers.ModelSerializer):
+    depositoptions_set = DepositOptionsSerializer(many=True, read_only=True)
+    class UserSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = get_user_model()
+            fields = '__all__'
+    user_set = UserSerializer(many=True, read_only=True)
+    class Meta:
+        model = DepositProducts
+        fields = '__all__'
+
  
 class SavingProductsSerializer(serializers.ModelSerializer):
     class UserSerializer(serializers.ModelSerializer):
@@ -97,6 +109,18 @@ class SavingProductsViewSerializer(serializers.ModelSerializer):
     user_set = UserSerializer(many=True, read_only=True)
     user_count = serializers.IntegerField(source='user_set.count', read_only=True)
     
+    class Meta:
+        model = SavingProducts
+        fields = '__all__'
+
+    
+class SavingProductsChangeSerializer(serializers.ModelSerializer):
+    savingoptions_set = SavingOptionsSerializer(many=True, read_only=True)
+    class UserSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = get_user_model()
+            fields = '__all__'
+    user_set = UserSerializer(many=True, read_only=True)
     class Meta:
         model = SavingProducts
         fields = '__all__'
