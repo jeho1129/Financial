@@ -79,10 +79,10 @@ def detail_deposits(request, fin_prdt_cd):
     elif request.method == 'POST':
         if request.user.financial_products:
             # 이미 가입한 상품이 있으면 콤마로 구분하여 추가
-            request.user.financial_products += ', ' + deposit.fin_prdt_nm
+            request.user.financial_products += ', ' + deposit.fin_prdt_cd
         else:
             # 가입한 상품이 없으면 그대로 추가
-            request.user.financial_products = deposit.fin_prdt_nm
+            request.user.financial_products = deposit.fin_prdt_cd
         request.user.save()
         return Response({'message': 'Product added successfully'}, status=status.HTTP_201_CREATED)
 
@@ -175,10 +175,10 @@ def detail_savings(request, fin_prdt_cd):
     elif request.method == 'POST':
         if request.user.financial_products:
             # 이미 가입한 상품이 있으면 콤마로 구분하여 추가
-            request.user.financial_products += ', ' + saving.fin_prdt_nm
+            request.user.financial_products += ', ' + saving.fin_prdt_cd
         else:
             # 가입한 상품이 없으면 그대로 추가
-            request.user.financial_products = saving.fin_prdt_nm
+            request.user.financial_products = saving.fin_prdt_cd
         request.user.save()
         return Response({'message': 'Product added successfully'}, status=status.HTTP_201_CREATED)
 
@@ -218,33 +218,36 @@ def exchanges(request):
 
 
 @api_view(['GET'])
-def saving_dummy_reviews(request):
-    user_count = get_user_model().objects.count()
-    product_count = SavingProducts.objects.count()
+def create_dummy_reviews(request):
+    create_reviews(SavingProducts, SavingReviews)
+    create_reviews(DepositProducts, DepositReviews)
+    return Response({'message': 'Dummy reviews created successfully.'})
 
-    for _ in range(10000):
+def create_reviews(product_model, review_model):
+    user_count = get_user_model().objects.count()
+    product_count = product_model.objects.count()
+
+    for i in range(10000):
         # 랜덤한 사용자와 상품을 선택
         random_user = get_user_model().objects.all()[random.randint(0, user_count - 1)]
-        random_product = SavingProducts.objects.all()[random.randint(0, product_count - 1)]
-    
+        random_product = product_model.objects.all()[random.randint(0, product_count - 1)]
+
         # 랜덤한 평점과 내용을 생성
         random_rating = random.randint(1, 5)  # 1부터 5까지의 랜덤한 정수
         random_content = lorem.text()  # 랜덤한 텍스트
-    
-        # SavingReviews 객체를 생성하고 데이터베이스에 저장
-        review = SavingReviews(product=random_product, user=random_user, rating=random_rating, content=random_content)
+
+        # Review 객체를 생성하고 데이터베이스에 저장
+        review = review_model(product=random_product, user=random_user, rating=random_rating, content=random_content)
         review.save()
 
-    return Response("Dummy reviews created successfully.")
 
-
-item_similarity_df = None
+deposit_item_similarity_df = None
 
 
 @api_view(['GET'])
-def saving_rating_matrix(request):
+def deposit_rating_matrix(request):
     # 사용자와 상품에 대한 평점 행렬을 생성
-    reviews = SavingReviews.objects.all()
+    reviews = DepositReviews.objects.all()
     df = read_frame(reviews, fieldnames=['user__id', 'product__id', 'rating'])
     df = df.rename(columns={'user__id': 'user_id', 'product__id': 'product_id'})
     df = df.groupby(['user_id', 'product_id']).mean().reset_index()
@@ -256,12 +259,12 @@ def saving_rating_matrix(request):
     # 상품 간의 Cosine 유사도 계산
     # 코사인 유사도는 두 벡터 간의 코사인 각을 사용하여 측정한 유사도로, 값이 1에 가까울수록 유사도가 높다는 것을 의미
     item_similarity = cosine_similarity(rating_matrix.T.fillna(0))
-    item_similarity_df = pd.DataFrame(
+    deposit_item_similarity_df = pd.DataFrame(
         item_similarity,
         index = rating_matrix.columns,
         columns = rating_matrix.columns
     )
-    return Response(item_similarity_df.to_dict())
+    return Response(deposit_item_similarity_df.to_dict())
 
 # Item-Based Collaborative Filtering Algorithm
 # 사용자의 행동 패턴(아이템에 대한 평점)을 분석하여, 사용자가 아직 평가하지 않은 아이템 중에 사용자가 선호할 만한 아이템을 찾아내는 방법이다.
@@ -270,11 +273,12 @@ def saving_rating_matrix(request):
 # 새로운 사용자나 데이터가 부족한 사용자에게 추천을 제공하는 방법인 콜드 스타트 문제를 해결함.
 
 @api_view(['GET'])
-def saving_recommend_items(request, user_pk, item_numbers):
+def deposit_recommend_items(request, user_pk, item_numbers):
     item_similarity_dict = saving_rating_matrix(request._request).data
+    item_similarity_df = deposit_item_similarity_df
     item_similarity_df = pd.DataFrame.from_dict(item_similarity_dict)
     # user_pk를 가진 사용자의 리뷰를 가져와 사용자가 평가한 상품의 ID를 리스트로 생성
-    user_reviews = SavingReviews.objects.filter(user__id=user_pk)
+    user_reviews = DepositReviews.objects.filter(user__id=user_pk)
     user_product_ids = [review.product_id for review in user_reviews]
     
     # user_product_ids가 DataFrame의 인덱스에 존재하는지 확인
@@ -297,4 +301,56 @@ def saving_recommend_items(request, user_pk, item_numbers):
         top_item_id = sorted_user_ratings.index[0]
         similar_items = item_similarity_df[top_item_id].sort_values(ascending=False)
         recommended_items = similar_items.head(item_numbers).index
+    return Response({'recommended_items': recommended_items.tolist()})
+
+
+saving_item_similarity_df = None
+
+
+@api_view(['GET'])
+def saving_rating_matrix(request):
+    reviews = SavingReviews.objects.all()
+    df = read_frame(reviews, fieldnames=['user__id', 'product__id', 'rating'])
+    df = df.rename(columns={'user__id': 'user_id', 'product__id': 'product_id'})
+    df = df.groupby(['user_id', 'product_id']).mean().reset_index()
+    rating_matrix = df.pivot(
+        index='user_id',
+        columns='product_id',
+        values='rating'
+    )
+    item_similarity = cosine_similarity(rating_matrix.T.fillna(0))
+    saving_item_similarity_df = pd.DataFrame(
+        item_similarity,
+        index = rating_matrix.columns,
+        columns = rating_matrix.columns
+    )
+    return Response(saving_item_similarity_df.to_dict())
+
+
+@api_view(['GET'])
+def saving_recommend_items(request, user_pk, item_numbers):
+    item_similarity_dict = saving_rating_matrix(request._request).data
+    item_similarity_df = saving_item_similarity_df
+    item_similarity_df = pd.DataFrame.from_dict(item_similarity_dict)
+    user_reviews = SavingReviews.objects.filter(user__id=user_pk)
+    user_product_ids = [review.product_id for review in user_reviews]
+    
+    if not set(user_product_ids).intersection(set(item_similarity_df.index)):
+        popular_items = item_similarity_df.sum().sort_values(ascending=False)
+        recommended_items = popular_items.index[:item_numbers]
+        return Response({'recommended_items': recommended_items.tolist()})
+
+    user_ratings = item_similarity_df.loc[user_product_ids].mean().dropna()
+    sorted_user_ratings = user_ratings.sort_values(ascending=False)
+
+    if user_ratings.sum() == 0:
+        popular_items = item_similarity_df.sum().sort_values(ascending=False)
+        recommended_items = popular_items.index[:item_numbers]
+
+    else:
+        item_similarity_df = item_similarity_df.drop(user_product_ids, errors='ignore')
+        top_item_id = sorted_user_ratings.index[0]
+        similar_items = item_similarity_df[top_item_id].sort_values(ascending=False)
+        recommended_items = similar_items.head(item_numbers).index
+
     return Response({'recommended_items': recommended_items.tolist()})

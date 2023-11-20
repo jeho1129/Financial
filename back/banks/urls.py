@@ -13,7 +13,9 @@ urlpatterns = [
     path('savings/<str:fin_prdt_cd>/comments/', views.comment_savings),
     path('savings/comments/<int:comment_pk>/', views.comment_savings_detail),
     path('exchanges/', views.exchanges),
-    path('savings/recommends/dummy/', views.saving_dummy_reviews),
+    path('recommends/dummy/', views.create_dummy_reviews),
     path('savings/recommends/load/', views.saving_rating_matrix),
     path('savings/recommends/<int:user_pk>/<int:item_numbers>/', views.saving_recommend_items),
+    path('deposits/recommends/load/', views.deposit_rating_matrix),
+    path('deposits/recommends/<int:user_pk>/<int:item_numbers>/', views.deposit_recommend_items),
 ]
