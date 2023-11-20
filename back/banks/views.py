@@ -69,12 +69,22 @@ def list_deposits(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def detail_deposits(request, fin_prdt_cd):
     deposit = DepositProducts.objects.get(fin_prdt_cd=fin_prdt_cd)
-    serializer = DepositProductsViewSerializer(deposit)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    if request.method == 'GET':
+        serializer = DepositProductsViewSerializer(deposit)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        if request.user.financial_products:
+            # 이미 가입한 상품이 있으면 콤마로 구분하여 추가
+            request.user.financial_products += ', ' + deposit.fin_prdt_nm
+        else:
+            # 가입한 상품이 없으면 그대로 추가
+            request.user.financial_products = deposit.fin_prdt_nm
+        request.user.save()
+        return Response({'message': 'Product added successfully'}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
@@ -155,12 +165,22 @@ def list_savings(request):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
 
-@api_view(['GET'])
+@api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def detail_savings(request, fin_prdt_cd):
     saving = SavingProducts.objects.get(fin_prdt_cd=fin_prdt_cd)
-    serializer = SavingProductsViewSerializer(saving)
-    return Response(serializer.data, status=status.HTTP_200_OK)
+    if request.method == 'GET':
+        serializer = SavingProductsViewSerializer(saving)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    elif request.method == 'POST':
+        if request.user.financial_products:
+            # 이미 가입한 상품이 있으면 콤마로 구분하여 추가
+            request.user.financial_products += ', ' + saving.fin_prdt_nm
+        else:
+            # 가입한 상품이 없으면 그대로 추가
+            request.user.financial_products = saving.fin_prdt_nm
+        request.user.save()
+        return Response({'message': 'Product added successfully'}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['POST'])
