@@ -23,7 +23,7 @@ class CustomRegisterSerializer(RegisterSerializer):
     age = serializers.IntegerField(required=False)
     asset = serializers.IntegerField(required=False)
     salary = serializers.IntegerField(required=False)
-    financial_products = serializers.ListField(child=serializers.IntegerField(), required=False)
+    financial_products = serializers.JSONField(required=False)
 
     def get_cleaned_data(self):
         return {
@@ -34,7 +34,7 @@ class CustomRegisterSerializer(RegisterSerializer):
             'age': self.validated_data.get('age', ''),
             'asset': self.validated_data.get('asset', ''),
             'salary': self.validated_data.get('salary', ''),
-            'financial_products': self.validated_data.get('financial_products', '')
+            'financial_products': self.validated_data.get('financial_products', {})
         }
 
     def save(self, request):

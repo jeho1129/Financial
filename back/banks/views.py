@@ -76,21 +76,19 @@ def detail_deposits(request, fin_prdt_cd):
         serializer = DepositProductsViewSerializer(deposit)
         return Response(serializer.data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
-        if deposit.user.filter(id=request.user.id).exists():
+        if request.user.financial_products and deposit.fin_prdt_cd in request.user.financial_products.keys():
             deposit.user.remove(request.user)
-            updated_products = [product.strip() for product in request.user.financial_products.split(',') if product.strip() != deposit.fin_prdt_cd]
-            request.user.financial_products = ', '.join(updated_products)
+            del request.user.financial_products[deposit.fin_prdt_cd]
             request.user.save()
             return Response({'message': '가입이 취소되었습니다.'}, status=status.HTTP_200_OK)
-        elif request.user.financial_products:
-            # 이미 가입한 상품이 있으면 콤마로 구분하여 추가
-            request.user.financial_products += ', ' + deposit.fin_prdt_cd
         else:
-            # 가입한 상품이 없으면 그대로 추가
-            request.user.financial_products = deposit.fin_prdt_cd
-        deposit.user.add(request.user)
-        request.user.save()
-        return Response({'message': 'Product added successfully'}, status=status.HTTP_201_CREATED)
+            if request.user.financial_products is None:
+                request.user.financial_products = {}
+            deposit_info = DepositProductsViewSerializer(deposit).data
+            request.user.financial_products[deposit.fin_prdt_cd] = deposit_info
+            deposit.user.add(request.user)
+            request.user.save()
+            return Response({'message': 'Product added successfully'}, status=status.HTTP_201_CREATED)
 
 @api_view(['PUT'])
 @permission_classes([IsAdminUser])
@@ -198,21 +196,19 @@ def detail_savings(request, fin_prdt_cd):
         serializer = SavingProductsViewSerializer(saving)
         return Response(serializer.data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
-        if saving.user.filter(id=request.user.id).exists():
+        if request.user.financial_products and saving.fin_prdt_cd in request.user.financial_products.keys():
             saving.user.remove(request.user)
-            updated_products = [product.strip() for product in request.user.financial_products.split(',') if product.strip() != saving.fin_prdt_cd]
-            request.user.financial_products = ', '.join(updated_products)
+            del request.user.financial_products[saving.fin_prdt_cd]
             request.user.save()
             return Response({'message': '가입이 취소되었습니다.'}, status=status.HTTP_200_OK)
-        elif request.user.financial_products:
-            # 이미 가입한 상품이 있으면 콤마로 구분하여 추가
-            request.user.financial_products += ', ' + saving.fin_prdt_cd
         else:
-            # 가입한 상품이 없으면 그대로 추가
-            request.user.financial_products = saving.fin_prdt_cd
-        saving.user.add(request.user)
-        request.user.save()
-        return Response({'message': 'Product added successfully'}, status=status.HTTP_201_CREATED)
+            if request.user.financial_products is None:
+                request.user.financial_products = {}
+            saving_info = SavingProductsViewSerializer(saving).data
+            request.user.financial_products[saving.fin_prdt_cd] = saving_info
+            saving.user.add(request.user)
+            request.user.save()
+            return Response({'message': 'Product added successfully'}, status=status.HTTP_201_CREATED)
 
 
 @api_view(['PUT'])
@@ -226,7 +222,7 @@ def change_savings(request, fin_prdt_cd):
         to = list(saving.user.values_list('email', flat=True))
         from_email = "jeho1129@naver.com"
         message = f"{serializer.data['fin_prdt_nm']} 상품의 금리가 다음과 같이 변경되었습니다!\n"
-        for option in serializer.data['depositoptions_set']:
+        for option in serializer.data['savingoptions_set']:
             save_trm = option['save_trm']
             intr_rate = option['intr_rate']
             intr_rate2 = option['intr_rate2']
