@@ -13,7 +13,7 @@ import requests
 import random
 import lorem
 from .models import DepositProducts, DepositOptions, DepositReviews, SavingProducts, SavingOptions, SavingReviews
-from .serializers import DepositProductsSerializer, DepositOptionsSerializer, DepositReviewsSerializer, DepositProductsViewSerializer, SavingProductsSerializer, SavingOptionsSerializer, SavingReviewsSerializer, SavingProductsViewSerializer
+from .serializers import DepositProductsSerializer, DepositOptionsSerializer, DepositReviewsSerializer, DepositProductsViewSerializer, DepositProductsChangeSerializer, SavingProductsSerializer, SavingOptionsSerializer, SavingReviewsSerializer, SavingProductsViewSerializer, SavingProductsChangeSerializer
 
 
 # Create your views here.
@@ -85,6 +85,17 @@ def detail_deposits(request, fin_prdt_cd):
             request.user.financial_products = deposit.fin_prdt_cd
         request.user.save()
         return Response({'message': 'Product added successfully'}, status=status.HTTP_201_CREATED)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAdminUser])
+def change_deposits(request, fin_prdt_cd):
+    deposit = DepositProducts.objects.get(fin_prdt_cd=fin_prdt_cd)
+    serializer = DepositProductsChangeSerializer(deposit, data=request.data, partial=True)
+    if serializer.is_valid(raise_exception=True):
+        serializer.save()
+        print(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 @api_view(['POST'])
@@ -183,6 +194,17 @@ def detail_savings(request, fin_prdt_cd):
         return Response({'message': 'Product added successfully'}, status=status.HTTP_201_CREATED)
 
 
+@api_view(['PUT'])
+@permission_classes([IsAdminUser])
+def change_savings(request, fin_prdt_cd):
+    saving = SavingProducts.objects.get(fin_prdt_cd=fin_prdt_cd)
+    serializer = SavingProductsChangeSerializer(saving, data=request.data, partial=True)
+    if serializer.is_valid(raise_exception=True):
+        serializer.save()
+        print(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def comment_savings(request, fin_prdt_cd):
@@ -274,16 +296,18 @@ def deposit_rating_matrix(request):
 
 @api_view(['GET'])
 def deposit_recommend_items(request, user_pk, item_numbers):
-    item_similarity_dict = saving_rating_matrix(request._request).data
+    item_similarity_dict = deposit_rating_matrix(request._request).data
     item_similarity_df = deposit_item_similarity_df
     item_similarity_df = pd.DataFrame.from_dict(item_similarity_dict)
     # user_pk를 가진 사용자의 리뷰를 가져와 사용자가 평가한 상품의 ID를 리스트로 생성
     user_reviews = DepositReviews.objects.filter(user__id=user_pk)
     user_product_ids = [review.product_id for review in user_reviews]
+    # item_similarity_df의 인덱스에 있는 상품 ID만을 필터링하여 유효한 상품 ID 리스트를 생성
+    valid_product_ids = [product_id for product_id in user_product_ids if product_id in item_similarity_df.index]
     
     # user_product_ids가 DataFrame의 인덱스에 존재하는지 확인
     # 사용자가 평가한 상품이 없다면 가장 인기가 많은 아이템을 추천함.
-    if not set(user_product_ids).intersection(set(item_similarity_df.index)):
+    if not valid_product_ids:
         popular_items = item_similarity_df.sum().sort_values(ascending=False)
         recommended_items = popular_items.index[:item_numbers]
         return Response({'recommended_items': recommended_items.tolist()})
@@ -334,8 +358,8 @@ def saving_recommend_items(request, user_pk, item_numbers):
     item_similarity_df = pd.DataFrame.from_dict(item_similarity_dict)
     user_reviews = SavingReviews.objects.filter(user__id=user_pk)
     user_product_ids = [review.product_id for review in user_reviews]
-    
-    if not set(user_product_ids).intersection(set(item_similarity_df.index)):
+    valid_product_ids = [product_id for product_id in user_product_ids if product_id in item_similarity_df.index]
+    if not valid_product_ids:
         popular_items = item_similarity_df.sum().sort_values(ascending=False)
         recommended_items = popular_items.index[:item_numbers]
         return Response({'recommended_items': recommended_items.tolist()})
