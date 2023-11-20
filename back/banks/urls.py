@@ -13,6 +13,7 @@ urlpatterns = [
     path('savings/<str:fin_prdt_cd>/', views.detail_savings),
     path('savings/<str:fin_prdt_cd>/comments/', views.comment_savings),
     path('savings/comments/<int:comment_pk>/', views.comment_savings_detail),
+    path('savings/change/<str:fin_prdt_cd>/', views.change_savings),
     path('exchanges/', views.exchanges),
     path('recommends/dummy/', views.create_dummy_reviews),
     path('savings/recommends/load/', views.saving_rating_matrix),

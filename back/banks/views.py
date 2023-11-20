@@ -1,5 +1,5 @@
-from django.shortcuts import render, get_list_or_404, get_object_or_404
 from django.conf import settings
+from django.core.mail import EmailMessage
 from django_pandas.io import read_frame
 from django.contrib.auth import get_user_model
 from rest_framework import status
@@ -7,7 +7,6 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
 from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
 import pandas as pd
 import requests
 import random
@@ -83,6 +82,7 @@ def detail_deposits(request, fin_prdt_cd):
         else:
             # 가입한 상품이 없으면 그대로 추가
             request.user.financial_products = deposit.fin_prdt_cd
+        deposit.user.add(request.user)
         request.user.save()
         return Response({'message': 'Product added successfully'}, status=status.HTTP_201_CREATED)
 
@@ -94,7 +94,16 @@ def change_deposits(request, fin_prdt_cd):
     serializer = DepositProductsChangeSerializer(deposit, data=request.data, partial=True)
     if serializer.is_valid(raise_exception=True):
         serializer.save()
-        print(serializer.data)
+        subject = f"금리 수정 확인 - 상품명 : {serializer.data['fin_prdt_nm']}"
+        to = list(deposit.user.values_list('email', flat=True))
+        from_email = "jeho1129@naver.com"
+        message = f"{serializer.data['fin_prdt_nm']} 상품의 금리가 다음과 같이 변경되었습니다!\n"
+        for option in serializer.data['depositoptions_set']:
+            save_trm = option['save_trm']
+            intr_rate = option['intr_rate']
+            intr_rate2 = option['intr_rate2']
+            message += f"가입 기간: {save_trm} - 금리: {intr_rate} / 우대금리: {intr_rate2}\n"
+        EmailMessage(subject=subject, body=message, to=to, from_email=from_email).send()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
@@ -190,6 +199,7 @@ def detail_savings(request, fin_prdt_cd):
         else:
             # 가입한 상품이 없으면 그대로 추가
             request.user.financial_products = saving.fin_prdt_cd
+        saving.user.add(request.user)
         request.user.save()
         return Response({'message': 'Product added successfully'}, status=status.HTTP_201_CREATED)
 
@@ -201,7 +211,16 @@ def change_savings(request, fin_prdt_cd):
     serializer = SavingProductsChangeSerializer(saving, data=request.data, partial=True)
     if serializer.is_valid(raise_exception=True):
         serializer.save()
-        print(serializer.data)
+        subject = f"금리 수정 확인 - 상품명 : {serializer.data['fin_prdt_nm']}"
+        to = list(saving.user.values_list('email', flat=True))
+        from_email = "jeho1129@naver.com"
+        message = f"{serializer.data['fin_prdt_nm']} 상품의 금리가 다음과 같이 변경되었습니다!\n"
+        for option in serializer.data['depositoptions_set']:
+            save_trm = option['save_trm']
+            intr_rate = option['intr_rate']
+            intr_rate2 = option['intr_rate2']
+            message += f"가입 기간: {save_trm} - 금리: {intr_rate} / 우대금리: {intr_rate2}\n"
+        EmailMessage(subject=subject, body=message, to=to, from_email=from_email).send()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 

@@ -120,6 +120,7 @@ class SavingProductsChangeSerializer(serializers.ModelSerializer):
         class Meta:
             model = get_user_model()
             fields = '__all__'
+            
     user_set = UserSerializer(many=True, read_only=True)
     class Meta:
         model = SavingProducts
