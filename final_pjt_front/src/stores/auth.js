@@ -32,6 +32,32 @@ export const useAuthStore = defineStore(
         });
     };
 
+    const editUser = (payload) => {
+      const di = {};
+      for (const key in payload) {
+        if (payload[key]) {
+          di[key] = payload[key];
+        }
+      }
+      axios({
+        method: "put",
+        url: `${API_URL}/accounts/user/ `,
+        headers: {
+          Authorization: `Token ${token.value}`,
+        },
+        data: di,
+      })
+        .then((res) => {
+          user.value.age = res.data.age;
+          user.value.email = res.data.email;
+          user.value.asset = res.data.asset;
+          user.value.salary = res.data.salary;
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    };
+
     const signUp = function (payload) {
       const di = {};
       for (const key in payload) {
@@ -94,7 +120,7 @@ export const useAuthStore = defineStore(
         });
     };
 
-    return { token, signUp, logIn, isAuthenticated, logOut, user, API_URL };
+    return { token, signUp, logIn, isAuthenticated, logOut, user, API_URL, editUser };
   },
   { persist: true }
 );
