@@ -77,7 +77,11 @@ def detail_deposits(request, fin_prdt_cd):
         return Response(serializer.data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         if deposit.user.filter(id=request.user.id).exists():
-            return Response({'message': '이미 가입한 상품입니다'}, status=status.HTTP_400_BAD_REQUEST)
+            deposit.user.remove(request.user)
+            updated_products = [product.strip() for product in request.user.financial_products.split(',') if product.strip() != deposit.fin_prdt_cd]
+            request.user.financial_products = ', '.join(updated_products)
+            request.user.save()
+            return Response({'message': '가입이 취소되었습니다.'}, status=status.HTTP_200_OK)
         elif request.user.financial_products:
             # 이미 가입한 상품이 있으면 콤마로 구분하여 추가
             request.user.financial_products += ', ' + deposit.fin_prdt_cd
@@ -196,7 +200,11 @@ def detail_savings(request, fin_prdt_cd):
         return Response(serializer.data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         if saving.user.filter(id=request.user.id).exists():
-            return Response({'message': '이미 가입한 상품입니다'}, status=status.HTTP_400_BAD_REQUEST)
+            saving.user.remove(request.user)
+            updated_products = [product.strip() for product in request.user.financial_products.split(',') if product.strip() != saving.fin_prdt_cd]
+            request.user.financial_products = ', '.join(updated_products)
+            request.user.save()
+            return Response({'message': '가입이 취소되었습니다.'}, status=status.HTTP_200_OK)
         elif request.user.financial_products:
             # 이미 가입한 상품이 있으면 콤마로 구분하여 추가
             request.user.financial_products += ', ' + saving.fin_prdt_cd
