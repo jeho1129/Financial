@@ -1,13 +1,6 @@
 <template>
   <div class="container">
     <h1>게시글 목록 페이지</h1>
-    <button
-      v-show="authStore.isAuthenticated"
-      @click="showModal"
-      class="btn btn-primary"
-    >
-      글쓰기
-    </button>
     <table class="table">
       <thead class="table-success">
         <tr>
@@ -18,11 +11,7 @@
         </tr>
       </thead>
       <tbody>
-        <tr
-          @click="detailPost(post.id)"
-          v-for="(post, idx) in sortPosts"
-          :key="post.id"
-        >
+        <tr @click="detailPost(post.id)" v-for="(post, idx) in sortPosts" :key="post.id">
           <td>{{ posts.length - idx }}</td>
           <td>
             {{ post.title }}
@@ -33,13 +22,14 @@
           </td>
           <td>{{ post.user.username }}</td>
           <td>
-            {{
-              new Intl.DateTimeFormat("ko-KR").format(new Date(post.created_at))
-            }}
+            {{ new Intl.DateTimeFormat("ko-KR").format(new Date(post.created_at)) }}
           </td>
         </tr>
       </tbody>
     </table>
+    <div style="text-align: end">
+      <button v-show="authStore.isAuthenticated" @click="showModal" class="btn btn-primary">글쓰기</button>
+    </div>
     <PostCreate id="movePostCreate" @some-event="pushData" />
   </div>
 </template>

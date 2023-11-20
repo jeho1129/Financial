@@ -1,22 +1,16 @@
 <template>
   <div class="mt-5 container" id="depositMain">
     <div class="d-flex gap-2 align-items-center" id="depositHead">
-      <RouterLink id="fromDeposit" :to="{ name: 'deposit' }"
-        >정기예금</RouterLink
-      >
+      <RouterLink class="fs-4" id="fromDeposit" :to="{ name: 'deposit' }">정기예금</RouterLink>
       |
-      <RouterLink :to="{ name: 'saving' }">정기적금</RouterLink>
+      <RouterLink class="fs-4" :to="{ name: 'saving' }">정기적금</RouterLink>
     </div>
-    <div class="d-flex justify-content-between align-items-center">
+    <div class="d-flex justify-content-between align-items-center my-2">
       <p>전체 {{ depositStore.deposit.length }} 건</p>
-      <form @submit.prevent="changeDeposit">
+      <form @submit.prevent="changeDeposit" class="d-flex gap-2">
         <select v-model="category">
           <option value="all">은행전체</option>
-          <option
-            v-for="category in depositStore.categoryBank"
-            :key="category"
-            :value="category"
-          >
+          <option v-for="category in depositStore.categoryBank" :key="category" :value="category">
             {{ category }}
           </option>
         </select>
@@ -44,7 +38,7 @@
       <tbody>
         <tr v-for="base in deposit" :key="base.id">
           <td>{{ base.kor_co_nm }}</td>
-          <td>{{ base.fin_prdt_nm }}</td>
+          <td @click="detailDeposit(base.fin_prdt_cd)" id="moveDepoitDetail">{{ base.fin_prdt_nm }}</td>
           <td>
             {{
               base.depositoptions_set.find((item) => {
@@ -80,11 +74,12 @@
 </template>
 
 <script setup>
-import { RouterLink } from "vue-router";
+import { RouterLink, useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 import { useDepositStore } from "../stores/deposit";
 
 const depositStore = useDepositStore();
+const router = useRouter();
 
 const category = ref("all");
 const period = ref("all");
@@ -104,6 +99,10 @@ const changeDeposit = () => {
     // console.log(depositStore.searchDeposits(period.value, category.value));
   }
 };
+
+const detailDeposit = (id) => {
+  router.push({ name: "depositDetail", params: { depositId: id } });
+};
 </script>
 
 <style scoped>
@@ -111,7 +110,7 @@ select {
   /* width: 100%; */
   border: 1px solid #5fb9a6;
   border-radius: 5px;
-  padding: 10px;
+  padding: 5px 10px;
 }
 
 select:focus {
@@ -135,5 +134,10 @@ button:hover {
 a {
   text-decoration-line: none;
   color: black;
+}
+
+#moveDepoitDetail {
+  cursor: pointer;
+  font-weight: bold;
 }
 </style>
