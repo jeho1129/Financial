@@ -105,7 +105,19 @@ def change_deposits(request, fin_prdt_cd):
     serializer = DepositProductsChangeSerializer(deposit, data=request.data, partial=True)
     if serializer.is_valid(raise_exception=True):
         serializer.save()
-        subject = f"금리 수정 확인 - 상품명 : {serializer.data['fin_prdt_nm']}"
+        depositoptions_data = request.data.get('depositoptions_set')
+        if depositoptions_data:
+            for option_data in depositoptions_data:
+                option_id = option_data.get('id')
+                intr_rate = option_data.get('intr_rate')
+                intr_rate2 = option_data.get('intr_rate2')
+                if option_id and intr_rate is not None:
+                    deposit_option = DepositOptions.objects.get(id=option_id)
+                    deposit_option.intr_rate = intr_rate
+                    deposit_option.intr_rate2 = intr_rate2
+                    deposit_option.save()
+
+        subject = f"금리 수정 확인 - 상품명: {serializer.data['fin_prdt_nm']}"
         to = list(deposit.user.values_list('email', flat=True))
         from_email = "jeho1129@naver.com"
         message = f"{serializer.data['fin_prdt_nm']} 상품의 금리가 다음과 같이 변경되었습니다!\n"
@@ -234,7 +246,19 @@ def change_savings(request, fin_prdt_cd):
     serializer = SavingProductsChangeSerializer(saving, data=request.data, partial=True)
     if serializer.is_valid(raise_exception=True):
         serializer.save()
-        subject = f"금리 수정 확인 - 상품명 : {serializer.data['fin_prdt_nm']}"
+        savingoptions_data = request.data.get('savingoptions_set')
+        if savingoptions_data:
+            for option_data in savingoptions_data:
+                option_id = option_data.get('id')
+                intr_rate = option_data.get('intr_rate')
+                intr_rate2 = option_data.get('intr_rate2')
+                if option_id and intr_rate is not None:
+                    saving_option = SavingOptions.objects.get(id=option_id)
+                    saving_option.intr_rate = intr_rate
+                    saving_option.intr_rate2 = intr_rate2
+                    saving_option.save()
+
+        subject = f"금리 수정 확인 - 상품명: {serializer.data['fin_prdt_nm']}"
         to = list(saving.user.values_list('email', flat=True))
         from_email = "jeho1129@naver.com"
         message = f"{serializer.data['fin_prdt_nm']} 상품의 금리가 다음과 같이 변경되었습니다!\n"

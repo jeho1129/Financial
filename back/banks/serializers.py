@@ -60,7 +60,7 @@ class DepositProductsChangeSerializer(serializers.ModelSerializer):
             fields = '__all__'
     user_set = UserSerializer(many=True, read_only=True)
     class Meta:
-        model = DepositOptions
+        model = DepositProducts
         fields = '__all__'
         read_only_fields = ('product', 'fin_prdt_cd', 'intr_rate_type_nm', 'save_trm')
 
@@ -130,7 +130,7 @@ class SavingProductsViewSerializer(serializers.ModelSerializer):
 
     
 class SavingProductsChangeSerializer(serializers.ModelSerializer):
-    savingoptions_set = SavingOptionsSerializer(many=True, read_only=True)
+    savingoptions_set = SavingOptionsSerializer(many=True)
     class UserSerializer(serializers.ModelSerializer):
         class Meta:
             model = get_user_model()
@@ -138,7 +138,7 @@ class SavingProductsChangeSerializer(serializers.ModelSerializer):
             
     user_set = UserSerializer(many=True, read_only=True)
     class Meta:
-        model = SavingOptions
+        model = SavingProducts
         fields = '__all__'
         read_only_fields = ('product', 'fin_prdt_cd', 'intr_rate_type_nm', 'save_trm')
 
