@@ -60,8 +60,9 @@ class DepositProductsChangeSerializer(serializers.ModelSerializer):
             fields = '__all__'
     user_set = UserSerializer(many=True, read_only=True)
     class Meta:
-        model = DepositProducts
+        model = DepositOptions
         fields = '__all__'
+        read_only_fields = ('product', 'fin_prdt_cd', 'intr_rate_type_nm', 'save_trm')
 
  
 class DepositJoinSerializer(serializers.ModelSerializer):
@@ -75,7 +76,7 @@ class DepositJoinSerializer(serializers.ModelSerializer):
     class Meta:
         model = DepositJoin
         fields = '__all__'
-        read_only_fields = ('product',)
+        read_only_fields = ('product', 'month')
 
 
 class SavingProductsSerializer(serializers.ModelSerializer):
@@ -137,8 +138,9 @@ class SavingProductsChangeSerializer(serializers.ModelSerializer):
             
     user_set = UserSerializer(many=True, read_only=True)
     class Meta:
-        model = SavingProducts
+        model = SavingOptions
         fields = '__all__'
+        read_only_fields = ('product', 'fin_prdt_cd', 'intr_rate_type_nm', 'save_trm')
 
 
 class SavingJoinSerializer(serializers.ModelSerializer):
@@ -152,4 +154,4 @@ class SavingJoinSerializer(serializers.ModelSerializer):
     class Meta:
         model = SavingJoin
         fields = '__all__'
-        read_only_fields = ('product',)
+        read_only_fields = ('product', 'month')

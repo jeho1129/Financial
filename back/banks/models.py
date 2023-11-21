@@ -26,16 +26,17 @@ class DepositOptions(models.Model):
 class DepositJoin(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     product = models.ForeignKey(DepositProducts, on_delete=models.CASCADE)
-    amount = models.IntegerField()
-    rate = models.IntegerField()
-    expiration_date = models.DateField()
+    amount = models.IntegerField()  # 가입 금액
+    expiration_date = models.DateField()  # 만기일
+    current_date = models.DateField(auto_now_add=True)
+    month = models.IntegerField()  # 가입 개월
 
 
 class DepositReviews(models.Model):
     product = models.ForeignKey(DepositProducts, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    rating = models.IntegerField()
-    content = models.TextField()
+    rating = models.IntegerField()  # 평점
+    content = models.TextField()  # 리뷰 내용
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -51,9 +52,6 @@ class SavingProducts(models.Model):
     spcl_cnd = models.TextField()  # 우대 조건
     join_deny = models.IntegerField()  # 가입 제한(1: 제한 없음, 2: 서민 전용, 3: 일부 제한)
 
-    def __str__(self):
-        return str(self.id)  # id를 문자열로 반환
-
 
 class SavingOptions(models.Model):
     product = models.ForeignKey(SavingProducts, on_delete=models.CASCADE)  # 금융 상품
@@ -67,15 +65,16 @@ class SavingOptions(models.Model):
 class SavingJoin(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     product = models.ForeignKey(SavingProducts, on_delete=models.CASCADE)
-    amount = models.IntegerField()
-    rate = models.IntegerField()
-    expiration_date = models.DateField()
+    amount = models.IntegerField()  # 가입 금액
+    expiration_date = models.DateField()  # 만기일
+    current_date = models.DateField(auto_now_add=True)
+    month = models.IntegerField()  # 가입 개월
 
 
 class SavingReviews(models.Model):
     product = models.ForeignKey(SavingProducts, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    rating = models.IntegerField()
-    content = models.TextField()
+    rating = models.IntegerField()  # 평점
+    content = models.TextField()  # 리뷰 내용
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

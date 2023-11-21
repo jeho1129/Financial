@@ -6,7 +6,7 @@ from allauth.account.adapter import DefaultAccountAdapter
 class User(AbstractUser):
     username = models.CharField(max_length=30, unique=True)  # 유저 ID
     name = models.CharField(max_length=30)  # 이름
-    email = models.EmailField(max_length=250, blank=True, null=True)  # Email
+    email = models.EmailField(max_length=250)  # Email
     age = models.IntegerField(blank=True, null=True)  # 나이
     asset = models.IntegerField(blank=True, null=True)  # 자산
     salary = models.IntegerField(blank=True, null=True)  # 연봉
