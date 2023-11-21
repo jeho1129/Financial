@@ -3,7 +3,7 @@ from django.conf import settings
 
 # Create your models here.
 class DepositProducts(models.Model):
-    user = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='deposits')
+    user = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='deposits', through='DepositJoin')
     fin_co_no = models.TextField()  # 금융회사 코드
     kor_co_nm = models.TextField()  # 금융회사명
     fin_prdt_cd = models.TextField(unique=True)  # 금융상품 코드
@@ -23,6 +23,14 @@ class DepositOptions(models.Model):
     save_trm = models.IntegerField()  # 저축 기간
 
 
+class DepositJoin(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    product = models.ForeignKey(DepositProducts, on_delete=models.CASCADE)
+    amount = models.IntegerField()
+    rate = models.IntegerField()
+    expiration_date = models.DateField()
+
+
 class DepositReviews(models.Model):
     product = models.ForeignKey(DepositProducts, on_delete=models.CASCADE)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -33,7 +41,7 @@ class DepositReviews(models.Model):
 
 
 class SavingProducts(models.Model):
-    user = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='savings')
+    user = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='savings', through='SavingJoin')
     fin_co_no = models.TextField()  # 금융회사 코드
     kor_co_nm = models.TextField()  # 금융회사명
     fin_prdt_cd = models.TextField(unique=True)  # 금융상품 코드
@@ -54,6 +62,14 @@ class SavingOptions(models.Model):
     intr_rate = models.FloatField(null=True)  # 저축 금리
     intr_rate2 = models.FloatField(null=True)  # 최고 우대 금리
     save_trm = models.IntegerField()  # 저축 기간
+
+
+class SavingJoin(models.Model):
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    product = models.ForeignKey(SavingProducts, on_delete=models.CASCADE)
+    amount = models.IntegerField()
+    rate = models.IntegerField()
+    expiration_date = models.DateField()
 
 
 class SavingReviews(models.Model):

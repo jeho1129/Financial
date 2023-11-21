@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import DepositProducts, DepositOptions, DepositReviews, SavingProducts, SavingOptions, SavingReviews
+from .models import DepositProducts, DepositOptions, DepositJoin, DepositReviews, SavingProducts, SavingOptions, SavingJoin, SavingReviews
 from django.contrib.auth import get_user_model
 
 class DepositProductsSerializer(serializers.ModelSerializer):
@@ -64,6 +64,20 @@ class DepositProductsChangeSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
  
+class DepositJoinSerializer(serializers.ModelSerializer):
+    class UserSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = get_user_model()
+            fields = '__all__'
+    
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = DepositJoin
+        fields = '__all__'
+        read_only_fields = ('product',)
+
+
 class SavingProductsSerializer(serializers.ModelSerializer):
     class UserSerializer(serializers.ModelSerializer):
         class Meta:
@@ -125,3 +139,17 @@ class SavingProductsChangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = SavingProducts
         fields = '__all__'
+
+
+class SavingJoinSerializer(serializers.ModelSerializer):
+    class UserSerializer(serializers.ModelSerializer):
+        class Meta:
+            model = get_user_model()
+            fields = '__all__'
+    
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = SavingJoin
+        fields = '__all__'
+        read_only_fields = ('product',)
