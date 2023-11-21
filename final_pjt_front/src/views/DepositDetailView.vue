@@ -1,25 +1,15 @@
 <template>
   <div class="container">
-    <div
-      v-if="deposit"
-      class="d-flex justify-content-between align-items-center my-4"
-    >
+    <div v-if="deposit" class="d-flex justify-content-between align-items-center my-4">
       <h1 class="mb-0">정기예금 상세</h1>
-
       <div v-if="authStore.user">
-        <form
-          v-if="
-            authStore.user.financial_products
-              .split(', ')
-              .includes(deposit.fin_prdt_cd)
-          "
-          @submit.prevent="joinDeposit"
-        >
-          <button>가입취소</button>
-        </form>
-        <form v-else @submit.prevent="joinDeposit">
-          <button>가입하기</button>
-        </form>
+        <div>
+          <form @submit.prevent="joinDeposit">
+            <button v-if="!(deposit.fin_prdt_cd in authStore.user.financial_products)">가입하기</button>
+            <!-- .includes(deposit.fin_prdt_cd) -->
+            <button v-else>가입취소</button>
+          </form>
+        </div>
       </div>
     </div>
 
@@ -51,6 +41,17 @@
         </tr>
       </tbody>
     </table>
+    <h1>예금 계산기</h1>
+    <form v-if="deposit" @submit.prevent="calculate(amount, rate, period, method)">
+      <input type="number" v-model="amount" />
+      <select v-model="period" @change="changeRate(period)">
+        <option :value="0">기간을 선택하세요</option>
+        <option v-for="option in deposit.depositoptions_set" :key="option.id" :value="option.save_trm">{{ option.save_trm }} 개월</option>
+      </select>
+      <input :value="rate" readonly />
+      <button>계산</button>
+    </form>
+    <p>{{ result }}</p>
   </div>
 </template>
 
@@ -59,11 +60,17 @@ import axios from "axios";
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useAuthStore } from "../stores/auth";
-
+// period ? deposit.depositoptions_set.find((item) => item.save_trm == period).intr_rate2 : 0
 const route = useRoute();
 const authStore = useAuthStore();
 const depositId = route.params.depositId;
 const deposit = ref(null);
+
+const amount = ref(0);
+const period = ref(0);
+const rate = ref("-");
+const method = ref("");
+const result = ref(0);
 
 onMounted(() => {
   axios({
@@ -76,6 +83,7 @@ onMounted(() => {
   })
     .then((res) => {
       deposit.value = res.data;
+      console.log(res.data);
     })
     .catch((err) => {
       console.log(err);
@@ -91,12 +99,43 @@ const joinDeposit = () => {
     },
   })
     .then((res) => {
-      console.log(res.data);
+      console.log(res.data.message);
+      if (res.data.message === "Product added successfully") {
+        if (!(deposit.value.fin_prdt_cd in authStore.user.financial_products)) {
+          authStore.user.financial_products[deposit.value.fin_prdt_cd] = deposit.value;
+        }
+      } else if (res.data.message === "가입이 취소되었습니다.") {
+        delete authStore.user.financial_products[deposit.value.fin_prdt_cd];
+      }
     })
     .catch((err) => {
       console.log(err);
     });
 };
+
+const changeRate = (period) => {
+  if (period) {
+    rate.value = deposit.value.depositoptions_set.find((item) => item.save_trm == period).intr_rate2;
+    method.value = deposit.value.depositoptions_set.find((item) => item.save_trm == period).intr_rate_type_nm;
+  } else {
+    rate.value = "-";
+    method.value = "";
+  }
+};
+
+function calculate(principal, rate, time, method) {
+  rate /= 100;
+  console.log(method);
+  if (method === "단리") {
+    // 예금액 * 이자율 * 기간
+    result.value = (principal + (principal * rate * time) / 12).toFixed();
+  } else if (method === "복리") {
+    // 예금액 * (1 + 이자율) ^ 기간
+    result.value = principal * Math.pow(1 + rate, time / 12).toFixed();
+  } else {
+    result.value = 0;
+  }
+}
 </script>
 
 <style scoped>

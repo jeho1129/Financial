@@ -1,21 +1,14 @@
 <template>
   <div>
-    <Carousel style="z-index: -999" />
-    <div
-      v-if="depositStore.deposit.length"
-      class="container mt-5 d-flex flex-column gap-5"
-    >
+    <Carousel />
+    <div v-if="depositStore.deposit.length" class="container mt-5 d-flex flex-column gap-5">
       <div>
         <div class="d-flex justify-content-between align-items-center">
           <h3>인기 예금</h3>
           <RouterLink to="/deposit">더보기</RouterLink>
         </div>
         <div id="cardArray" class="d-flex justify-content-center gap-2">
-          <CardProduct
-            v-for="base in depositStore.popularDeposits"
-            :key="base.fin_prdt_cd"
-            :base="base"
-          />
+          <CardProduct v-for="base in depositStore.popularDeposits" :key="base.fin_prdt_cd" :base="base" />
         </div>
       </div>
       <div>
@@ -24,11 +17,7 @@
           <RouterLink to="/saving">더보기</RouterLink>
         </div>
         <div id="cardArray" class="d-flex justify-content-center gap-2">
-          <CardProduct
-            v-for="base in savingStore.popularSaving"
-            :key="base.fin_prdt_cd"
-            :base="base"
-          />
+          <CardProduct v-for="base in savingStore.popularSaving" :key="base.fin_prdt_cd" :base="base" />
         </div>
       </div>
     </div>
