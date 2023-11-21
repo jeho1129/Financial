@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings
 
-# Create your models here.
+
 class DepositProducts(models.Model):
     user = models.ManyToManyField(settings.AUTH_USER_MODEL, blank=True, related_name='deposits', through='DepositJoin')
     fin_co_no = models.TextField()  # 금융회사 코드
