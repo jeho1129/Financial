@@ -4,11 +4,11 @@
       <h1 class="mb-0">정기예금 상세</h1>
       <div v-if="authStore.user">
         <div>
-          <form @submit.prevent="joinDeposit">
-            <button v-if="!(deposit.fin_prdt_cd in authStore.user.financial_products)">가입하기</button>
-            <!-- .includes(deposit.fin_prdt_cd) -->
-            <button v-else>가입취소</button>
-          </form>
+          <!-- <form @submit.prevent="joinDeposit"> -->
+          <button @click="Join">가입하기</button>
+          <!-- .includes(deposit.fin_prdt_cd) -->
+          <!-- <button v-else>가입취소</button> -->
+          <!-- </form> -->
         </div>
       </div>
     </div>
@@ -52,6 +52,7 @@
       <button>계산</button>
     </form>
     <p>{{ result }}</p>
+    <DepositJoin id="moveJoinPage" :deposit="deposit" />
   </div>
 </template>
 
@@ -60,6 +61,7 @@ import axios from "axios";
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useAuthStore } from "../stores/auth";
+import DepositJoin from "../components/DepositJoin.vue";
 // period ? deposit.depositoptions_set.find((item) => item.save_trm == period).intr_rate2 : 0
 const route = useRoute();
 const authStore = useAuthStore();
@@ -89,7 +91,7 @@ onMounted(() => {
       console.log(err);
     });
 });
-
+// v-if="!(deposit.fin_prdt_cd in authStore.user.financial_products)"
 const joinDeposit = () => {
   axios({
     method: "post",
@@ -101,7 +103,9 @@ const joinDeposit = () => {
     .then((res) => {
       console.log(res.data.message);
       if (res.data.message === "Product added successfully") {
-        if (!(deposit.value.fin_prdt_cd in authStore.user.financial_products)) {
+        if (!authStore.user.financial_products) {
+          authStore.user.financial_products = { [deposit.value.fin_prdt_cd]: deposit.value };
+        } else if (!(deposit.value.fin_prdt_cd in authStore.user.financial_products)) {
           authStore.user.financial_products[deposit.value.fin_prdt_cd] = deposit.value;
         }
       } else if (res.data.message === "가입이 취소되었습니다.") {
@@ -121,6 +125,11 @@ const changeRate = (period) => {
     rate.value = "-";
     method.value = "";
   }
+};
+
+const Join = () => {
+  const dialog = document.querySelector("#moveJoinPage");
+  dialog.showModal();
 };
 
 function calculate(principal, rate, time, method) {
