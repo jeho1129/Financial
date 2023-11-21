@@ -1,6 +1,19 @@
 <template>
-  <div class="container">
-    <h1>게시글 목록 페이지</h1>
+  <div class="container mt-5">
+    <!-- <h1>게시글 목록 페이지</h1> -->
+    <div class="fs-4" id="postTitle">커뮤니티</div>
+    <div class="d-flex justify-content-between align-items-center my-2">
+      <p class="m-0">전체 {{ posts.length }} 건</p>
+      <div>
+        <button
+          v-show="authStore.isAuthenticated"
+          @click="showModal"
+          class="px-4 py-2"
+        >
+          글쓰기
+        </button>
+      </div>
+    </div>
     <table class="table">
       <thead class="table-success">
         <tr>
@@ -11,7 +24,11 @@
         </tr>
       </thead>
       <tbody>
-        <tr @click="detailPost(post.id)" v-for="(post, idx) in sortPosts" :key="post.id">
+        <tr
+          @click="detailPost(post.id)"
+          v-for="(post, idx) in sortPosts"
+          :key="post.id"
+        >
           <td>{{ posts.length - idx }}</td>
           <td>
             {{ post.title }}
@@ -22,14 +39,14 @@
           </td>
           <td>{{ post.user.username }}</td>
           <td>
-            {{ new Intl.DateTimeFormat("ko-KR").format(new Date(post.created_at)) }}
+            {{
+              new Intl.DateTimeFormat("ko-KR").format(new Date(post.created_at))
+            }}
           </td>
         </tr>
       </tbody>
     </table>
-    <div style="text-align: end">
-      <button v-show="authStore.isAuthenticated" @click="showModal" class="btn btn-primary">글쓰기</button>
-    </div>
+
     <PostCreate id="movePostCreate" @some-event="pushData" />
   </div>
 </template>
@@ -56,6 +73,7 @@ onMounted(() => {
   })
     .then((res) => {
       posts.value = res.data;
+      console.log(res.data);
     })
     .catch((err) => {
       console.log(err);
@@ -77,4 +95,19 @@ const showModal = () => {
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+#postTitle {
+  color: #5fb9a6;
+  font-weight: bold;
+}
+
+button {
+  background-color: #5fb9a6;
+  border: 0px;
+  border-radius: 5px;
+}
+
+button:hover {
+  filter: brightness(0.9);
+}
+</style>
