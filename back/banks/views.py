@@ -11,8 +11,8 @@ import pandas as pd
 import requests
 import random
 import lorem
-from .models import DepositProducts, DepositOptions, DepositReviews, SavingProducts, SavingOptions, SavingReviews
-from .serializers import DepositProductsSerializer, DepositOptionsSerializer, DepositReviewsSerializer, DepositProductsViewSerializer, DepositProductsChangeSerializer, SavingProductsSerializer, SavingOptionsSerializer, SavingReviewsSerializer, SavingProductsViewSerializer, SavingProductsChangeSerializer
+from .models import DepositProducts, DepositOptions, DepositReviews, DepositJoin, SavingProducts, SavingOptions, SavingReviews, SavingJoin
+from .serializers import DepositProductsSerializer, DepositOptionsSerializer, DepositReviewsSerializer, DepositProductsViewSerializer, DepositProductsChangeSerializer, DepositJoinSerializer, SavingProductsSerializer, SavingOptionsSerializer, SavingReviewsSerializer, SavingProductsViewSerializer, SavingProductsChangeSerializer, SavingJoinSerializer
 
 
 # Create your views here.
@@ -77,18 +77,23 @@ def detail_deposits(request, fin_prdt_cd):
         return Response(serializer.data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         if request.user.financial_products and deposit.fin_prdt_cd in request.user.financial_products.keys():
+            DepositJoin.objects.filter(user=request.user, product=deposit).delete()
             deposit.user.remove(request.user)
             del request.user.financial_products[deposit.fin_prdt_cd]
             request.user.save()
             return Response({'message': '가입이 취소되었습니다.'}, status=status.HTTP_200_OK)
         else:
+            serializer = DepositJoinSerializer(data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save(product=deposit, user=request.user)
             if request.user.financial_products is None:
                 request.user.financial_products = {}
             deposit_info = DepositProductsViewSerializer(deposit).data
             request.user.financial_products[deposit.fin_prdt_cd] = deposit_info
             deposit.user.add(request.user)
             request.user.save()
-            return Response({'message': 'Product added successfully'}, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
 @api_view(['PUT'])
 @permission_classes([IsAdminUser])
@@ -197,18 +202,22 @@ def detail_savings(request, fin_prdt_cd):
         return Response(serializer.data, status=status.HTTP_200_OK)
     elif request.method == 'POST':
         if request.user.financial_products and saving.fin_prdt_cd in request.user.financial_products.keys():
+            SavingJoin.objects.filter(user=request.user, product=saving).delete()
             saving.user.remove(request.user)
             del request.user.financial_products[saving.fin_prdt_cd]
             request.user.save()
             return Response({'message': '가입이 취소되었습니다.'}, status=status.HTTP_200_OK)
         else:
+            serializer = SavingJoinSerializer(data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save(product=saving, user=request.user)
             if request.user.financial_products is None:
                 request.user.financial_products = {}
             saving_info = SavingProductsViewSerializer(saving).data
             request.user.financial_products[saving.fin_prdt_cd] = saving_info
             saving.user.add(request.user)
             request.user.save()
-            return Response({'message': 'Product added successfully'}, status=status.HTTP_201_CREATED)
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 @api_view(['PUT'])
@@ -282,7 +291,7 @@ def create_reviews(product_model, review_model):
 
         # 랜덤한 평점과 내용을 생성
         random_rating = random.randint(1, 5)  # 1부터 5까지의 랜덤한 정수
-        random_content = lorem.text()  # 랜덤한 텍스트
+        random_content = ''
 
         # Review 객체를 생성하고 데이터베이스에 저장
         review = review_model(product=random_product, user=random_user, rating=random_rating, content=random_content)
