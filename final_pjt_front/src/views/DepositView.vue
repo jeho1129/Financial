@@ -1,16 +1,22 @@
 <template>
   <div class="mt-5 container" id="depositMain">
     <div class="d-flex gap-2 align-items-center" id="depositHead">
-      <RouterLink class="fs-4" id="fromDeposit" :to="{ name: 'deposit' }">정기예금</RouterLink>
+      <RouterLink class="fs-4" id="fromDeposit" :to="{ name: 'deposit' }"
+        >정기예금</RouterLink
+      >
       |
       <RouterLink class="fs-4" :to="{ name: 'saving' }">정기적금</RouterLink>
     </div>
     <div class="d-flex justify-content-between align-items-center my-2">
-      <p>전체 {{ deposit.length }} 건</p>
+      <p class="m-0">전체 {{ deposit.length }} 건</p>
       <form @submit.prevent="changeDeposit" class="d-flex gap-2">
         <select v-model="category">
           <option value="all">은행전체</option>
-          <option v-for="category in depositStore.categoryBank" :key="category" :value="category">
+          <option
+            v-for="category in depositStore.categoryBank"
+            :key="category"
+            :value="category"
+          >
             {{ category }}
           </option>
         </select>
@@ -38,7 +44,9 @@
       <tbody>
         <tr v-for="base in deposit" :key="base.id">
           <td>{{ base.kor_co_nm }}</td>
-          <td @click="detailDeposit(base.fin_prdt_cd)" id="moveDepoitDetail">{{ base.fin_prdt_nm }}</td>
+          <td @click="detailDeposit(base.fin_prdt_cd)" id="moveDepoitDetail">
+            {{ base.fin_prdt_nm }}
+          </td>
           <td>
             {{
               base.depositoptions_set.find((item) => {

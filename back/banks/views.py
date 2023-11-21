@@ -82,6 +82,7 @@ def detail_deposits(request, fin_prdt_cd):
             return Response({'message': '가입이 취소되었습니다.'}, status=status.HTTP_204_NO_CONTENT)
         else:
             month = request.data.get('month')
+            print(month)
             current_date = datetime.now().date()
             expiration_date = current_date + relativedelta(months=int(month))
             serializer = DepositJoinSerializer(data=request.data)
