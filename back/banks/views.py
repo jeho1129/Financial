@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.core.mail import EmailMessage
 from django.contrib.auth import get_user_model
-from django.db.models import Count
 from django_pandas.io import read_frame
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
@@ -85,10 +84,9 @@ def detail_deposits(request, fin_prdt_cd):
             month = request.data.get('month')
             current_date = datetime.now().date()
             expiration_date = current_date + relativedelta(months=int(month))
-            request.data['expiration_date'] = expiration_date
             serializer = DepositJoinSerializer(data=request.data)
             if serializer.is_valid(raise_exception=True):
-                serializer.save(product=deposit, user=request.user)
+                serializer.save(product=deposit, user=request.user, expiration_date=expiration_date)
             if request.user.financial_products is None:
                 request.user.financial_products = {}
             deposit_info = DepositProductsViewSerializer(deposit).data
@@ -222,10 +220,9 @@ def detail_savings(request, fin_prdt_cd):
             month = request.data.get('month')
             current_date = datetime.now().date()
             expiration_date = current_date + relativedelta(months=int(month))
-            request.data['expiration_date'] = expiration_date
             serializer = SavingJoinSerializer(data=request.data)
             if serializer.is_valid(raise_exception=True):
-                serializer.save(product=saving, user=request.user)
+                serializer.save(product=saving, user=request.user, expiration_date=expiration_date)
             if request.user.financial_products is None:
                 request.user.financial_products = {}
             saving_info = SavingProductsViewSerializer(saving).data
@@ -396,113 +393,6 @@ def deposit_recommend_items(request, user_pk, item_numbers):
     return Response({'recommended_items': recommended_items.tolist()}, status=status.HTTP_201_CREATED)
 
 
-def get_age_group(age):
-    if age < 20:
-        return "20대 미만"
-    elif age < 30:
-        return 20
-    elif age < 40:
-        return 30
-    elif age < 50:
-        return 40
-    elif age < 60:
-        return 50
-    elif age < 70:
-        return 60
-    else:
-        return "70대 이상"
-
-
-def get_asset_group(asset):
-    asset_group = asset // 1000000
-    return (asset_group * 1000000, (asset_group + 1) * 1000000)
-
-
-def get_salary_group(salary):
-    salary_group = salary // 1000000
-    return (salary_group * 1000000, (salary_group + 1) * 1000000)
-
-
-# def get_products(filtered_users):
-#     products = []
-#     for user in filtered_users:
-#         if user.financial_products is not None:
-#             products.extend(user.financial_products)
-#     return products
-
-
-def get_products(filtered_users):
-    deposit_codes = set(DepositProducts.objects.values_list('fin_prdt_cd', flat=True))
-    saving_codes = set(SavingProducts.objects.values_list('fin_prdt_cd', flat=True))
-
-    deposit_products = []
-    saving_products = []
-
-    for user in filtered_users:
-        if user.financial_products is not None:
-            for product in user.financial_products:
-                if product in deposit_codes:
-                    deposit_products.append(product)
-                elif product in saving_codes:
-                    saving_products.append(product)
-
-    return deposit_products, saving_products
-
-
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def sorting_items(request):
-    User = get_user_model()
-    user = User.objects.get(pk=request.user.pk)
-    
-    # 나이대별 필터링
-    age_group_start = get_age_group(user.age)
-    if age_group_start == '20세 미만':
-        age_group_start = 0
-        age_group_end = 19
-    elif age_group_start == '70대 이상':
-        age_group_start = 70
-        age_group_end = 100
-    age_group_end = age_group_start + 9
-    age_filtered_users = User.objects.filter(age__range=(age_group_start, age_group_end))
-    age_deposit_products, age_saving_products = get_products(age_filtered_users)
-    # age_products = get_products(age_filtered_users)
-
-    # 직업 필터링
-    job_filtered_users = User.objects.filter(job=user.job)
-    job_deposit_products, job_saving_products = get_products(job_filtered_users)
-    # job_products = get_products(job_filtered_users)
-
-    # 연봉 필터링
-    salary_group = get_salary_group(user.salary)
-    salary_filtered_users = User.objects.filter(salary__range=salary_group)
-    salary_deposit_products, salary_saving_products = get_products(salary_filtered_users)
-    # salary_products = get_products(salary_filtered_users)
-
-    # 자산 필터링
-    asset_group = get_asset_group(user.asset)
-    asset_filtered_users = User.objects.filter(asset__range=asset_group)
-    asset_deposit_products, asset_saving_products = get_products(asset_filtered_users)
-    # asset_products = get_products(asset_filtered_users)
-
-    result = {
-    # 'age_products': sorted(list(set(age_products)), key=lambda x: (age_products.count(x), x), reverse=True),
-    # 'job_products': sorted(list(set(job_products)), key=lambda x: (job_products.count(x), x), reverse=True),
-    # 'salary_products': sorted(list(set(salary_products)), key=lambda x: (salary_products.count(x), x), reverse=True),
-    # 'asset_products': sorted(list(set(asset_products)), key=lambda x: (asset_products.count(x), x), reverse=True)
-    'age_deposit_products': sorted(list(set(age_deposit_products)), key=lambda x: (age_deposit_products.count(x), x), reverse=True),
-    'age_saving_products': sorted(list(set(age_saving_products)), key=lambda x: (age_saving_products.count(x), x), reverse=True),
-    'job_deposit_products': sorted(list(set(job_deposit_products)), key=lambda x: (job_deposit_products.count(x), x), reverse=True),
-    'job_saving_products': sorted(list(set(job_saving_products)), key=lambda x: (job_saving_products.count(x), x), reverse=True),
-    'salary_deposit_products': sorted(list(set(salary_deposit_products)), key=lambda x: (salary_deposit_products.count(x), x), reverse=True),
-    'salary_saving_products': sorted(list(set(salary_saving_products)), key=lambda x: (salary_saving_products.count(x), x), reverse=True),
-    'asset_deposit_products': sorted(list(set(asset_deposit_products)), key=lambda x: (asset_deposit_products.count(x), x), reverse=True),
-    'asset_saving_products': sorted(list(set(asset_saving_products)), key=lambda x: (asset_saving_products.count(x), x), reverse=True),
-    }
-
-    return Response(result, status=status.HTTP_200_OK)
-
-
 saving_item_similarity_df = None
 
 
@@ -556,3 +446,94 @@ def saving_recommend_items(request, user_pk, item_numbers):
         recommended_items = similar_items.head(item_numbers).index
 
     return Response({'recommended_items': recommended_items.tolist()}, status=status.HTTP_201_CREATED)
+
+
+def get_age_group(age):
+    if age < 20:
+        return "20대 미만"
+    elif age < 30:
+        return 20
+    elif age < 40:
+        return 30
+    elif age < 50:
+        return 40
+    elif age < 60:
+        return 50
+    elif age < 70:
+        return 60
+    else:
+        return "70대 이상"
+
+
+def get_asset_group(asset):
+    asset_group = asset // 1000000
+    return (asset_group * 1000000, (asset_group + 1) * 1000000)
+
+
+def get_salary_group(salary):
+    salary_group = salary // 1000000
+    return (salary_group * 1000000, (salary_group + 1) * 1000000)
+
+
+def get_products(filtered_users):
+    deposit_codes = set(DepositProducts.objects.values_list('fin_prdt_cd', flat=True))
+    saving_codes = set(SavingProducts.objects.values_list('fin_prdt_cd', flat=True))
+
+    deposit_products = []
+    saving_products = []
+
+    for user in filtered_users:
+        if user.financial_products is not None:
+            for product in user.financial_products:
+                if product in deposit_codes:
+                    deposit_products.append(product)
+                elif product in saving_codes:
+                    saving_products.append(product)
+
+    return deposit_products, saving_products
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def sorting_items(request):
+    User = get_user_model()
+    user = User.objects.get(pk=request.user.pk)
+    
+    # 나이대별 필터링
+    age_group_start = get_age_group(user.age)
+    if age_group_start == '20세 미만':
+        age_group_start = 0
+        age_group_end = 19
+    elif age_group_start == '70대 이상':
+        age_group_start = 70
+        age_group_end = 100
+    age_group_end = age_group_start + 9
+    age_filtered_users = User.objects.filter(age__range=(age_group_start, age_group_end))
+    age_deposit_products, age_saving_products = get_products(age_filtered_users)
+
+    # 직업 필터링
+    job_filtered_users = User.objects.filter(job=user.job)
+    job_deposit_products, job_saving_products = get_products(job_filtered_users)
+
+    # 연봉 필터링
+    salary_group = get_salary_group(user.salary)
+    salary_filtered_users = User.objects.filter(salary__range=salary_group)
+    salary_deposit_products, salary_saving_products = get_products(salary_filtered_users)
+
+    # 자산 필터링
+    asset_group = get_asset_group(user.asset)
+    asset_filtered_users = User.objects.filter(asset__range=asset_group)
+    asset_deposit_products, asset_saving_products = get_products(asset_filtered_users)
+
+    result = {
+    'age_deposit_products': sorted(list(set(age_deposit_products)), key=lambda x: (age_deposit_products.count(x), x), reverse=True),
+    'age_saving_products': sorted(list(set(age_saving_products)), key=lambda x: (age_saving_products.count(x), x), reverse=True),
+    'job_deposit_products': sorted(list(set(job_deposit_products)), key=lambda x: (job_deposit_products.count(x), x), reverse=True),
+    'job_saving_products': sorted(list(set(job_saving_products)), key=lambda x: (job_saving_products.count(x), x), reverse=True),
+    'salary_deposit_products': sorted(list(set(salary_deposit_products)), key=lambda x: (salary_deposit_products.count(x), x), reverse=True),
+    'salary_saving_products': sorted(list(set(salary_saving_products)), key=lambda x: (salary_saving_products.count(x), x), reverse=True),
+    'asset_deposit_products': sorted(list(set(asset_deposit_products)), key=lambda x: (asset_deposit_products.count(x), x), reverse=True),
+    'asset_saving_products': sorted(list(set(asset_saving_products)), key=lambda x: (asset_saving_products.count(x), x), reverse=True),
+    }
+
+    return Response(result, status=status.HTTP_200_OK)
