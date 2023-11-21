@@ -8,6 +8,7 @@ class User(AbstractUser):
     name = models.CharField(max_length=30)  # 이름
     email = models.EmailField(max_length=250)  # Email
     age = models.IntegerField(blank=True, null=True)  # 나이
+    job = models.TextField(blank=True, null=True)
     asset = models.IntegerField(blank=True, null=True)  # 자산
     salary = models.IntegerField(blank=True, null=True)  # 연봉
     financial_products = models.JSONField(blank=True, null=True)  # 가입한 상품 목록
@@ -28,6 +29,7 @@ class CustomAccountAdapter(DefaultAccountAdapter):
         username = data.get("username")
         name = data.get("name")
         age = data.get("age")
+        job = data.get("job")
         asset = data.get("asset")
         salary = data.get("salary")
         financial_products = data.get("financial_products")
@@ -41,6 +43,8 @@ class CustomAccountAdapter(DefaultAccountAdapter):
             user_field(user, "last_name", last_name)
         if age:
             user.age = age
+        if job:
+            user.job = job
         if asset:
             user.asset = asset
         if salary:
