@@ -15,12 +15,13 @@ class UserInfoSerializer(serializers.ModelSerializer):
 class UserChangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ('password', 'email', 'age', 'asset', 'salary',)
+        fields = ('password', 'email', 'age', 'job', 'asset', 'salary',)
 
 
 class CustomRegisterSerializer(RegisterSerializer):
     name = serializers.CharField(required=True, max_length=30)
     age = serializers.IntegerField(required=False)
+    job = serializers.CharField(required=False)
     asset = serializers.IntegerField(required=False)
     salary = serializers.IntegerField(required=False)
     financial_products = serializers.JSONField(required=False)
@@ -32,6 +33,7 @@ class CustomRegisterSerializer(RegisterSerializer):
             'email': self.validated_data.get('email', ''),
             'name': self.validated_data.get('name', ''),
             'age': self.validated_data.get('age', ''),
+            'job': self.validated_data.get('job', ''),
             'asset': self.validated_data.get('asset', ''),
             'salary': self.validated_data.get('salary', ''),
             'financial_products': self.validated_data.get('financial_products', {})

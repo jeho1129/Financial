@@ -82,7 +82,7 @@ class DepositJoinSerializer(serializers.ModelSerializer):
     class Meta:
         model = DepositJoin
         fields = '__all__'
-        read_only_fields = ('product', 'month')
+        read_only_fields = ('product', 'expiration_date')
 
 
 class SavingProductsSerializer(serializers.ModelSerializer):
@@ -164,4 +164,4 @@ class SavingJoinSerializer(serializers.ModelSerializer):
     class Meta:
         model = SavingJoin
         fields = '__all__'
-        read_only_fields = ('product', 'month')
+        read_only_fields = ('product', 'expiration_date')
