@@ -1,12 +1,11 @@
-from django.shortcuts import render, get_list_or_404, get_object_or_404
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
-from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from .models import Article, Comment
 from .serializers import ArticleSerializer, ArticleListSerializer, CommentSerializer
 
-# Create your views here.
+
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def article_list(request):
@@ -28,13 +27,13 @@ def article_detail(request, article_pk):
     article = Article.objects.get(pk=article_pk)
     if request.method == 'GET':
         serializer = ArticleListSerializer(article)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
     
     elif request.method == 'PUT':
         serializer = ArticleSerializer(article, data=request.data, partial=True)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
         
     elif request.method == 'DELETE':
         article.delete()
@@ -59,7 +58,7 @@ def comment_detail(request, comment_pk):
         serializer = CommentSerializer(comment, data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
     
     elif request.method == 'DELETE':
         comment.delete()

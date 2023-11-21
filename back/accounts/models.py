@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from allauth.account.adapter import DefaultAccountAdapter
 
-# Create your models here.
+
 class User(AbstractUser):
     username = models.CharField(max_length=30, unique=True)  # 유저 ID
     name = models.CharField(max_length=30)  # 이름

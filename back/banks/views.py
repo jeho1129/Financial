@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.core.mail import EmailMessage
-from django_pandas.io import read_frame
 from django.contrib.auth import get_user_model
+from django_pandas.io import read_frame
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
@@ -16,7 +16,7 @@ from .serializers import DepositProductsSerializer, DepositOptionsSerializer, De
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticatedOrReadOnly])
+@permission_classes([IsAdminUser])
 def save_deposits(request):
     API_KEY = settings.API_KEY
     request_parameters = [('020000', 1), ('030300', 4)]
@@ -55,36 +55,37 @@ def save_deposits(request):
                     serializer = DepositOptionsSerializer(data=save_data)
                     if serializer.is_valid(raise_exception=True):
                         serializer.save(product=product)
-    return Response({ 'message': 'okay' }, status=status.HTTP_200_OK)
+    return Response({'message': 'okay'}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def list_deposits(request):
-    if request.method == 'GET':
-        deposits = DepositProducts.objects.all()
-        serializer = DepositProductsViewSerializer(deposits, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    deposits = DepositProducts.objects.all()
+    serializer = DepositProductsViewSerializer(deposits, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def detail_deposits(request, fin_prdt_cd):
     deposit = DepositProducts.objects.get(fin_prdt_cd=fin_prdt_cd)
+
     if request.method == 'GET':
         serializer = DepositProductsViewSerializer(deposit)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
     elif request.method == 'POST':
         if request.user.financial_products and deposit.fin_prdt_cd in request.user.financial_products.keys():
             DepositJoin.objects.filter(user=request.user, product=deposit).delete()
             deposit.user.remove(request.user)
             del request.user.financial_products[deposit.fin_prdt_cd]
             request.user.save()
-            return Response({'message': '가입이 취소되었습니다.'}, status=status.HTTP_200_OK)
+            return Response({'message': '가입이 취소되었습니다.'}, status=status.HTTP_204_NO_CONTENT)
         else:
             expiration_date = request.data.get('expiration_date')
-            current_date = datetime.now().date()
             expiration_date = datetime.strptime(expiration_date, '%Y-%m-%d').date()
+            current_date = datetime.now().date()
             month_diff = (expiration_date.year - current_date.year) * 12 + (expiration_date.month - current_date.month)
             serializer = DepositJoinSerializer(data=request.data)
             if serializer.is_valid(raise_exception=True):
@@ -148,7 +149,7 @@ def comment_deposits_detail(request, comment_pk):
         serializer = DepositReviewsSerializer(comment, data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
     
     elif request.method == 'DELETE':
         comment.delete()
@@ -160,7 +161,6 @@ def comment_deposits_detail(request, comment_pk):
 def save_savings(request):
     API_KEY = settings.API_KEY
     request_parameters = [('020000', 1), ('030300', 3)]
-
     for topFinGrpNo, maxPageNo in request_parameters:
         for pageNo in range(1, maxPageNo + 1):
             url = f'http://finlife.fss.or.kr/finlifeapi/savingProductsSearch.json?auth={API_KEY}&topFinGrpNo={topFinGrpNo}&pageNo={pageNo}'
@@ -196,16 +196,15 @@ def save_savings(request):
                     serializer = SavingOptionsSerializer(data=save_data)
                     if serializer.is_valid(raise_exception=True):
                         serializer.save(product=product)
-    return Response({ 'message': 'okay' }, status=status.HTTP_200_OK)
+    return Response({'message': 'okay'}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def list_savings(request):
-    if request.method == 'GET':
-        savings = SavingProducts.objects.all()
-        serializer = SavingProductsViewSerializer(savings, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    savings = SavingProducts.objects.all()
+    serializer = SavingProductsViewSerializer(savings, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
     
 
 @api_view(['GET', 'POST'])
@@ -215,6 +214,7 @@ def detail_savings(request, fin_prdt_cd):
     if request.method == 'GET':
         serializer = SavingProductsViewSerializer(saving)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
     elif request.method == 'POST':
         if request.user.financial_products and saving.fin_prdt_cd in request.user.financial_products.keys():
             SavingJoin.objects.filter(user=request.user, product=saving).delete()
@@ -224,8 +224,8 @@ def detail_savings(request, fin_prdt_cd):
             return Response({'message': '가입이 취소되었습니다.'}, status=status.HTTP_200_OK)
         else:
             expiration_date = request.data.get('expiration_date')
-            current_date = datetime.now().date()
             expiration_date = datetime.strptime(expiration_date, '%Y-%m-%d').date()
+            current_date = datetime.now().date()
             month_diff = (expiration_date.year - current_date.year) * 12 + (expiration_date.month - current_date.month)
             serializer = SavingJoinSerializer(data=request.data)
             if serializer.is_valid(raise_exception=True):
@@ -289,7 +289,7 @@ def comment_savings_detail(request, comment_pk):
         serializer = SavingReviewsSerializer(comment, data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(serializer.data)
+            return Response(serializer.data, status=status.HTTP_200_OK)
     
     elif request.method == 'DELETE':
         comment.delete()
@@ -302,14 +302,16 @@ def exchanges(request):
     API_KEY = settings.API_KEY_2
     url = f'https://www.koreaexim.go.kr/site/program/financial/exchangeJSON?authkey={API_KEY}&data=AP01'
     response = requests.get(url).json()
-    return Response(response)
+    return Response(response, status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
+@permission_classes([IsAdminUser])
 def create_dummy_reviews(request):
     create_reviews(SavingProducts, SavingReviews)
     create_reviews(DepositProducts, DepositReviews)
-    return Response({'message': 'Dummy reviews created successfully.'})
+    return Response({'message': 'Dummy reviews created successfully.'}, status=status.HTTP_201_CREATED)
+
 
 def create_reviews(product_model, review_model):
     user_count = get_user_model().objects.count()
@@ -333,6 +335,7 @@ deposit_item_similarity_df = None
 
 
 @api_view(['GET'])
+@permission_classes([IsAdminUser])
 def deposit_rating_matrix(request):
     # 사용자와 상품에 대한 평점 행렬을 생성
     reviews = DepositReviews.objects.all()
@@ -352,7 +355,8 @@ def deposit_rating_matrix(request):
         index = rating_matrix.columns,
         columns = rating_matrix.columns
     )
-    return Response(deposit_item_similarity_df.to_dict())
+    return Response(deposit_item_similarity_df.to_dict(), status=status.HTTP_201_CREATED)
+
 
 # Item-Based Collaborative Filtering Algorithm
 # 사용자의 행동 패턴(아이템에 대한 평점)을 분석하여, 사용자가 아직 평가하지 않은 아이템 중에 사용자가 선호할 만한 아이템을 찾아내는 방법이다.
@@ -360,7 +364,9 @@ def deposit_rating_matrix(request):
 # 사용자가 아직 아무런 아이템도 평가하지 않았거나, 모든 아이템의 유사도가 0일 경우에는 인기도가 높은 아이템을 추천하는 로직을 포함
 # 새로운 사용자나 데이터가 부족한 사용자에게 추천을 제공하는 방법인 콜드 스타트 문제를 해결함.
 
+
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def deposit_recommend_items(request, user_pk, item_numbers):
     item_similarity_dict = deposit_rating_matrix(request._request).data
     item_similarity_df = deposit_item_similarity_df
@@ -376,8 +382,8 @@ def deposit_recommend_items(request, user_pk, item_numbers):
     if not valid_product_ids:
         popular_items = item_similarity_df.sum().sort_values(ascending=False)
         recommended_items = popular_items.index[:item_numbers]
-        return Response({'recommended_items': recommended_items.tolist()})
-
+        return Response({'recommended_items': recommended_items.tolist()}, status=status.HTTP_201_CREATED)
+    
     # 사용자가 평가한 상품이 있다면, 해당 상품에 대한 유사도를 평균내어 사용자의 평점을 계산
     user_ratings = item_similarity_df.loc[user_product_ids].mean().dropna()
     sorted_user_ratings = user_ratings.sort_values(ascending=False)
@@ -391,13 +397,14 @@ def deposit_recommend_items(request, user_pk, item_numbers):
         top_item_id = sorted_user_ratings.index[0]
         similar_items = item_similarity_df[top_item_id].sort_values(ascending=False)
         recommended_items = similar_items.head(item_numbers).index
-    return Response({'recommended_items': recommended_items.tolist()})
+    return Response({'recommended_items': recommended_items.tolist()}, status=status.HTTP_201_CREATED)
 
 
 saving_item_similarity_df = None
 
 
 @api_view(['GET'])
+@permission_classes([IsAdminUser])
 def saving_rating_matrix(request):
     reviews = SavingReviews.objects.all()
     df = read_frame(reviews, fieldnames=['user__id', 'product__id', 'rating'])
@@ -414,10 +421,11 @@ def saving_rating_matrix(request):
         index = rating_matrix.columns,
         columns = rating_matrix.columns
     )
-    return Response(saving_item_similarity_df.to_dict())
+    return Response(saving_item_similarity_df.to_dict(), status=status.HTTP_201_CREATED)
 
 
 @api_view(['GET'])
+@permission_classes([IsAuthenticated])
 def saving_recommend_items(request, user_pk, item_numbers):
     item_similarity_dict = saving_rating_matrix(request._request).data
     item_similarity_df = saving_item_similarity_df
@@ -425,10 +433,11 @@ def saving_recommend_items(request, user_pk, item_numbers):
     user_reviews = SavingReviews.objects.filter(user__id=user_pk)
     user_product_ids = [review.product_id for review in user_reviews]
     valid_product_ids = [product_id for product_id in user_product_ids if product_id in item_similarity_df.index]
+
     if not valid_product_ids:
         popular_items = item_similarity_df.sum().sort_values(ascending=False)
         recommended_items = popular_items.index[:item_numbers]
-        return Response({'recommended_items': recommended_items.tolist()})
+        return Response({'recommended_items': recommended_items.tolist()}, status=status.HTTP_201_CREATED)
 
     user_ratings = item_similarity_df.loc[user_product_ids].mean().dropna()
     sorted_user_ratings = user_ratings.sort_values(ascending=False)
@@ -443,4 +452,4 @@ def saving_recommend_items(request, user_pk, item_numbers):
         similar_items = item_similarity_df[top_item_id].sort_values(ascending=False)
         recommended_items = similar_items.head(item_numbers).index
 
-    return Response({'recommended_items': recommended_items.tolist()})
+    return Response({'recommended_items': recommended_items.tolist()}, status=status.HTTP_201_CREATED)

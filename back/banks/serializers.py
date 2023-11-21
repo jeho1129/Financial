@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import DepositProducts, DepositOptions, DepositJoin, DepositReviews, SavingProducts, SavingOptions, SavingJoin, SavingReviews
 from django.contrib.auth import get_user_model
 
+
 class DepositProductsSerializer(serializers.ModelSerializer):
     class UserSerializer(serializers.ModelSerializer):
         class Meta:
@@ -40,10 +41,12 @@ class DepositProductsViewSerializer(serializers.ModelSerializer):
     depositoptions_set = DepositOptionsSerializer(many=True, read_only=True)
     depositreviews_set = DepositReviewsSerializer(many=True, read_only=True)
     depositreviews_count = serializers.IntegerField(source='depositreviews_set.count', read_only=True)
+
     class UserSerializer(serializers.ModelSerializer):
         class Meta:
             model = get_user_model()
             fields = '__all__'
+
     user_set = UserSerializer(many=True, read_only=True)
     user_count = serializers.IntegerField(source='user_set.count', read_only=True)
     
@@ -54,11 +57,14 @@ class DepositProductsViewSerializer(serializers.ModelSerializer):
 
 class DepositProductsChangeSerializer(serializers.ModelSerializer):
     depositoptions_set = DepositOptionsSerializer(many=True, read_only=True)
+
     class UserSerializer(serializers.ModelSerializer):
         class Meta:
             model = get_user_model()
             fields = '__all__'
+
     user_set = UserSerializer(many=True, read_only=True)
+
     class Meta:
         model = DepositProducts
         fields = '__all__'
@@ -117,10 +123,12 @@ class SavingProductsViewSerializer(serializers.ModelSerializer):
     savingoptions_set = SavingOptionsSerializer(many=True, read_only=True)
     savingreviews_set = SavingReviewsSerializer(many=True, read_only=True)
     savingreviews_count = serializers.IntegerField(source='savingreviews_set.count', read_only=True)
+
     class UserSerializer(serializers.ModelSerializer):
         class Meta:
             model = get_user_model()
             fields = '__all__'
+
     user_set = UserSerializer(many=True, read_only=True)
     user_count = serializers.IntegerField(source='user_set.count', read_only=True)
     
@@ -131,12 +139,14 @@ class SavingProductsViewSerializer(serializers.ModelSerializer):
     
 class SavingProductsChangeSerializer(serializers.ModelSerializer):
     savingoptions_set = SavingOptionsSerializer(many=True)
+
     class UserSerializer(serializers.ModelSerializer):
         class Meta:
             model = get_user_model()
             fields = '__all__'
             
     user_set = UserSerializer(many=True, read_only=True)
+    
     class Meta:
         model = SavingProducts
         fields = '__all__'
