@@ -7,20 +7,19 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, IsAuthenticatedOrReadOnly
 from sklearn.metrics.pairwise import cosine_similarity
+from datetime import datetime
 import pandas as pd
 import requests
 import random
-import lorem
 from .models import DepositProducts, DepositOptions, DepositReviews, DepositJoin, SavingProducts, SavingOptions, SavingReviews, SavingJoin
 from .serializers import DepositProductsSerializer, DepositOptionsSerializer, DepositReviewsSerializer, DepositProductsViewSerializer, DepositProductsChangeSerializer, DepositJoinSerializer, SavingProductsSerializer, SavingOptionsSerializer, SavingReviewsSerializer, SavingProductsViewSerializer, SavingProductsChangeSerializer, SavingJoinSerializer
 
 
-# Create your views here.
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def save_deposits(request):
     API_KEY = settings.API_KEY
-    request_parameters = [('020000', 1), ('030300', 4)]  # topFinGrpNo와 pageNo를 튜플로 지정
+    request_parameters = [('020000', 1), ('030300', 4)]
     for topFinGrpNo, maxPageNo in request_parameters:
         for pageNo in range(1, maxPageNo + 1):
             url = f'http://finlife.fss.or.kr/finlifeapi/depositProductsSearch.json?auth={API_KEY}&topFinGrpNo={topFinGrpNo}&pageNo={pageNo}'
@@ -83,9 +82,13 @@ def detail_deposits(request, fin_prdt_cd):
             request.user.save()
             return Response({'message': '가입이 취소되었습니다.'}, status=status.HTTP_200_OK)
         else:
+            expiration_date = request.data.get('expiration_date')
+            current_date = datetime.now().date()
+            expiration_date = datetime.strptime(expiration_date, '%Y-%m-%d').date()
+            month_diff = (expiration_date.year - current_date.year) * 12 + (expiration_date.month - current_date.month)
             serializer = DepositJoinSerializer(data=request.data)
             if serializer.is_valid(raise_exception=True):
-                serializer.save(product=deposit, user=request.user)
+                serializer.save(product=deposit, user=request.user, month=month_diff)
             if request.user.financial_products is None:
                 request.user.financial_products = {}
             deposit_info = DepositProductsViewSerializer(deposit).data
@@ -208,9 +211,13 @@ def detail_savings(request, fin_prdt_cd):
             request.user.save()
             return Response({'message': '가입이 취소되었습니다.'}, status=status.HTTP_200_OK)
         else:
+            expiration_date = request.data.get('expiration_date')
+            current_date = datetime.now().date()
+            expiration_date = datetime.strptime(expiration_date, '%Y-%m-%d').date()
+            month_diff = (expiration_date.year - current_date.year) * 12 + (expiration_date.month - current_date.month)
             serializer = SavingJoinSerializer(data=request.data)
             if serializer.is_valid(raise_exception=True):
-                serializer.save(product=saving, user=request.user)
+                serializer.save(product=saving, user=request.user, month=month_diff)
             if request.user.financial_products is None:
                 request.user.financial_products = {}
             saving_info = SavingProductsViewSerializer(saving).data
