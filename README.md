@@ -68,7 +68,7 @@
   - 우선 모든 서비스의 기본이 되는 User Model을 중심으로 User Model과 1:N 관계를 가지는 예금 모델, 적금 모델을 설정하였고, 예/적금 모델과 1:N 관계를 가지는 예/적금 옵션 모델을 추가적으로 설정하였습니다. 또한, 예/적금 상세 조회 페이지에서 해당 상품에 대한 리뷰 기능을 구현하기 위해 예/적금 모델 및 User Model과 1:N 관계를 가지는 Review 모델 또한 설정하였습니다.
   - 근처 은행 검색 기능을 구현하기 위해 Bank Model을 구현하였습니다.
   - 커뮤니티 기능을 구현하기 위해 Article, Comment Model을 추가적으로 구현하였습니다.
-    ![ERD](back/First_ERD.jpg)
+    ![ERD](final_pjt_back/ERD_MIDDLE.png)
 
 - 회원 커스터마이징 기능 구현
   - 필수 요구사항 중 회원 커스터마이징 기능을 구현하였습니다.
@@ -92,7 +92,7 @@
 - 커뮤니티 기능 구현
   - 글, 댓글 Model을 구현하고, 게시글 및 댓글 조회, 생성, 삭제, 수정 기능을 구현할 수 있도록 이에 해당하는 URL과 View 함수를 구현하였습니다.
 - URL
-  ![URL](back/URL.JPG)
+  ![URL](final_pjt_back/URL.JPG)
 
 ### Front
 
