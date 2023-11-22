@@ -110,21 +110,21 @@ def change_deposits(request, fin_prdt_cd):
                 option_id = option_data.get('id')
                 intr_rate = option_data.get('intr_rate')
                 intr_rate2 = option_data.get('intr_rate2')
-                if option_id and intr_rate is not None:
-                    deposit_option = DepositOptions.objects.get(id=option_id)
-                    deposit_option.intr_rate = intr_rate
-                    deposit_option.intr_rate2 = intr_rate2
-                    deposit_option.save()
-
+                if option_id:
+                    if intr_rate is not None:
+                        DepositOptions.objects.filter(id=option_id).update(intr_rate=intr_rate)
+                    if intr_rate2 is not None:
+                        DepositOptions.objects.filter(id=option_id).update(intr_rate2=intr_rate2)
+        options = DepositOptions.objects.filter(product=deposit)
         subject = f"금리 수정 확인 - 상품명: {serializer.data['fin_prdt_nm']}"
         to = list(deposit.user.values_list('email', flat=True))
         from_email = "jeho1129@naver.com"
-        message = f"{serializer.data['fin_prdt_nm']} 상품의 금리가 다음과 같이 변경되었습니다!\n"
-        for option in serializer.data['depositoptions_set']:
-            save_trm = option['save_trm']
-            intr_rate = option['intr_rate']
-            intr_rate2 = option['intr_rate2']
-            message += f"가입 기간: {save_trm} - 금리: {intr_rate} / 우대금리: {intr_rate2}\n"
+        message = f"{serializer.data['fin_prdt_nm']} 상품의 금리가 다음과 같이 변경되었습니다! \n"
+        for option in options:
+            save_trm = option.save_trm
+            intr_rate = option.intr_rate
+            intr_rate2 = option.intr_rate2
+            message += f"가입 기간: {save_trm} - 금리: {intr_rate} / 우대금리: {intr_rate2} \n"
         EmailMessage(subject=subject, body=message, to=to, from_email=from_email).send()
         return Response(serializer.data, status=status.HTTP_200_OK)
 
