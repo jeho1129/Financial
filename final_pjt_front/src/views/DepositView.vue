@@ -1,9 +1,7 @@
 <template>
   <div class="mt-5 container" id="depositMain">
     <div class="d-flex gap-2 align-items-center" id="depositHead">
-      <RouterLink class="fs-4" id="fromDeposit" :to="{ name: 'deposit' }"
-        >정기예금</RouterLink
-      >
+      <RouterLink class="fs-4" id="fromDeposit" :to="{ name: 'deposit' }">정기예금</RouterLink>
       |
       <RouterLink class="fs-4" :to="{ name: 'saving' }">정기적금</RouterLink>
     </div>
@@ -12,11 +10,7 @@
       <form @submit.prevent="changeDeposit" class="d-flex gap-2">
         <select v-model="category">
           <option value="all">은행전체</option>
-          <option
-            v-for="category in depositStore.categoryBank"
-            :key="category"
-            :value="category"
-          >
+          <option v-for="category in depositStore.categoryBank" :key="category" :value="category">
             {{ category }}
           </option>
         </select>
@@ -97,6 +91,7 @@ onMounted(() => {
   if (!depositStore.deposit.length) {
     depositStore.callDeposit();
   }
+  console.log(deposit.value);
 });
 
 const changeDeposit = () => {
@@ -111,6 +106,36 @@ const changeDeposit = () => {
 const detailDeposit = (id) => {
   router.push({ name: "depositDetail", params: { depositId: id } });
 };
+
+function sortTable(table_id, sortColumn) {
+  var tableData = document.getElementById(table_id).getElementsByTagName("tbody").item(0);
+  var rowData = tableData.getElementsByTagName("tr");
+  for (var i = 0; i < rowData.length - 1; i++) {
+    for (var j = 0; j < rowData.length - (i + 1); j++) {
+      if (
+        Number(
+          rowData
+            .item(j)
+            .getElementsByTagName("td")
+            .item(sortColumn)
+            .innerHTML.replace(/[^0-9\.]+/g, "")
+        ) >
+        Number(
+          rowData
+            .item(j + 1)
+            .getElementsByTagName("td")
+            .item(sortColumn)
+            .innerHTML.replace(/[^0-9\.]+/g, "")
+        )
+      ) {
+        tableData.insertBefore(rowData.item(j + 1), rowData.item(j));
+      }
+    }
+  }
+}
+function sort() {
+  sortTable("sort_table", 0);
+}
 </script>
 
 <style scoped>

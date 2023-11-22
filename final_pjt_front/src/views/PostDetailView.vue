@@ -3,20 +3,16 @@
     <h1>게시글 수정 정보</h1>
     <p>{{ posts.id }} 번 글</p>
     <h4>{{ posts.title }}</h4>
+    <p>{{ posts.user.pk }}</p>
+    <p>{{ authStore.user.id }}</p>
     <hr />
     <p>작성일 : {{ posts.created_at }}</p>
     <p>수정일 : {{ posts.updated_at }}</p>
     <hr />
     {{ posts.content }}
-    <button @click="delPost">게시글삭제</button>
-    <RouterLink
-      v-if="authStore.user.pk === posts.user.pk"
-      :to="{ name: 'update', params: posts.id }"
-      >수정</RouterLink
-    >
-    <button v-if="authStore.user.pk === posts.user.pk" @click="delPost">
-      삭제
-    </button>
+    <button v-if="authStore.user.id === posts.user.pk" @click="delPost">게시글삭제</button>
+    <!-- <RouterLink v-if="authStore.user.id === posts.user.pk" :to="{ name: 'update', params: posts.id }">수정</RouterLink> -->
+    <button v-if="authStore.user.id === posts.user.pk" :to="{ name: 'update', params: posts.id }">수정</button>
     <hr />
     <form @submit.prevent="submitComment">
       <label for="detailPostContent">내용</label>
@@ -26,7 +22,7 @@
     <p v-for="comment in posts.comment_set" :key="comment.id">
       {{ comment.user.username }}
       {{ comment.content }}
-      <button @click="delComment(comment.id)">삭제</button>
+      <button v-if="authStore.user.id === comment.user.pk" @click="delComment(comment.id)">삭제</button>
     </p>
     <hr />
     <p></p>

@@ -1,52 +1,78 @@
 <template>
-  <table>
-    <tbody>
-      <tr>
-        <th>회원번호</th>
-        <td>{{ authStore.user.id }}</td>
-      </tr>
-      <tr>
-        <th>이름</th>
-        <td>
-          {{ authStore.user.name || "이름을 설정해주세요" }}
-        </td>
-      </tr>
-      <tr>
-        <th>ID</th>
-        <td>{{ authStore.user.username }}</td>
-      </tr>
-      <tr>
-        <th>Email</th>
-        <td>{{ authStore.user.email || "이메일을 설정해주세요" }}</td>
-      </tr>
-      <tr>
-        <th>나이</th>
-        <td>{{ authStore.user.age || "나이를 설정해주세요" }}</td>
-      </tr>
-      <tr>
-        <th>현재 가진 금액</th>
-        <td>{{ authStore.user.asset || "금액을 설정해주세요" }}</td>
-      </tr>
-      <tr>
-        <th>연봉</th>
-        <td>{{ authStore.user.salary || "금액을 설정해주세요" }}</td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="defaultMyProfile p-4">
+    <div>
+      <div class="d-flex justify-content-between">
+        <h4>기본 정보</h4>
+        <button @click="someEvent" class="p-2" id="moveProfileEdit">수정하기</button>
+        <!-- <button v-else @click="dddd" class="p-2" id="moveProfileEdit">수정하기</button> -->
+      </div>
+      <div class="d-flex align-items-center gap-4">
+        <img src="../assets/profile.jpg" alt="" />
+        <p class="m-0">{{ authStore.user.name || "admin" }}</p>
+      </div>
+      <hr />
+      <table>
+        <tbody>
+          <tr>
+            <th>아이디</th>
+            <td>{{ authStore.user.username }}</td>
+          </tr>
+          <tr>
+            <th>이메일</th>
+            <td>{{ authStore.user.email || "이메일을 설정해주세요" }}</td>
+          </tr>
+          <tr>
+            <th>나이</th>
+            <td>{{ authStore.user.age || "나이를 설정해주세요" }}</td>
+          </tr>
+          <tr>
+            <th>자산</th>
+            <td>{{ authStore.user.asset || "금액을 설정해주세요" }}</td>
+          </tr>
+          <tr>
+            <th>연봉</th>
+            <td>{{ authStore.user.salary || "금액을 설정해주세요" }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </template>
 
 <script setup>
 import { useAuthStore } from "../stores/auth";
 
 const authStore = useAuthStore();
+
+const emit = defineEmits("someEvent");
+const someEvent = () => {
+  emit("someEvent");
+};
 </script>
 
 <style scoped>
-th {
-  padding: 20px 0 20px 0;
+.defaultMyProfile {
+  background-color: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+img {
+  width: 60px;
+  border-radius: 50%;
+}
+
+#moveProfileEdit {
+  background-color: #5fb9a6;
+  border: 0px;
+  border-radius: 5px;
+}
+
+#moveProfileEdit:hover {
+  filter: brightness(0.9);
 }
 
 td {
-  padding: 20px;
+  padding: 10px;
 }
 </style>

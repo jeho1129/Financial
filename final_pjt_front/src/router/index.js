@@ -11,7 +11,6 @@ import PostListView from "../views/PostListView.vue";
 import PostCreateView from "../views/PostCreateView.vue";
 import PostDetailView from "../views/PostDetailView.vue";
 import MyProfileView from "../views/MyProfileView.vue";
-import CheckProductView from "../views/CheckProductView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -75,11 +74,6 @@ const router = createRouter({
       path: "/myProfile",
       name: "myProfile",
       component: MyProfileView,
-    },
-    {
-      path: "/checkProduct",
-      name: "checkProduct",
-      component: CheckProductView,
     },
   ],
 });

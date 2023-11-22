@@ -1,40 +1,39 @@
 <template>
-  <form @submit.prevent="editProfile">
+  <form class="defaultMyProfile p-4" @submit.prevent="editProfile">
+    <div class="d-flex justify-content-between">
+      <h4>기본 정보</h4>
+      <button class="p-2" id="moveProfile">수정하기</button>
+      <!-- <button v-else @click="dddd" class="p-2" id="moveProfile">수정하기</button> -->
+    </div>
+    <div class="d-flex align-items-center gap-4">
+      <img src="../assets/profile.jpg" alt="" />
+      <p class="m-0">{{ authStore.user.name || "admin" }}</p>
+    </div>
+    <hr />
     <table>
       <tbody>
         <tr>
-          <th>회원번호</th>
-          <td>{{ authStore.user.id }}</td>
-        </tr>
-        <tr>
-          <th>이름</th>
-          <td>
-            {{ authStore.user.name || "이름을 설정해주세요" }}
-          </td>
-        </tr>
-        <tr>
-          <th>ID</th>
+          <th>아이디</th>
           <td>{{ authStore.user.username }}</td>
         </tr>
         <tr>
-          <th><label for="">Email</label></th>
-          <td><input type="email" v-model="editEmail" /></td>
+          <th>이메일</th>
+          <td><input type="email" v-model="editEmail" min="0" /></td>
         </tr>
         <tr>
-          <th><label for="">나이</label></th>
-          <td><input type="number" v-model="editAge" /></td>
+          <th>나이</th>
+          <td><input type="number" v-model="editAge" min="0" /></td>
         </tr>
         <tr>
-          <th><label for="">현재 가진 금액</label></th>
-          <td><input type="number" v-model="editAsset" /></td>
+          <th>자산</th>
+          <td><input type="number" v-model="editAsset" min="0" /></td>
         </tr>
         <tr>
-          <th><label for="">연봉</label></th>
-          <td><input type="number" v-model="editSalary" /></td>
+          <th>연봉</th>
+          <td><input type="number" v-model="editSalary" min="0" /></td>
         </tr>
       </tbody>
     </table>
-    <button>제출</button>
   </form>
 </template>
 
@@ -52,31 +51,54 @@ const editSalary = ref(authStore.user.salary);
 const emit = defineEmits(["editProfile"]);
 
 const editProfile = function () {
-  const payload = {
-    // password: authStore.password,
-    // username: authStore.username,
-    // name: authStore.name,
-    email: editEmail.value,
-    age: editAge.value,
-    asset: editAsset.value,
-    salary: editSalary.value,
-  };
-  authStore.editUser(payload);
+  if (window.confirm("회원정보를 수정하시겠습니까?")) {
+    const payload = {
+      // password: authStore.password,
+      // username: authStore.username,
+      // name: authStore.name,
+      email: editEmail.value,
+      age: editAge.value,
+      asset: editAsset.value,
+      salary: editSalary.value,
+    };
 
+    console.log(payload);
+    authStore.editUser(payload);
+  }
   emit("editProfile");
 };
 </script>
 
 <style scoped>
-th {
-  padding: 20px 0 20px 0;
+.defaultMyProfile {
+  background-color: white;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+#moveProfile {
+  background-color: #5fb9a6;
+  border: 0px;
+  border-radius: 5px;
+}
+
+#moveProfile:hover {
+  filter: brightness(0.9);
+}
+
+img {
+  width: 60px;
+  border-radius: 50%;
 }
 
 td {
-  padding: 20px;
+  padding: 10px;
 }
 
 input {
-  padding: 0;
+  padding: 0 0 0 10px;
+  width: 200px;
+  border: 1px solid lightgray;
+  border-radius: 5px;
 }
 </style>
