@@ -2,12 +2,17 @@
   <dialog @click="closeModal" ref="signUpDom">
     <div class="position-relative p-4">
       <form method="dialog" class="position-absolute move">
-        <button value="close" class="m-0">❌</button>
+        <button value="close" class="m-0" id="closeSignUpDialog">
+          <font-awesome-icon
+            :icon="['fas', 'xmark']"
+            class="closeSignUpDialog"
+          />
+        </button>
       </form>
       <h2 class="text-center">회원가입</h2>
-      <form @submit.prevent="signUp">
+      <form @submit.prevent="signUp" id="signUpForm">
         <div class="d-flex flex-column gap-3">
-          <h5 class="m-0">기본정보</h5>
+          <h5 class="m-0">필수정보</h5>
           <div>
             <label for="signUpId"
               >아이디
@@ -83,13 +88,14 @@
             </div>
           </div>
           <div>
-            <label for="signUpMail">이메일 </label>
+            <label for="signUpMail">이메일 <span>*</span></label>
             <br />
             <input
               type="email"
               v-model="signUpEmail"
               id="signUpMail"
               style="width: 100%"
+              required
             />
           </div>
         </div>
@@ -118,7 +124,7 @@
             />
           </div>
         </div>
-        <button class="btn btn-primary position-sticky">회원가입</button>
+        <button class="px-4 py-2 mt-4" id="signUpCk">회원가입</button>
       </form>
     </div>
   </dialog>
@@ -140,6 +146,18 @@ const signUpSalary = ref(null);
 
 const authStore = useAuthStore();
 
+const resetData = () => {
+  signUpDom.value = null;
+  signUpId.value = null;
+  signUpPw.value = null;
+  signUpPwCk.value = null;
+  signUpName.value = null;
+  signUpAge.value = null;
+  signUpEmail.value = null;
+  signUpMoney.value = null;
+  signUpSalary.value = null;
+};
+
 const signUp = function () {
   const payload = {
     password1: signUpPw.value,
@@ -151,12 +169,16 @@ const signUp = function () {
     asset: signUpMoney.value,
     salary: signUpSalary.value,
   };
+  const dialog = document.querySelector("#moveSignUpPage");
+  dialog.close();
   authStore.signUp(payload);
+  resetData();
 };
 
 const closeModal = (e) => {
   if (e.target.nodeName === "DIALOG") {
     signUpDom.value.close();
+    resetData();
   }
 };
 </script>
@@ -173,6 +195,28 @@ dialog {
   padding: 0;
   height: 500px;
   width: 500px;
+  overflow-y: scroll;
+}
+
+dialog::-webkit-scrollbar {
+  width: 10px; /* 스크롤바의 너비 */
+}
+
+dialog::-webkit-scrollbar-thumb {
+  background: lightgray; /* 스크롤바의 색상 */
+  border-radius: 10px;
+}
+
+label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid lightgray;
+  border-radius: 5px;
 }
 
 span {
@@ -180,17 +224,36 @@ span {
 }
 
 .move {
-  right: 10px;
+  top: 20px;
+  right: 20px;
 }
 
-input {
+#signUpCk {
+  background-color: #5fb9a6;
+  border: 0px;
   border-radius: 5px;
-  border: 1px solid black;
+  font-weight: bold;
+  position: sticky;
+  bottom: 24px;
+  /* margin-top: 24px; */
+  width: 100%;
+  /* bottom: 24px; */
 }
 
-button {
-  margin-top: 24px;
-  width: 100%;
-  bottom: 24px;
+#signUpForm {
+  margin: 0 auto;
+  padding: 20px 20px 0;
+  border-radius: 5px;
+}
+
+#closeSignUpDialog {
+  border: 0px;
+  background-color: transparent;
+}
+
+.closeSignUpDialog {
+  width: 30px;
+  height: 30px;
+  color: lightgray;
 }
 </style>

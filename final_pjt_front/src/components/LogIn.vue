@@ -1,33 +1,53 @@
 <template>
   <dialog @click="closeModal" ref="logInDom">
-    <div id="hhh" class="position-relative p-4">
+    <div class="position-relative p-4 heightFull">
       <form method="dialog" class="position-absolute move">
-        <button value="close">❌</button>
+        <button value="close" id="closeLoginDialog">
+          <font-awesome-icon
+            :icon="['fas', 'xmark']"
+            class="closeLoginDialog"
+          />
+        </button>
       </form>
       <h2 class="text-center">로그인</h2>
-      <form @submit.prevent="logIn" class="d-flex flex-column gap-3">
+      <form
+        @submit.prevent="logIn"
+        class="d-flex flex-column gap-3"
+        id="logInForm"
+      >
         <div>
-          <label for="LogInId"
+          <label for="logInId"
             >아이디
             <span>*</span>
           </label>
           <br />
-          <input v-model.trim="logInId" type="text" style="width: 100%" id="LogInId" />
+          <input
+            v-model.trim="logInId"
+            type="text"
+            style="width: 100%"
+            id="logInId"
+          />
         </div>
         <div>
-          <label for="LogInMail"
+          <label for="logInPw"
             >비밀번호
             <span>*</span>
           </label>
           <br />
-          <input v-model.trim="logInPw" type="password" style="width: 100%" id="LogInPw" autoComplete="off" />
+          <input
+            v-model.trim="logInPw"
+            type="password"
+            style="width: 100%"
+            id="logInPw"
+            autoComplete="off"
+          />
         </div>
-        <button class="btn btn-primary">로그인</button>
+        <button id="logInCk" class="px-4 py-2 mt-2">로그인</button>
       </form>
       <hr />
       <div class="text-center">
         계정이 없으신가요?
-        <span @click="moveSignUp" id="moveSignUp" class="text-primary">가입하기</span>
+        <span @click="moveSignUp" id="moveSignUp">가입하기</span>
       </div>
     </div>
   </dialog>
@@ -43,9 +63,15 @@ const logInDom = ref(null);
 const logInId = ref("");
 const logInPw = ref("");
 
+const resetData = () => {
+  logInId.value = "";
+  logInPw.value = "";
+};
+
 const closeModal = (e) => {
   if (e.target.nodeName === "DIALOG") {
     logInDom.value.close();
+    resetData();
   }
 };
 
@@ -53,6 +79,7 @@ const moveSignUp = () => {
   logInDom.value.close();
   const dialog = document.querySelector("#moveSignUpPage");
   dialog.showModal();
+  resetData();
 };
 
 const logIn = () => {
@@ -60,8 +87,10 @@ const logIn = () => {
     username: logInId.value,
     password: logInPw.value,
   };
-
+  const dialog = document.querySelector("#moveLogInPage");
+  dialog.close();
   authStore.logIn(payload);
+  resetData();
 };
 </script>
 
@@ -79,20 +108,58 @@ dialog {
   width: 500px;
 }
 
+label {
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid lightgray;
+  border-radius: 5px;
+}
+
 span {
   color: darkblue;
 }
 
 .move {
-  right: 10px;
-}
-
-#hhh {
-  height: 100%;
+  top: 20px;
+  right: 20px;
 }
 
 #moveSignUp {
   cursor: pointer;
   font-weight: bold;
+  color: #5fb9a6;
+}
+
+.heightFull {
+  height: 100%;
+}
+
+#logInForm {
+  margin: 0 auto;
+  padding: 20px 20px 0;
+  border-radius: 5px;
+}
+
+#logInCk {
+  background-color: #5fb9a6;
+  border: 0px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+#closeLoginDialog {
+  border: 0px;
+  background-color: transparent;
+}
+
+.closeLoginDialog {
+  width: 30px;
+  height: 30px;
+  color: lightgray;
 }
 </style>

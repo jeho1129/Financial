@@ -2,15 +2,31 @@
   <dialog @click="closeModal" ref="savingJoinDom">
     <div v-if="saving" id="hhh" class="position-relative p-4">
       <form method="dialog" class="position-absolute move">
-        <button value="close">❌</button>
+        <button value="close" id="closeSavingJoinDialog">
+          <font-awesome-icon
+            :icon="['fas', 'xmark']"
+            class="closeSavingJoinDialog"
+          />
+        </button>
       </form>
       <!-- <p>{{ deposit }}</p> -->
       <h2 class="text-center">정기예금 가입</h2>
-      <form id="savingForm" class="d-flex flex-column gap-3" @submit.prevent="joinSaving">
+      <form
+        id="savingForm"
+        class="d-flex flex-column gap-3"
+        @submit.prevent="joinSaving"
+      >
         <div>
           <label for="amount">예치금:</label>
           <br />
-          <input v-model.trim="savingJoinAmount" type="number" id="amount" name="amount" required />
+          <input
+            v-model.trim="savingJoinAmount"
+            type="number"
+            id="amount"
+            name="amount"
+            placeholder="금액을 입력해주세요."
+            required
+          />
         </div>
         <div>
           <label for="months">가입개월:</label>
@@ -18,10 +34,16 @@
           <!-- <input type="number" id="months" name="months" required /> -->
           <select name="" id="months" v-model="savingJoinPeriod">
             <option :value="0">기간을 선택하세요</option>
-            <option v-for="option in saving.savingoptions_set" :key="option.id" :value="option.save_trm">{{ option.save_trm }} 개월</option>
+            <option
+              v-for="option in saving.savingoptions_set"
+              :key="option.id"
+              :value="option.save_trm"
+            >
+              {{ option.save_trm }} 개월
+            </option>
           </select>
         </div>
-        <button class="btn btn-primary">가입하기</button>
+        <button class="px-4 py-2 mt-3" id="savingJoinCk">가입하기</button>
       </form>
     </div>
   </dialog>
@@ -37,16 +59,22 @@ const authStore = useAuthStore();
 const savingJoinDom = ref(null);
 const route = useRoute();
 
-const savingJoinAmount = ref(0);
+const savingJoinAmount = ref("");
 const savingJoinPeriod = ref(0);
 
 const props = defineProps({
   saving: Object,
 });
 
+const resetData = () => {
+  savingJoinAmount.value = "";
+  savingJoinPeriod.value = 0;
+};
+
 const closeModal = (e) => {
   if (e.target.nodeName === "DIALOG") {
     savingJoinDom.value.close();
+    resetData();
   }
 };
 
@@ -68,6 +96,9 @@ const joinSaving = () => {
   })
     .then((res) => {
       authStore.user.financial_products = res.data.user.financial_products;
+      const dialog = document.querySelector("#moveJoinSavingPage");
+      dialog.close();
+      resetData();
     })
     .catch((err) => {
       console.log(err);
@@ -118,19 +149,21 @@ select {
   /* box-sizing: border-box; */
 }
 
-/* input[type="submit"] {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-} */
+#closeSavingJoinDialog {
+  border: 0px;
+  background-color: transparent;
+}
 
-/* input[type="submit"]:hover {
-  background-color: #45a049;
-} */
+.closeSavingJoinDialog {
+  width: 30px;
+  height: 30px;
+  color: lightgray;
+}
+
+#savingJoinCk {
+  background-color: #5fb9a6;
+  border: 0px;
+  border-radius: 5px;
+  font-weight: bold;
+}
 </style>

@@ -1,7 +1,9 @@
 <template>
   <div class="mt-5 container" id="depositMain">
     <div class="d-flex gap-2 align-items-center" id="depositHead">
-      <RouterLink class="fs-4" id="fromDeposit" :to="{ name: 'deposit' }">정기예금</RouterLink>
+      <RouterLink class="fs-4" id="fromDeposit" :to="{ name: 'deposit' }"
+        >정기예금</RouterLink
+      >
       |
       <RouterLink class="fs-4" :to="{ name: 'saving' }">정기적금</RouterLink>
     </div>
@@ -10,7 +12,11 @@
       <form @submit.prevent="changeDeposit" class="d-flex gap-2">
         <select v-model="category">
           <option value="all">은행전체</option>
-          <option v-for="category in depositStore.categoryBank" :key="category" :value="category">
+          <option
+            v-for="category in depositStore.categoryBank"
+            :key="category"
+            :value="category"
+          >
             {{ category }}
           </option>
         </select>
@@ -24,15 +30,43 @@
         <button class="px-4 py-2">검색</button>
       </form>
     </div>
-    <table class="table text-center">
+    <table id="sort_table" class="table text-center">
       <thead>
         <tr class="table-success">
           <th scope="col">금융회사명</th>
           <th scope="col">상품명</th>
-          <th scope="'col'">6개월</th>
-          <th scope="'col'">12개월</th>
-          <th scope="'col'">24개월</th>
-          <th scope="'col'">36개월</th>
+          <th scope="'col'">
+            6개월
+            <font-awesome-icon
+              :icon="['fas', 'sort']"
+              @click="sort(2)"
+              style="cursor: pointer"
+            />
+          </th>
+          <th scope="'col'">
+            12개월
+            <font-awesome-icon
+              :icon="['fas', 'sort']"
+              @click="sort(3)"
+              style="cursor: pointer"
+            />
+          </th>
+          <th scope="'col'">
+            24개월
+            <font-awesome-icon
+              :icon="['fas', 'sort']"
+              @click="sort(4)"
+              style="cursor: pointer"
+            />
+          </th>
+          <th scope="'col'">
+            36개월
+            <font-awesome-icon
+              :icon="['fas', 'sort']"
+              @click="sort(5)"
+              style="cursor: pointer"
+            />
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -45,28 +79,44 @@
             {{
               base.depositoptions_set.find((item) => {
                 return item.save_trm === 6;
-              })?.intr_rate2 ?? "-"
+              })?.intr_rate ||
+              base.depositoptions_set.find((item) => {
+                return item.save_trm === 6;
+              })?.intr_rate2 ||
+              "-"
             }}
           </td>
           <td>
             {{
               base.depositoptions_set.find((item) => {
                 return item.save_trm === 12;
-              })?.intr_rate2 ?? "-"
+              })?.intr_rate ||
+              base.depositoptions_set.find((item) => {
+                return item.save_trm === 12;
+              })?.intr_rate2 ||
+              "-"
             }}
           </td>
           <td>
             {{
               base.depositoptions_set.find((item) => {
                 return item.save_trm === 24;
-              })?.intr_rate2 ?? "-"
+              })?.intr_rate ||
+              base.depositoptions_set.find((item) => {
+                return item.save_trm === 24;
+              })?.intr_rate2 ||
+              "-"
             }}
           </td>
           <td>
             {{
               base.depositoptions_set.find((item) => {
                 return item.save_trm === 36;
-              })?.intr_rate2 ?? "-"
+              })?.intr_rate ||
+              base.depositoptions_set.find((item) => {
+                return item.save_trm === 36;
+              })?.intr_rate2 ||
+              "-"
             }}
           </td>
         </tr>
@@ -86,6 +136,7 @@ const router = useRouter();
 const category = ref("all");
 const period = ref("all");
 const deposit = ref(depositStore.deposit);
+const ck = ref([0, 0, 0, 0]);
 
 onMounted(() => {
   if (!depositStore.deposit.length) {
@@ -107,9 +158,44 @@ const detailDeposit = (id) => {
   router.push({ name: "depositDetail", params: { depositId: id } });
 };
 
-function sortTable(table_id, sortColumn) {
-  var tableData = document.getElementById(table_id).getElementsByTagName("tbody").item(0);
+function sortDesc(table_id, sortColumn) {
+  var tableData = document
+    .getElementById(table_id)
+    .getElementsByTagName("tbody")
+    .item(0);
   var rowData = tableData.getElementsByTagName("tr");
+  console.log(rowData.item(0));
+  for (var i = 0; i < rowData.length - 1; i++) {
+    for (var j = 0; j < rowData.length - (i + 1); j++) {
+      if (
+        Number(
+          rowData
+            .item(j)
+            .getElementsByTagName("td")
+            .item(sortColumn)
+            .innerHTML.replace(/[^0-9\.]+/g, "")
+        ) <
+        Number(
+          rowData
+            .item(j + 1)
+            .getElementsByTagName("td")
+            .item(sortColumn)
+            .innerHTML.replace(/[^0-9\.]+/g, "")
+        )
+      ) {
+        tableData.insertBefore(rowData.item(j + 1), rowData.item(j));
+      }
+    }
+  }
+}
+
+function sortAsc(table_id, sortColumn) {
+  var tableData = document
+    .getElementById(table_id)
+    .getElementsByTagName("tbody")
+    .item(0);
+  var rowData = tableData.getElementsByTagName("tr");
+  console.log(rowData.item(0));
   for (var i = 0; i < rowData.length - 1; i++) {
     for (var j = 0; j < rowData.length - (i + 1); j++) {
       if (
@@ -133,8 +219,23 @@ function sortTable(table_id, sortColumn) {
     }
   }
 }
-function sort() {
-  sortTable("sort_table", 0);
+function sort(item) {
+  // console.log(item);
+  for (let index = 2; index < 6; index++) {
+    if (index !== item) {
+      // console.log(index);
+      ck.value[index - 2] = 0;
+    }
+  }
+  console.log(ck.value);
+  if (ck.value[item - 2]) {
+    sortDesc("sort_table", item);
+    ck.value[item - 2] = 0;
+  } else {
+    sortAsc("sort_table", item);
+    ck.value[item - 2] = 1;
+  }
+  // console.log(ck.value);
 }
 </script>
 
