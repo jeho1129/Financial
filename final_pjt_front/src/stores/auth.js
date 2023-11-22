@@ -71,8 +71,6 @@ export const useAuthStore = defineStore(
       })
         .then((res) => {
           token.value = res.data.key;
-          const dialog = document.querySelector("#moveLogInPage");
-          dialog.close();
           checkUser();
         })
         .catch((err) => {

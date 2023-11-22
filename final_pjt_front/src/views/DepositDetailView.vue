@@ -9,17 +9,28 @@
           <div>
             <p>최고</p>
             <!-- <p>{{ deposit.depositoptions_set }}</p> -->
-            <p v-for="option in deposit.depositoptions_set" :key="option.id">연 {{ option.intr_rate2 }}%</p>
+            <p v-for="option in deposit.depositoptions_set" :key="option.id">
+              연 {{ option.intr_rate2 }}%
+            </p>
           </div>
           <div>
             <p>기본</p>
             <p v-for="option in deposit.depositoptions_set" :key="option.id">
-              연 {{ option.intr_rate ?? option.intr_rate2 }}% ({{ option.save_trm }}개월, 세전)
+              연 {{ option.intr_rate ?? option.intr_rate2 }}% ({{
+                option.save_trm
+              }}개월, 세전)
             </p>
           </div>
         </div>
         <div v-if="authStore.user">
-          <button v-if="!authStore.user.financial_products || !(depositId in authStore.user.financial_products)" @click="Join" class="px-4 py-2 exChange">
+          <button
+            v-if="
+              !authStore.user.financial_products ||
+              !(depositId in authStore.user.financial_products)
+            "
+            @click="Join"
+            class="px-4 py-2 exChange"
+          >
             가입하기
           </button>
           <form v-else @submit.prevent="joinDeposit">
@@ -38,21 +49,40 @@
           <!-- <p>{{ deposit.depositoptions_set }}</p> -->
           <div class="select d-flex gap-4 justify-content-center flex-wrap">
             <div
-              @click="calculate(amount, option.intr_rate ?? option.intr_rate2, option.save_trm, option.intr_rate_type_nm)"
+              @click="
+                calculate(
+                  amount,
+                  option.intr_rate ?? option.intr_rate2,
+                  option.save_trm,
+                  option.intr_rate_type_nm
+                )
+              "
               v-for="option in deposit.depositoptions_set"
               :key="option.id"
             >
-              <input type="radio" v-model="btn" :id="`select${option.id}`" name="shop" :value="option.save_trm" /><label
+              <input
+                type="radio"
+                v-model="btn"
+                :id="`select${option.id}`"
+                name="shop"
+                :value="option.save_trm"
+              /><label
                 :for="`select${option.id}`"
                 class="py-3 d-flex flex-column gap-2"
               >
-                <p class="m-0">{{ option.save_trm }}개월({{ option.intr_rate_type_nm }})</p>
-                <p class="m-0">기본 {{ option.intr_rate ?? option.intr_rate2 }}%</p>
+                <p class="m-0">
+                  {{ option.save_trm }}개월({{ option.intr_rate_type_nm }})
+                </p>
+                <p class="m-0">
+                  기본 {{ option.intr_rate ?? option.intr_rate2 }}%
+                </p>
               </label>
             </div>
           </div>
           <div>
-            <p class="text-center">{{ amount }}원 예금하면 총 세전 이자 {{ result }}원</p>
+            <p class="text-center">
+              {{ amount }}원 예금하면 총 세전 이자 {{ result }}원
+            </p>
           </div>
         </form>
       </div>
@@ -111,20 +141,22 @@ onMounted(() => {
 });
 
 const joinDeposit = () => {
-  axios({
-    method: "post",
-    url: `${authStore.API_URL}/banking/deposits/${deposit.value.fin_prdt_cd}/`,
-    headers: {
-      Authorization: `Token ${authStore.token}`,
-    },
-  })
-    .then((res) => {
-      console.log(res.data.message);
-      delete authStore.user.financial_products[deposit.value.fin_prdt_cd];
+  if (window.confirm("가입을 취소하시겠습니까?")) {
+    axios({
+      method: "post",
+      url: `${authStore.API_URL}/banking/deposits/${deposit.value.fin_prdt_cd}/`,
+      headers: {
+        Authorization: `Token ${authStore.token}`,
+      },
     })
-    .catch((err) => {
-      console.log(err);
-    });
+      .then((res) => {
+        console.log(res.data.message);
+        delete authStore.user.financial_products[deposit.value.fin_prdt_cd];
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 };
 
 const Join = () => {
@@ -141,7 +173,8 @@ function calculate(principal, rate, time, method) {
     result.value = ((principal * rate * time) / 12).toFixed();
   } else if (method === "복리") {
     // 예금액 * (1 + 이자율) ^ 기간
-    result.value = principal * Math.pow(1 + rate, time / 12).toFixed() - principal;
+    result.value =
+      principal * Math.pow(1 + rate, time / 12).toFixed() - principal;
   } else {
     result.value = 0;
   }

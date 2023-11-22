@@ -7,9 +7,13 @@
     <!-- <p>{{ Object.keys(authStore.user.financial_products) }}</p> -->
     <div>
       <h4>예금</h4>
-      <div v-if="!findDeposit.length"></div>
+      <div v-if="!findDeposit.length">가입된 상품이 없습니다</div>
       <div v-else id="searchProducts">
-        <div @click="moveProductDetail(info.fin_prdt_cd)" class="searchProduct" v-for="info in findDeposit">
+        <div
+          @click="moveProductDetail(info.fin_prdt_cd)"
+          class="searchProduct"
+          v-for="info in findDeposit"
+        >
           <p>{{ info.fin_prdt_nm }}</p>
           <p>{{ info.kor_co_nm }}</p>
         </div>
@@ -20,12 +24,17 @@
       <h4>적금</h4>
       <div v-if="!findSaving.length">가입된 상품이 없습니다</div>
       <div v-else id="searchProducts">
-        <div @click="moveProductDetail(info.fin_prdt_cd)" class="searchProduct" v-for="info in findSaving">
+        <div
+          @click="moveProductDetail(info.fin_prdt_cd)"
+          class="searchProduct"
+          v-for="info in findSaving"
+        >
           <p>{{ info.fin_prdt_nm }}</p>
           <p>{{ info.kor_co_nm }}</p>
         </div>
       </div>
     </div>
+    <Chart />
   </div>
 </template>
 
@@ -34,18 +43,37 @@ import { useRouter } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import { useDepositStore } from "../stores/deposit";
 import { useSavingStore } from "../stores/saving";
+import { onMounted, ref } from "vue";
+import Chart from "./Chart.vue";
 
 const authStore = useAuthStore();
 const depositStore = useDepositStore();
 const savingStore = useSavingStore();
 const router = useRouter();
 
-const findDeposit = depositStore.deposit.filter((item) => Object.keys(authStore.user.financial_products).includes(item.fin_prdt_cd));
-const findSaving = savingStore.saving.filter((item) => Object.keys(authStore.user.financial_products).includes(item.fin_prdt_cd));
+const findDeposit = ref([]);
+const findSaving = ref([]);
+const totalProduct = ref([]);
 
 const moveProductDetail = (id) => {
   router.push({ name: "depositDetail", params: { depositId: id } });
 };
+
+onMounted(() => {
+  if (
+    authStore.user.financial_products &&
+    Object.keys(authStore.user.financial_products)
+  ) {
+    totalProduct.value = authStore.user.financial_products;
+    findDeposit.value = depositStore.deposit.filter((item) =>
+      Object.keys(authStore.user.financial_products).includes(item.fin_prdt_cd)
+    );
+    console.log(findDeposit.value);
+    findSaving.value = savingStore.saving.filter((item) =>
+      Object.keys(authStore.user.financial_products).includes(item.fin_prdt_cd)
+    );
+  }
+});
 </script>
 
 <style scoped>

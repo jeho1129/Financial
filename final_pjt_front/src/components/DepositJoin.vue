@@ -2,12 +2,17 @@
   <dialog @click="closeModal" ref="depositJoinDom">
     <div v-if="deposit" id="hhh" class="position-relative p-4">
       <form method="dialog" class="position-absolute move">
-        <button value="close">❌</button>
+        <button value="close" id="closeDepositJoinDialog">
+          <font-awesome-icon
+            :icon="['fas', 'xmark']"
+            class="closeDepositJoinDialog"
+          />
+        </button>
       </form>
       <!-- <p>{{ deposit }}</p> -->
       <h2 class="text-center">정기예금 가입</h2>
       <form
-        id="depositForm"
+        id="depositJoinForm"
         class="d-flex flex-column gap-3"
         @submit.prevent="joinDeposit"
       >
@@ -19,6 +24,7 @@
             type="number"
             id="amount"
             name="amount"
+            placeholder="금액을 입력해주세요."
             required
           />
         </div>
@@ -37,7 +43,7 @@
             </option>
           </select>
         </div>
-        <button class="btn btn-primary">가입하기</button>
+        <button class="px-4 py-2 mt-3" id="depositJoinCk">가입하기</button>
       </form>
     </div>
   </dialog>
@@ -53,16 +59,22 @@ const authStore = useAuthStore();
 const depositJoinDom = ref(null);
 const route = useRoute();
 
-const depositJoinAmount = ref(0);
+const depositJoinAmount = ref("");
 const depositJoinPeriod = ref(0);
 
 const props = defineProps({
   deposit: Object,
 });
 
+const resetData = () => {
+  depositJoinAmount.value = "";
+  depositJoinPeriod.value = 0;
+};
+
 const closeModal = (e) => {
   if (e.target.nodeName === "DIALOG") {
     depositJoinDom.value.close();
+    resetData();
   }
 };
 
@@ -84,6 +96,9 @@ const joinDeposit = () => {
   })
     .then((res) => {
       authStore.user.financial_products = res.data.user.financial_products;
+      const dialog = document.querySelector("#moveJoinPage");
+      dialog.close();
+      resetData();
     })
     .catch((err) => {
       console.log(err);
@@ -105,20 +120,6 @@ dialog {
   width: 500px;
 }
 
-.move {
-  right: 10px;
-}
-
-#hhh {
-  height: 100%;
-}
-
-#depositForm {
-  margin: 0 auto;
-  padding: 20px;
-  border-radius: 5px;
-}
-
 label {
   /* display: block; */
   margin-bottom: 5px;
@@ -134,19 +135,35 @@ select {
   /* box-sizing: border-box; */
 }
 
-/* input[type="submit"] {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  background-color: #4caf50;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-weight: bold;
-} */
+.move {
+  right: 10px;
+}
 
-/* input[type="submit"]:hover {
-  background-color: #45a049;
-} */
+#hhh {
+  height: 100%;
+}
+
+#depositJoinForm {
+  margin: 0 auto;
+  padding: 20px;
+  border-radius: 5px;
+}
+
+#closeDepositJoinDialog {
+  border: 0px;
+  background-color: transparent;
+}
+
+.closeDepositJoinDialog {
+  width: 30px;
+  height: 30px;
+  color: lightgray;
+}
+
+#depositJoinCk {
+  background-color: #5fb9a6;
+  border: 0px;
+  border-radius: 5px;
+  font-weight: bold;
+}
 </style>
