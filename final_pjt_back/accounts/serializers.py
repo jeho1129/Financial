@@ -15,7 +15,8 @@ class UserInfoSerializer(serializers.ModelSerializer):
 class UserChangeSerializer(serializers.ModelSerializer):
     class Meta:
         model = get_user_model()
-        fields = ('password', 'email', 'age', 'job', 'asset', 'salary',)
+        fields = ('email', 'age', 'job', 'asset', 'salary',)
+        read_only_fields = ('password',)
 
 
 class CustomRegisterSerializer(RegisterSerializer):

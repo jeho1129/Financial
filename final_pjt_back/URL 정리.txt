@@ -40,6 +40,7 @@ BANK(banking/)
 - deposits/recommends/<int:user_pk>/<int:item_numbers>/ : 해당 상품 개수만큼 해당 유저에게 상품 추천(GET)(적금)
 - savings/recommends/load/ : 사용자와 상품에 대한 평점 행렬 생성 및 유사도 계산(GET)(적금)
 - savings/recommends/<int:user_pk>/<int:item_numbers>/ : 해당 상품 개수만큼 해당 유저에게 상품 추천(GET)(적금)
+- recommends/sort/ : 사용자별 나이대, 직업, 자산, 연봉과 비슷한 사람들이 많이 가입한 상품 추천(GET)(예금, 적금)
 
 ARTICLE(community/)
 - articles/
