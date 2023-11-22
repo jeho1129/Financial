@@ -9,31 +9,18 @@
           <div>
             <p>최고</p>
             <!-- <p>{{ deposit.depositoptions_set }}</p> -->
-            <p v-for="option in saving.savingoptions_set" :key="option.id">
-              연 {{ option.intr_rate2 }}%
-            </p>
+            <p v-for="option in saving.savingoptions_set" :key="option.id">연 {{ option.intr_rate2 }}%</p>
           </div>
           <div>
             <p>기본</p>
-            <p v-for="option in saving.savingoptions_set" :key="option.id">
-              연 {{ option.intr_rate ?? option.intr_rate2 }}% ({{
-                option.save_trm
-              }}개월, 세전)
-            </p>
+            <p v-for="option in saving.savingoptions_set" :key="option.id">연 {{ option.intr_rate ?? option.intr_rate2 }}% ({{ option.save_trm }}개월, 세전)</p>
           </div>
         </div>
         <div v-if="authStore.user">
-          <button
-            v-if="
-              !authStore.user.financial_products ||
-              !(savingId in authStore.user.financial_products)
-            "
-            @click="Join"
-            class="px-4 py-2 exChange"
-          >
+          <button v-if="!authStore.user.financial_products || !(savingId in authStore.user.financial_products)" @click="Join" class="px-4 py-2 exChange">
             가입하기
           </button>
-          <form v-else @submit.prevent="joinDeposit">
+          <form v-else @submit.prevent="joinSaving">
             <button class="px-4 py-2 exChange">가입취소</button>
           </form>
         </div>
@@ -49,33 +36,18 @@
           <!-- <p>{{ deposit.depositoptions_set }}</p> -->
           <div class="select d-flex gap-4 justify-content-center">
             <div
-              @click="
-                calculate(
-                  amount,
-                  option.intr_rate ?? option.intr_rate2,
-                  option.save_trm,
-                  option.intr_rate_type_nm
-                )
-              "
+              @click="calculate(amount, option.intr_rate ?? option.intr_rate2, option.save_trm, option.intr_rate_type_nm)"
               v-for="option in saving.savingoptions_set"
               :key="option.id"
             >
-              <input
-                type="radio"
-                v-model="btn"
-                :id="`select${option.id}`"
-                name="shop"
-                :value="option.save_trm"
-              /><label :for="`select${option.id}`">
-                <p>{{ option.save_trm }}개월</p>
+              <input type="radio" v-model="btn" :id="`select${option.id}`" name="shop" :value="option.save_trm" /><label :for="`select${option.id}`">
+                <p>{{ option.save_trm }}개월({{ option.intr_rate_type_nm }})</p>
                 <p>기본 {{ option.intr_rate ?? option.intr_rate2 }}%</p>
               </label>
             </div>
           </div>
           <div>
-            <p class="text-center">
-              {{ amount }}원 예금하면 총 세전 이자 {{ result }}원
-            </p>
+            <p class="text-center">{{ amount }}원 예금하면 총 세전 이자 {{ result }}원</p>
           </div>
         </form>
       </div>
@@ -100,6 +72,7 @@
         </div>
       </div>
     </div>
+    <SavingJoin id="moveJoinSavingPage" :saving="saving" />
   </div>
 </template>
 
@@ -108,6 +81,7 @@ import axios from "axios";
 import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useAuthStore } from "../stores/auth";
+import SavingJoin from "../components/SavingJoin.vue";
 
 const route = useRoute();
 const authStore = useAuthStore();
@@ -128,6 +102,7 @@ onMounted(() => {
   })
     .then((res) => {
       saving.value = res.data;
+      console.log(res.data);
     })
     .catch((err) => {
       console.log(err);
@@ -144,33 +119,22 @@ const joinSaving = () => {
   })
     .then((res) => {
       console.log(res.data.message);
-      if (res.data.message === "Product added successfully") {
-        if (!(saving.fin_prdt_cd in authStore.user.financial_products)) {
-          authStore.user.financial_products[saving.value.fin_prdt_cd] =
-            saving.value;
-        }
-      } else if (res.data.message === "가입이 취소되었습니다.") {
-        delete authStore.user.financial_products[saving.value.fin_prdt_cd];
-      }
+      delete authStore.user.financial_products[saving.value.fin_prdt_cd];
     })
     .catch((err) => {
       console.log(err);
     });
 };
 
-// const Join = () => {
-//   const dialog = document.querySelector("#moveJoinPage");
-//   dialog.showModal();
-// };
+const Join = () => {
+  const dialog = document.querySelector("#moveJoinSavingPage");
+  dialog.showModal();
+};
 
 const changeRate = (period) => {
   if (period) {
-    rate.value = saving.value.savingoptions_set.find(
-      (item) => item.save_trm == period
-    ).intr_rate2;
-    method.value = saving.value.savingoptions_set.find(
-      (item) => item.save_trm == period
-    ).intr_rate_type_nm;
+    rate.value = saving.value.savingoptions_set.find((item) => item.save_trm == period).intr_rate2;
+    method.value = saving.value.savingoptions_set.find((item) => item.save_trm == period).intr_rate_type_nm;
   } else {
     rate.value = "-";
     method.value = "";
