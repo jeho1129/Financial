@@ -8,7 +8,7 @@ class User(AbstractUser):
     name = models.CharField(max_length=30)  # 이름
     email = models.EmailField(max_length=250)  # Email
     age = models.IntegerField(blank=True, null=True)  # 나이
-    job = models.TextField(blank=True, null=True)
+    job = models.TextField(blank=True, null=True)  # 직업
     asset = models.IntegerField(blank=True, null=True)  # 자산
     salary = models.IntegerField(blank=True, null=True)  # 연봉
     financial_products = models.JSONField(blank=True, null=True)  # 가입한 상품 목록
