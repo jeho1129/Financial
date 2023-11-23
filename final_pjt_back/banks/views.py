@@ -74,7 +74,9 @@ def detail_deposits(request, fin_prdt_cd):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     elif request.method == 'POST':
-        if request.user.financial_products and deposit.fin_prdt_cd in request.user.financial_products.keys():
+        if request.user.financial_products is None:
+            request.user.financial_products = {}
+        if deposit.fin_prdt_cd in request.user.financial_products.keys():
             DepositJoin.objects.filter(user=request.user, product=deposit).delete()
             deposit.user.remove(request.user)
             del request.user.financial_products[deposit.fin_prdt_cd]
@@ -90,8 +92,6 @@ def detail_deposits(request, fin_prdt_cd):
             serializer = DepositJoinSerializer(data=request.data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save(product=deposit, user=request.user, expiration_date=expiration_date)
-            if request.user.financial_products is None:
-                request.user.financial_products = {}
             deposit_info = DepositProductsViewSerializer(deposit).data
             deposit_info['depositoptions_set'] = DepositOptionsSerializer(selected_option).data
             request.user.financial_products[deposit.fin_prdt_cd] = deposit_info
@@ -118,11 +118,15 @@ def change_deposits(request, fin_prdt_cd):
                         DepositOptions.objects.filter(id=option_id).update(intr_rate=intr_rate)
                     if intr_rate2 is not None:
                         DepositOptions.objects.filter(id=option_id).update(intr_rate2=intr_rate2)
+        
+        product_name = serializer.data['fin_prdt_nm']
         options = DepositOptions.objects.filter(product=deposit)
-        subject = f"금리 수정 확인 - 상품명: {serializer.data['fin_prdt_nm']}"
+        if '\n' in product_name:
+            product_name = product_name.replace('\n', '')
+        subject = f"금리 수정 확인 - 상품명: {product_name}"
         to = list(deposit.user.values_list('email', flat=True))
         from_email = "jeho1129@naver.com"
-        message = f"{serializer.data['fin_prdt_nm']} 상품의 금리가 다음과 같이 변경되었습니다! \n"
+        message = f"{product_name} 상품의 금리가 다음과 같이 변경되었습니다! \n"
         for option in options:
             save_trm = option.save_trm
             intr_rate = option.intr_rate
@@ -215,7 +219,9 @@ def detail_savings(request, fin_prdt_cd):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     elif request.method == 'POST':
-        if request.user.financial_products and saving.fin_prdt_cd in request.user.financial_products.keys():
+        if request.user.financial_products is None:
+            request.user.financial_products = {}
+        if saving.fin_prdt_cd in request.user.financial_products.keys():
             SavingJoin.objects.filter(user=request.user, product=saving).delete()
             saving.user.remove(request.user)
             del request.user.financial_products[saving.fin_prdt_cd]
@@ -230,8 +236,6 @@ def detail_savings(request, fin_prdt_cd):
             serializer = SavingJoinSerializer(data=request.data)
             if serializer.is_valid(raise_exception=True):
                 serializer.save(product=saving, user=request.user, expiration_date=expiration_date)
-            if request.user.financial_products is None:
-                request.user.financial_products = {}
             saving_info = SavingProductsViewSerializer(saving).data
             saving_info['savingoptions_set'] = SavingOptionsSerializer(selected_option).data
             request.user.financial_products[saving.fin_prdt_cd] = saving_info
@@ -253,20 +257,24 @@ def change_savings(request, fin_prdt_cd):
                 option_id = option_data.get('id')
                 intr_rate = option_data.get('intr_rate')
                 intr_rate2 = option_data.get('intr_rate2')
-                if option_id and intr_rate is not None:
-                    saving_option = SavingOptions.objects.get(id=option_id)
-                    saving_option.intr_rate = intr_rate
-                    saving_option.intr_rate2 = intr_rate2
-                    saving_option.save()
-
-        subject = f"금리 수정 확인 - 상품명: {serializer.data['fin_prdt_nm']}"
+                if option_id:
+                    if intr_rate is not None:
+                        SavingOptions.objects.filter(id=option_id).update(intr_rate=intr_rate)
+                    if intr_rate2 is not None:
+                        SavingOptions.objects.filter(id=option_id).update(intr_rate2=intr_rate2)
+        
+        product_name = serializer.data['fin_prdt_nm']
+        options = SavingOptions.objects.filter(product=saving)
+        if '\n' in product_name:
+            product_name = product_name.replace('\n', '')
+        subject = f"금리 수정 확인 - 상품명: {product_name}"
         to = list(saving.user.values_list('email', flat=True))
         from_email = "jeho1129@naver.com"
-        message = f"{serializer.data['fin_prdt_nm']} 상품의 금리가 다음과 같이 변경되었습니다!\n"
-        for option in serializer.data['savingoptions_set']:
-            save_trm = option['save_trm']
-            intr_rate = option['intr_rate']
-            intr_rate2 = option['intr_rate2']
+        message = f"{product_name} 상품의 금리가 다음과 같이 변경되었습니다!\n"
+        for option in options:
+            save_trm = option.save_trm
+            intr_rate = option.intr_rate
+            intr_rate2 = option.intr_rate2
             message += f"가입 기간: {save_trm} - 금리: {intr_rate} / 우대금리: {intr_rate2}\n"
         EmailMessage(subject=subject, body=message, to=to, from_email=from_email).send()
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -456,23 +464,6 @@ def saving_recommend_items(request, user_pk, item_numbers):
     return Response({'recommended_items': recommended_items.tolist()}, status=status.HTTP_201_CREATED)
 
 
-def get_age_group(age):
-    if age < 20:
-        return "20대 미만"
-    elif age < 30:
-        return 20
-    elif age < 40:
-        return 30
-    elif age < 50:
-        return 40
-    elif age < 60:
-        return 50
-    elif age < 70:
-        return 60
-    else:
-        return "70대 이상"
-
-
 def get_asset_group(asset):
     asset_group = asset // 1000000
     return (asset_group * 1000000, (asset_group + 1) * 1000000)
@@ -508,15 +499,7 @@ def sorting_items(request):
     user = User.objects.get(pk=request.user.pk)
     
     # 나이대별 필터링
-    age_group_start = get_age_group(user.age)
-    if age_group_start == '20세 미만':
-        age_group_start = 0
-        age_group_end = 19
-    elif age_group_start == '70대 이상':
-        age_group_start = 70
-        age_group_end = 100
-    age_group_end = age_group_start + 9
-    age_filtered_users = User.objects.filter(age__range=(age_group_start, age_group_end))
+    age_filtered_users = User.objects.filter(age__range=(user.age - 5, user.age + 5))
     age_deposit_products, age_saving_products = get_products(age_filtered_users)
 
     # 직업 필터링
@@ -534,14 +517,14 @@ def sorting_items(request):
     asset_deposit_products, asset_saving_products = get_products(asset_filtered_users)
 
     result = {
-    'age_deposit_products': sorted(list(set(age_deposit_products)), key=lambda x: (age_deposit_products.count(x), x), reverse=True),
-    'age_saving_products': sorted(list(set(age_saving_products)), key=lambda x: (age_saving_products.count(x), x), reverse=True),
-    'job_deposit_products': sorted(list(set(job_deposit_products)), key=lambda x: (job_deposit_products.count(x), x), reverse=True),
-    'job_saving_products': sorted(list(set(job_saving_products)), key=lambda x: (job_saving_products.count(x), x), reverse=True),
-    'salary_deposit_products': sorted(list(set(salary_deposit_products)), key=lambda x: (salary_deposit_products.count(x), x), reverse=True),
-    'salary_saving_products': sorted(list(set(salary_saving_products)), key=lambda x: (salary_saving_products.count(x), x), reverse=True),
-    'asset_deposit_products': sorted(list(set(asset_deposit_products)), key=lambda x: (asset_deposit_products.count(x), x), reverse=True),
-    'asset_saving_products': sorted(list(set(asset_saving_products)), key=lambda x: (asset_saving_products.count(x), x), reverse=True),
+    'age_deposit_products': sorted(list(set(age_deposit_products)), key=lambda x: (age_deposit_products.count(x), x), reverse=True)[:5] or ["해당 연령대의 예금 상품이 없습니다."],
+    'age_saving_products': sorted(list(set(age_saving_products)), key=lambda x: (age_saving_products.count(x), x), reverse=True)[:5] or ["해당 연령대의 적금 상품이 없습니다."],
+    'job_deposit_products': sorted(list(set(job_deposit_products)), key=lambda x: (job_deposit_products.count(x), x), reverse=True)[:5] or ["해당 직업군의 예금 상품이 없습니다."],
+    'job_saving_products': sorted(list(set(job_saving_products)), key=lambda x: (job_saving_products.count(x), x), reverse=True)[:5] or ["해당 직업군의 적금 상품이 없습니다."],
+    'salary_deposit_products': sorted(list(set(salary_deposit_products)), key=lambda x: (salary_deposit_products.count(x), x), reverse=True)[:5] or ["해당 연봉대의 예금 상품이 없습니다."],
+    'salary_saving_products': sorted(list(set(salary_saving_products)), key=lambda x: (salary_saving_products.count(x), x), reverse=True)[:5] or ["해당 연봉대의 적금 상품이 없습니다."],
+    'asset_deposit_products': sorted(list(set(asset_deposit_products)), key=lambda x: (asset_deposit_products.count(x), x), reverse=True)[:5] or ["해당 자산 규모의 예금 상품이 없습니다."],
+    'asset_saving_products': sorted(list(set(asset_saving_products)), key=lambda x: (asset_saving_products.count(x), x), reverse=True)[:5] or ["해당 자산 규모의 적금 상품이 없습니다."],
     }
 
     return Response(result, status=status.HTTP_200_OK)
