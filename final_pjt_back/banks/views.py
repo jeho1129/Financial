@@ -85,7 +85,6 @@ def detail_deposits(request, fin_prdt_cd):
         else:
             option_id = request.data.get('option_id')
             selected_option = deposit.depositoptions_set.filter(id=option_id).first()
-            print(selected_option)
             month = selected_option.save_trm
             current_date = datetime.now().date()
             expiration_date = current_date + relativedelta(months=int(month))
@@ -151,14 +150,18 @@ def comment_deposits(request, fin_prdt_cd):
 def comment_deposits_detail(request, comment_pk):
     comment = DepositReviews.objects.get(pk=comment_pk)
     if request.method == 'PUT':
-        serializer = DepositReviewsSerializer(comment, data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        if request.user == comment.user:
+            serializer = DepositReviewsSerializer(comment, data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
     
     elif request.method == 'DELETE':
-        comment.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if request.user == comment.user or request.user.is_staff:
+            comment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
     
 
 @api_view(['GET'])
@@ -295,14 +298,18 @@ def comment_savings(request, fin_prdt_cd):
 def comment_savings_detail(request, comment_pk):
     comment = SavingReviews.objects.get(pk=comment_pk)
     if request.method == 'PUT':
-        serializer = SavingReviewsSerializer(comment, data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        if request.user == comment.user:
+            serializer = SavingReviewsSerializer(comment, data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
     
     elif request.method == 'DELETE':
-        comment.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if request.user == comment.user or request.user.is_staff:
+            comment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
 
 
 @api_view(['GET'])
@@ -385,14 +392,12 @@ def deposit_recommend_items(request, user_pk, item_numbers):
     user_product_ids = [review.product_id for review in user_reviews]
     # item_similarity_df의 인덱스에 있는 상품 ID만을 필터링하여 유효한 상품 ID 리스트를 생성
     valid_product_ids = [product_id for product_id in user_product_ids if product_id in item_similarity_df.index]
-    
     # user_product_ids가 DataFrame의 인덱스에 존재하는지 확인
     # 사용자가 평가한 상품이 없다면 가장 인기가 많은 아이템을 추천함.
     if not valid_product_ids:
         popular_items = item_similarity_df.sum().sort_values(ascending=False)
         recommended_items = popular_items.index[:item_numbers]
         return Response({'recommended_items': recommended_items.tolist()}, status=status.HTTP_201_CREATED)
-    
     # 사용자가 평가한 상품이 있다면, 해당 상품에 대한 유사도를 평균내어 사용자의 평점을 계산
     user_ratings = item_similarity_df.loc[user_product_ids].mean().dropna()
     sorted_user_ratings = user_ratings.sort_values(ascending=False)
