@@ -19,8 +19,8 @@
           <br />
           <!-- <input type="number" id="months" name="months" required /> -->
           <select name="" id="months" v-model="depositJoinPeriod">
-            <option :value="0">기간을 선택하세요</option>
-            <option v-for="option in deposit.depositoptions_set" :key="option.id" :value="option.save_trm">{{ option.save_trm }} 개월</option>
+            <option :value="0" disabled>기간을 선택하세요</option>
+            <option v-for="option in deposit.depositoptions_set" :key="option.id" :value="option.id">{{ option.save_trm }} 개월</option>
           </select>
         </div>
         <button class="px-4 py-2 mt-3" id="depositJoinCk">가입하기</button>
@@ -70,11 +70,12 @@ const joinDeposit = () => {
       Authorization: `Token ${authStore.token}`,
     },
     data: {
-      month: depositJoinPeriod.value,
+      option_id: depositJoinPeriod.value,
       amount: depositJoinAmount.value,
     },
   })
     .then((res) => {
+      console.log(res.data);
       authStore.user.financial_products = res.data.user.financial_products;
       const dialog = document.querySelector("#moveJoinPage");
       dialog.close();

@@ -83,6 +83,7 @@ def detail_deposits(request, fin_prdt_cd):
         else:
             option_id = request.data.get('option_id')
             selected_option = deposit.depositoptions_set.filter(id=option_id).first()
+            print(selected_option)
             month = selected_option.save_trm
             current_date = datetime.now().date()
             expiration_date = current_date + relativedelta(months=int(month))

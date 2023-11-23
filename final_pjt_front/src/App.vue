@@ -2,7 +2,9 @@
   <header id="headerheader">
     <nav class="navbar navbar-expand-md bg-white mt-0 py-4">
       <div class="container-fluid">
-        <RouterLink to="/" class="navbar-brand" style="font-family: 'Vina Sans', sans-serif">Jiho Bank</RouterLink>
+        <RouterLink to="/" class="navbar-brand" style="font-size: x-large; font-family: 'Vina Sans', sans-serif"
+          ><img src="./assets/logo.png" id="logo"
+        /></RouterLink>
         <button
           class="navbar-toggler"
           type="button"
@@ -161,5 +163,10 @@ header {
 
 #headerheader {
   z-index: 9999;
+}
+
+#logo {
+  width: 40px;
+  border-radius: 50%;
 }
 </style>
