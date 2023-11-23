@@ -81,8 +81,9 @@ def detail_deposits(request, fin_prdt_cd):
             request.user.save()
             return Response({'message': '가입이 취소되었습니다.'}, status=status.HTTP_204_NO_CONTENT)
         else:
-            month = request.data.get('month')
-            print(month)
+            option_id = request.data.get('option_id')
+            selected_option = deposit.depositoptions_set.filter(id=option_id).first()
+            month = selected_option.save_trm
             current_date = datetime.now().date()
             expiration_date = current_date + relativedelta(months=int(month))
             serializer = DepositJoinSerializer(data=request.data)
@@ -91,6 +92,7 @@ def detail_deposits(request, fin_prdt_cd):
             if request.user.financial_products is None:
                 request.user.financial_products = {}
             deposit_info = DepositProductsViewSerializer(deposit).data
+            deposit_info['depositoptions_set'] = DepositOptionsSerializer(selected_option).data
             request.user.financial_products[deposit.fin_prdt_cd] = deposit_info
             deposit.user.add(request.user)
             request.user.save()
@@ -206,6 +208,7 @@ def list_savings(request):
 @permission_classes([IsAuthenticatedOrReadOnly])
 def detail_savings(request, fin_prdt_cd):
     saving = SavingProducts.objects.get(fin_prdt_cd=fin_prdt_cd)
+
     if request.method == 'GET':
         serializer = SavingProductsViewSerializer(saving)
         return Response(serializer.data, status=status.HTTP_200_OK)
@@ -218,7 +221,9 @@ def detail_savings(request, fin_prdt_cd):
             request.user.save()
             return Response({'message': '가입이 취소되었습니다.'}, status=status.HTTP_200_OK)
         else:
-            month = request.data.get('month')
+            option_id = request.data.get('option_id')
+            selected_option = saving.savingoptions_set.filter(id=option_id).first()
+            month = selected_option.save_trm
             current_date = datetime.now().date()
             expiration_date = current_date + relativedelta(months=int(month))
             serializer = SavingJoinSerializer(data=request.data)
@@ -227,6 +232,7 @@ def detail_savings(request, fin_prdt_cd):
             if request.user.financial_products is None:
                 request.user.financial_products = {}
             saving_info = SavingProductsViewSerializer(saving).data
+            saving_info['savingoptions_set'] = SavingOptionsSerializer(selected_option).data
             request.user.financial_products[saving.fin_prdt_cd] = saving_info
             saving.user.add(request.user)
             request.user.save()

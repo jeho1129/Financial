@@ -26,10 +26,10 @@ class DepositOptions(models.Model):
 class DepositJoin(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     product = models.ForeignKey(DepositProducts, on_delete=models.CASCADE)
+    option = models.ForeignKey(DepositOptions, on_delete=models.CASCADE, null=True)
     amount = models.IntegerField()  # 가입 금액
     expiration_date = models.DateField()  # 만기일
     current_date = models.DateField(auto_now_add=True)
-    month = models.IntegerField()  # 가입 개월
 
 
 class DepositReviews(models.Model):
@@ -65,10 +65,10 @@ class SavingOptions(models.Model):
 class SavingJoin(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     product = models.ForeignKey(SavingProducts, on_delete=models.CASCADE)
+    option = models.ForeignKey(SavingOptions, on_delete=models.CASCADE, null=True)
     amount = models.IntegerField()  # 가입 금액
     expiration_date = models.DateField()  # 만기일
     current_date = models.DateField(auto_now_add=True)
-    month = models.IntegerField()  # 가입 개월
 
 
 class SavingReviews(models.Model):
