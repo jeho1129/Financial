@@ -3,30 +3,16 @@
     <div v-if="deposit" id="hhh" class="position-relative p-4">
       <form method="dialog" class="position-absolute move">
         <button value="close" id="closeDepositJoinDialog">
-          <font-awesome-icon
-            :icon="['fas', 'xmark']"
-            class="closeDepositJoinDialog"
-          />
+          <font-awesome-icon :icon="['fas', 'xmark']" class="closeDepositJoinDialog" />
         </button>
       </form>
       <!-- <p>{{ deposit }}</p> -->
       <h2 class="text-center">정기예금 가입</h2>
-      <form
-        id="depositJoinForm"
-        class="d-flex flex-column gap-3"
-        @submit.prevent="joinDeposit"
-      >
+      <form id="depositJoinForm" class="d-flex flex-column gap-3" @submit.prevent="joinDeposit">
         <div>
           <label for="amount">예치금:</label>
           <br />
-          <input
-            v-model.trim="depositJoinAmount"
-            type="number"
-            id="amount"
-            name="amount"
-            placeholder="금액을 입력해주세요."
-            required
-          />
+          <input v-model.trim="depositJoinAmount" type="number" id="amount" name="amount" placeholder="금액을 입력해주세요." required />
         </div>
         <div>
           <label for="months">가입개월:</label>
@@ -34,13 +20,7 @@
           <!-- <input type="number" id="months" name="months" required /> -->
           <select name="" id="months" v-model="depositJoinPeriod">
             <option :value="0">기간을 선택하세요</option>
-            <option
-              v-for="option in deposit.depositoptions_set"
-              :key="option.id"
-              :value="option.save_trm"
-            >
-              {{ option.save_trm }} 개월
-            </option>
+            <option v-for="option in deposit.depositoptions_set" :key="option.id" :value="option.save_trm">{{ option.save_trm }} 개월</option>
           </select>
         </div>
         <button class="px-4 py-2 mt-3" id="depositJoinCk">가입하기</button>
