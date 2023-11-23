@@ -144,7 +144,7 @@ class SavingProductsViewSerializer(serializers.ModelSerializer):
 
     
 class SavingProductsChangeSerializer(serializers.ModelSerializer):
-    savingoptions_set = SavingOptionsSerializer(many=True)
+    savingoptions_set = SavingOptionsSerializer(many=True, read_only=True)
 
     class UserSerializer(serializers.ModelSerializer):
         class Meta:
