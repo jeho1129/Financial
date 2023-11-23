@@ -117,11 +117,15 @@ def change_deposits(request, fin_prdt_cd):
                         DepositOptions.objects.filter(id=option_id).update(intr_rate=intr_rate)
                     if intr_rate2 is not None:
                         DepositOptions.objects.filter(id=option_id).update(intr_rate2=intr_rate2)
+        
+        product_name = serializer.data['fin_prdt_nm']
         options = DepositOptions.objects.filter(product=deposit)
-        subject = f"금리 수정 확인 - 상품명: {serializer.data['fin_prdt_nm']}"
+        if '\n' in product_name:
+            product_name = product_name.replace('\n', '')
+        subject = f"금리 수정 확인 - 상품명: {product_name}"
         to = list(deposit.user.values_list('email', flat=True))
         from_email = "jeho1129@naver.com"
-        message = f"{serializer.data['fin_prdt_nm']} 상품의 금리가 다음과 같이 변경되었습니다! \n"
+        message = f"{product_name} 상품의 금리가 다음과 같이 변경되었습니다! \n"
         for option in options:
             save_trm = option.save_trm
             intr_rate = option.intr_rate
@@ -252,20 +256,24 @@ def change_savings(request, fin_prdt_cd):
                 option_id = option_data.get('id')
                 intr_rate = option_data.get('intr_rate')
                 intr_rate2 = option_data.get('intr_rate2')
-                if option_id and intr_rate is not None:
-                    saving_option = SavingOptions.objects.get(id=option_id)
-                    saving_option.intr_rate = intr_rate
-                    saving_option.intr_rate2 = intr_rate2
-                    saving_option.save()
-
-        subject = f"금리 수정 확인 - 상품명: {serializer.data['fin_prdt_nm']}"
+                if option_id:
+                    if intr_rate is not None:
+                        SavingOptions.objects.filter(id=option_id).update(intr_rate=intr_rate)
+                    if intr_rate2 is not None:
+                        SavingOptions.objects.filter(id=option_id).update(intr_rate2=intr_rate2)
+        
+        product_name = serializer.data['fin_prdt_nm']
+        options = SavingOptions.objects.filter(product=saving)
+        if '\n' in product_name:
+            product_name = product_name.replace('\n', '')
+        subject = f"금리 수정 확인 - 상품명: {product_name}"
         to = list(saving.user.values_list('email', flat=True))
         from_email = "jeho1129@naver.com"
-        message = f"{serializer.data['fin_prdt_nm']} 상품의 금리가 다음과 같이 변경되었습니다!\n"
-        for option in serializer.data['savingoptions_set']:
-            save_trm = option['save_trm']
-            intr_rate = option['intr_rate']
-            intr_rate2 = option['intr_rate2']
+        message = f"{product_name} 상품의 금리가 다음과 같이 변경되었습니다!\n"
+        for option in options:
+            save_trm = option.save_trm
+            intr_rate = option.intr_rate
+            intr_rate2 = option.intr_rate2
             message += f"가입 기간: {save_trm} - 금리: {intr_rate} / 우대금리: {intr_rate2}\n"
         EmailMessage(subject=subject, body=message, to=to, from_email=from_email).send()
         return Response(serializer.data, status=status.HTTP_200_OK)
