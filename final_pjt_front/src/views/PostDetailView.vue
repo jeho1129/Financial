@@ -1,43 +1,64 @@
 <template>
   <div v-if="posts" class="container my-4">
-    <div class="defaultPostDetail p-4">
-      <h3>{{ posts.title }}</h3>
-      <p>작성자 : {{ posts.user.username }}</p>
-      <p>작성일 : {{ date + " " + time }}</p>
+    <div v-if="authStore.user" class="defaultPostDetail p-4">
+      <div class="d-flex justify-content-between">
+        <h3>{{ posts.title }}</h3>
+        <div class="d-flex align-items-center gap-1">
+          <!-- <RouterLink v-if="authStore.user.id === posts.user.pk" :to="{ name: 'update', params: posts.id }">수정</RouterLink> -->
+          <button v-if="authStore.user.id === posts.user.pk" id="postEditButton" :to="{ name: 'update', params: posts.id }">
+            <font-awesome-icon :icon="['far', 'pen-to-square']" class="postEditButton" />
+          </button>
+          <button v-if="authStore.user.id === posts.user.pk" @click="delPost" id="postDelButton">
+            <font-awesome-icon :icon="['far', 'trash-can']" class="postDelButton" />
+          </button>
+        </div>
+      </div>
+      <div class="d-flex gap-3">
+        <img src="../assets/profile.jpg" alt="" />
+        <div class="d-flex flex-column">
+          <p class="m-0">{{ posts.user.username }}</p>
+          <p class="m-0">{{ date + " " + time }}</p>
+        </div>
+      </div>
+
       <hr />
       {{ posts.content }}
-      <button v-if="authStore.user.id === posts.user.pk" @click="delPost">
-        게시글삭제
-      </button>
-      <!-- <RouterLink v-if="authStore.user.id === posts.user.pk" :to="{ name: 'update', params: posts.id }">수정</RouterLink> -->
-      <button
-        v-if="authStore.user.id === posts.user.pk"
-        :to="{ name: 'update', params: posts.id }"
-      >
-        수정
-      </button>
-      <hr />
-      <form @submit.prevent="submitComment">
-        <label for="detailPostContent">내용</label>
-        <input type="text" id="detailPostContent" v-model.trim="inputContent" />
-        <button>댓글 작성</button>
-      </form>
-      <p v-for="comment in posts.comment_set" :key="comment.id">
-        {{ comment.user.username }}
-        {{ comment.content }}
-        <button
-          v-if="authStore.user.id === comment.user.pk"
-          @click="delComment(comment.id)"
-        >
-          삭제
-        </button>
-      </p>
-      <hr />
-      <div>
-        <img src="../assets/profile.jpg" alt="" />
 
-        <hr />
+      <hr />
+      <p>댓글 {{ posts.comment_set.length }} ></p>
+      <form @submit.prevent="submitComment" class="position-relative">
+        <div v-if="authStore.user">
+          <input type="text" id="detailPostContent" placeholder="댓글을 남겨보세요" v-model.trim="inputContent" />
+          <button id="submitCommentBtn">
+            <font-awesome-icon :icon="['fas', 'pen']" />
+          </button>
+        </div>
+        <div v-else>
+          <input type="text" id="detailPostContent" placeholder="로그인 후 댓글 작성이 가능해요" v-model.trim="inputContent" readonly />
+        </div>
+      </form>
+      <div v-for="comment in posts.comment_set" :key="comment.id" class="d-flex align-items-center justify-content-between my-3">
+        <div>
+          <p class="m-0">{{ comment.user.username }}</p>
+          <p class="m-0">{{ comment.content }}</p>
+          <p class="m-0">
+            {{
+              new Date(new Date(comment.created_at).getTime() + 9 * 60 * 60 * 1000).toISOString().split("T")[0] +
+              " " +
+              new Date(comment.created_at).toTimeString().split(" ")[0]
+            }}
+          </p>
+        </div>
+        <div class="d-flex align-items-center gap-1" v-if="authStore.user.id === comment.user.pk">
+          <button id="postEditButton" :to="{ name: 'update', params: posts.id }">
+            <font-awesome-icon :icon="['far', 'pen-to-square']" class="postEditButton" />
+          </button>
+          <button @click="delComment(comment.id)" id="commentDelButton">
+            <font-awesome-icon :icon="['far', 'trash-can']" class="commentDelButton" />
+          </button>
+        </div>
       </div>
+      <hr />
     </div>
   </div>
 </template>
@@ -71,9 +92,7 @@ onMounted(() => {
       const TIME_ZONE = 9 * 60 * 60 * 1000; // 9시간
       const d = new Date(res.data.created_at);
 
-      date.value = new Date(d.getTime() + TIME_ZONE)
-        .toISOString()
-        .split("T")[0];
+      date.value = new Date(d.getTime() + TIME_ZONE).toISOString().split("T")[0];
       time.value = d.toTimeString().split(" ")[0];
     })
     .catch((err) => {
@@ -155,7 +174,8 @@ const delComment = (id) => {
 }
 
 img {
-  width: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
 }
 
@@ -167,5 +187,45 @@ img {
 
 #moveProfileEdit:hover {
   filter: brightness(0.9);
+}
+
+#postDelButton,
+#commentDelButton {
+  border: 2px solid red;
+  border-radius: 5px;
+  background-color: white;
+}
+
+.postDelButton,
+.commentDelButton {
+  color: red;
+}
+#postEditButton {
+  border: 2px solid #5fb9a6;
+  border-radius: 5px;
+  background-color: white;
+}
+
+.postEditButton {
+  color: #5fb9a6;
+}
+
+#detailPostContent {
+  border: 1px solid lightgray;
+  border-radius: 5px;
+  width: 100%;
+  padding: 20px 10px;
+}
+
+#submitCommentBtn {
+  position: absolute;
+  right: 10px;
+  top: 0;
+  bottom: 0px;
+  border: 0px;
+  font-size: larger;
+  background-color: transparent;
+  color: #5fb9a6;
+  font-weight: bold;
 }
 </style>
