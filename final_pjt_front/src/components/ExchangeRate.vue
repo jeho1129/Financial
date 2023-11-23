@@ -2,7 +2,7 @@
   <dialog @click="closeModal" ref="exchangeRateDom">
     <div v-if="exchangeData.length" id="hhh" class="position-relative p-5">
       <form method="dialog" class="position-absolute move">
-        <button value="close">❌</button>
+        <button value="close" id="closeExchangeRate"><font-awesome-icon :icon="['fas', 'xmark']" class="closeExchangeRate" /></button>
       </form>
       <div style="text-align: center">
         <img src="../assets/money.png" alt="" style="width: 30%" />
@@ -10,11 +10,7 @@
       <h2 class="text-center mb-5">환율계산기</h2>
       <div class="d-flex flex-column gap-3">
         <div class="d-flex" id="exchangeRatePrev">
-          <select
-            @click="calculateExchange"
-            id="exchangeRatePrevUnit"
-            v-model="exchangeRatePrevUnit"
-          >
+          <select @click="calculateExchange" id="exchangeRatePrevUnit" v-model="exchangeRatePrevUnit">
             <option
               v-for="unit in exchangeData.map((item) => {
                 return item.cur_unit;
@@ -25,29 +21,16 @@
               {{ unit }}
             </option>
           </select>
-          <input
-            v-model.trim="exchangeRatePrevMoney"
-            type="number"
-            style="width: 100%"
-            id="exchangeRatePrevMoney"
-            @input="calculateExchange"
-          />
+          <input v-model.trim="exchangeRatePrevMoney" type="number" style="width: 100%" id="exchangeRatePrevMoney" @input="calculateExchange" />
         </div>
         <div class="d-flex my-2 justify-content-between">
           <button @click="changeUnit" class="px-4 py-2" id="exChange">
             <font-awesome-icon :icon="['fas', 'arrow-right-arrow-left']" />
           </button>
-          <span>
-            {{ exchangeRatePrevMoney || 0 }}{{ exchangeRatePrevUnit }} -
-            {{ exchangeRateNextMoney || 0 }}{{ exchangeRateNextUnit }}
-          </span>
+          <span> {{ exchangeRatePrevMoney || 0 }}{{ exchangeRatePrevUnit }} - {{ exchangeRateNextMoney || 0 }}{{ exchangeRateNextUnit }} </span>
         </div>
         <div class="d-flex" id="exchangeRateNext">
-          <select
-            @click="calculateExchange"
-            id="exchangeRateNextUnit"
-            v-model="exchangeRateNextUnit"
-          >
+          <select @click="calculateExchange" id="exchangeRateNextUnit" v-model="exchangeRateNextUnit">
             <option
               v-for="unit in exchangeData.map((item) => {
                 return item.cur_unit;
@@ -58,13 +41,7 @@
               {{ unit }}
             </option>
           </select>
-          <input
-            v-model.trim="exchangeRateNextMoney"
-            type="number"
-            style="width: 100%"
-            id="exchangeRateNextMoney"
-            readonly
-          />
+          <input v-model.trim="exchangeRateNextMoney" type="number" style="width: 100%" id="exchangeRateNextMoney" readonly />
         </div>
       </div>
     </div>
@@ -99,24 +76,15 @@ const props = defineProps({
 
 const calculateExchange = () => {
   // 선택된 통화에 해당하는 환율 찾기
-  const fromRate = props.exchangeData.find(
-    (rate) => rate.cur_unit === exchangeRatePrevUnit.value
-  );
-  const toRate = props.exchangeData.find(
-    (rate) => rate.cur_unit === exchangeRateNextUnit.value
-  );
+  const fromRate = props.exchangeData.find((rate) => rate.cur_unit === exchangeRatePrevUnit.value);
+  const toRate = props.exchangeData.find((rate) => rate.cur_unit === exchangeRateNextUnit.value);
 
   // 환율 계산
-  exchangeRateNextMoney.value =
-    (exchangeRatePrevMoney.value / toRate.deal_bas_r.replace(",", "")) *
-    fromRate.deal_bas_r.replace(",", "");
+  exchangeRateNextMoney.value = (exchangeRatePrevMoney.value / toRate.deal_bas_r.replace(",", "")) * fromRate.deal_bas_r.replace(",", "");
 };
 
 const changeUnit = () => {
-  [exchangeRatePrevUnit.value, exchangeRateNextUnit.value] = [
-    exchangeRateNextUnit.value,
-    exchangeRatePrevUnit.value,
-  ];
+  [exchangeRatePrevUnit.value, exchangeRateNextUnit.value] = [exchangeRateNextUnit.value, exchangeRatePrevUnit.value];
   calculateExchange();
 };
 </script>
@@ -146,8 +114,8 @@ dialog {
 }
 
 .move {
-  right: 15px;
-  top: 15px;
+  right: 20px;
+  top: 20px;
 }
 
 #hhh {
@@ -180,5 +148,16 @@ input {
 #exchangeRateNextUnit,
 #exchangeRateNextMoney {
   border: 0px;
+}
+
+#closeExchangeRate {
+  border: 0px;
+  background-color: transparent;
+}
+
+.closeExchangeRate {
+  width: 30px;
+  height: 30px;
+  color: lightgray;
 }
 </style>

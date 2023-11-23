@@ -3,30 +3,18 @@
     <div class="position-relative p-4 heightFull">
       <form method="dialog" class="position-absolute move">
         <button value="close" id="closeLoginDialog">
-          <font-awesome-icon
-            :icon="['fas', 'xmark']"
-            class="closeLoginDialog"
-          />
+          <font-awesome-icon :icon="['fas', 'xmark']" class="closeLoginDialog" />
         </button>
       </form>
       <h2 class="text-center">로그인</h2>
-      <form
-        @submit.prevent="logIn"
-        class="d-flex flex-column gap-3"
-        id="logInForm"
-      >
+      <form @submit.prevent="logIn" class="d-flex flex-column gap-3" id="logInForm">
         <div>
           <label for="logInId"
             >아이디
             <span>*</span>
           </label>
           <br />
-          <input
-            v-model.trim="logInId"
-            type="text"
-            style="width: 100%"
-            id="logInId"
-          />
+          <input v-model.trim="logInId" type="text" style="width: 100%" id="logInId" />
         </div>
         <div>
           <label for="logInPw"
@@ -34,13 +22,7 @@
             <span>*</span>
           </label>
           <br />
-          <input
-            v-model.trim="logInPw"
-            type="password"
-            style="width: 100%"
-            id="logInPw"
-            autoComplete="off"
-          />
+          <input v-model.trim="logInPw" type="password" style="width: 100%" id="logInPw" autoComplete="off" />
         </div>
         <button id="logInCk" class="px-4 py-2 mt-2">로그인</button>
       </form>

@@ -9,11 +9,7 @@
       <h4>예금</h4>
       <div v-if="!findDeposit.length">가입된 상품이 없습니다</div>
       <div v-else id="searchProducts">
-        <div
-          @click="moveProductDetail(info.fin_prdt_cd)"
-          class="searchProduct"
-          v-for="info in findDeposit"
-        >
+        <div @click="moveProductDetail(info.fin_prdt_cd)" class="searchProduct" v-for="info in findDeposit">
           <p>{{ info.fin_prdt_nm }}</p>
           <p>{{ info.kor_co_nm }}</p>
         </div>
@@ -24,17 +20,13 @@
       <h4>적금</h4>
       <div v-if="!findSaving.length">가입된 상품이 없습니다</div>
       <div v-else id="searchProducts">
-        <div
-          @click="moveProductDetail(info.fin_prdt_cd)"
-          class="searchProduct"
-          v-for="info in findSaving"
-        >
+        <div @click="moveProductDetail(info.fin_prdt_cd)" class="searchProduct" v-for="info in findSaving">
           <p>{{ info.fin_prdt_nm }}</p>
           <p>{{ info.kor_co_nm }}</p>
         </div>
       </div>
     </div>
-    <Chart />
+    <Chart :find-deposit="findDeposit" :find-saving="findSaving" />
   </div>
 </template>
 
@@ -60,18 +52,10 @@ const moveProductDetail = (id) => {
 };
 
 onMounted(() => {
-  if (
-    authStore.user.financial_products &&
-    Object.keys(authStore.user.financial_products)
-  ) {
+  if (authStore.user.financial_products && Object.keys(authStore.user.financial_products)) {
     totalProduct.value = authStore.user.financial_products;
-    findDeposit.value = depositStore.deposit.filter((item) =>
-      Object.keys(authStore.user.financial_products).includes(item.fin_prdt_cd)
-    );
-    console.log(findDeposit.value);
-    findSaving.value = savingStore.saving.filter((item) =>
-      Object.keys(authStore.user.financial_products).includes(item.fin_prdt_cd)
-    );
+    findDeposit.value = depositStore.deposit.filter((item) => Object.keys(authStore.user.financial_products).includes(item.fin_prdt_cd));
+    findSaving.value = savingStore.saving.filter((item) => Object.keys(authStore.user.financial_products).includes(item.fin_prdt_cd));
   }
 });
 </script>
