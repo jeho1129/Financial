@@ -400,7 +400,6 @@ const removeInfowindow = () => {
 };
 
 const geo = () => {
-  console.log(city.value);
   if (city.value) {
     geocoder.value.addressSearch(
       `${state.value} ${city.value}`,
@@ -450,6 +449,15 @@ const geo = () => {
   bottom: 20px;
   left: 20px;
   overflow: auto;
+}
+
+.aaa::-webkit-scrollbar {
+  width: 10px; /* 스크롤바의 너비 */
+}
+
+.aaa::-webkit-scrollbar-thumb {
+  background: lightgray; /* 스크롤바의 색상 */
+  border-radius: 10px;
 }
 
 #bankSearchTitle {

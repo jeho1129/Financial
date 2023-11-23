@@ -1,32 +1,37 @@
 <template>
   <div class="defaultMyProfile p-4">
     <h4 style="height: 32px">가입 상품</h4>
-    <div class="d-flex justify-content-between"></div>
     <hr />
-    <!-- <p>{{ authStore.user.financial_products }}</p> -->
-    <!-- <p>{{ Object.keys(authStore.user.financial_products) }}</p> -->
-    <div>
-      <h4>예금</h4>
-      <div v-if="!findDeposit.length">가입된 상품이 없습니다</div>
-      <div v-else id="searchProducts">
-        <div @click="moveProductDetail(info.fin_prdt_cd)" class="searchProduct" v-for="info in findDeposit">
-          <p>{{ info.fin_prdt_nm }}</p>
-          <p>{{ info.kor_co_nm }}</p>
-        </div>
-      </div>
+    <div v-if="!findDeposit.length && !findSaving.length">
+      가입된 상품이 없습니다
     </div>
-    <hr />
-    <div>
-      <h4>적금</h4>
-      <div v-if="!findSaving.length">가입된 상품이 없습니다</div>
-      <div v-else id="searchProducts">
-        <div @click="moveProductDetail(info.fin_prdt_cd)" class="searchProduct" v-for="info in findSaving">
-          <p>{{ info.fin_prdt_nm }}</p>
-          <p>{{ info.kor_co_nm }}</p>
+    <div v-else>
+      <template v-if="findDeposit.length">
+        <div class="searchProduct" v-for="info in findDeposit" :key="info.id">
+          (정기예금) {{ info.kor_co_nm }} -
+          <span @click="moveDeposit(info.fin_prdt_cd)">{{
+            info.fin_prdt_nm
+          }}</span>
         </div>
-      </div>
+      </template>
+      <template v-if="findSaving.length">
+        <div class="searchProduct" v-for="info in findSaving">
+          (정기적금) {{ info.kor_co_nm }} -
+          <span @click="moveSaving(info.fin_prdt_cd)">{{
+            info.fin_prdt_nm
+          }}</span>
+        </div>
+      </template>
     </div>
-    <Chart :find-deposit="findDeposit" :find-saving="findSaving" />
+    <div
+      v-if="
+        authStore.user.financial_products &&
+        Object.keys(authStore.user.financial_products).length
+      "
+    >
+      <hr />
+      <Chart :find-deposit="findDeposit" :find-saving="findSaving" />
+    </div>
   </div>
 </template>
 
@@ -47,15 +52,26 @@ const findDeposit = ref([]);
 const findSaving = ref([]);
 const totalProduct = ref([]);
 
-const moveProductDetail = (id) => {
+const moveDeposit = (id) => {
   router.push({ name: "depositDetail", params: { depositId: id } });
 };
 
+const moveSaving = (id) => {
+  router.push({ name: "savingDetail", params: { savingId: id } });
+};
+
 onMounted(() => {
-  if (authStore.user.financial_products && Object.keys(authStore.user.financial_products)) {
+  if (
+    authStore.user.financial_products &&
+    Object.keys(authStore.user.financial_products)
+  ) {
     totalProduct.value = authStore.user.financial_products;
-    findDeposit.value = depositStore.deposit.filter((item) => Object.keys(authStore.user.financial_products).includes(item.fin_prdt_cd));
-    findSaving.value = savingStore.saving.filter((item) => Object.keys(authStore.user.financial_products).includes(item.fin_prdt_cd));
+    findDeposit.value = depositStore.deposit.filter((item) =>
+      Object.keys(authStore.user.financial_products).includes(item.fin_prdt_cd)
+    );
+    findSaving.value = savingStore.saving.filter((item) =>
+      Object.keys(authStore.user.financial_products).includes(item.fin_prdt_cd)
+    );
   }
 });
 </script>
@@ -86,22 +102,16 @@ td {
   padding: 10px;
 }
 
-#searchProducts {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  grid-gap: 10px;
-}
-
 .searchProduct {
-  border: 1px solid lightgray;
-  border-radius: 5px;
+  /* border: 1px solid lightgray; */
+  /* border-radius: 5px; */
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 
-.searchProduct:hover {
-  font-weight: bold;
-  transform: scale(1.05);
+span {
   color: #5fb9a6;
-  transition-duration: 0.3s;
-  box-shadow: 1px 1px 20px #ddd;
+  font-weight: bold;
+  cursor: pointer;
 }
 </style>
