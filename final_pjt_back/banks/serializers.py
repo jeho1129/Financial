@@ -72,6 +72,7 @@ class DepositProductsChangeSerializer(serializers.ModelSerializer):
 
  
 class DepositJoinSerializer(serializers.ModelSerializer):
+    option_id = serializers.IntegerField(write_only=True)
     class UserSerializer(serializers.ModelSerializer):
         class Meta:
             model = get_user_model()
@@ -83,6 +84,11 @@ class DepositJoinSerializer(serializers.ModelSerializer):
         model = DepositJoin
         fields = '__all__'
         read_only_fields = ('product', 'expiration_date')
+
+    def create(self, validated_data):
+        option_id = validated_data.pop('option_id')
+        option = DepositOptions.objects.filter(id=option_id).first()
+        return super().create({**validated_data, 'option': option})
 
 
 class SavingProductsSerializer(serializers.ModelSerializer):
@@ -154,6 +160,7 @@ class SavingProductsChangeSerializer(serializers.ModelSerializer):
 
 
 class SavingJoinSerializer(serializers.ModelSerializer):
+    option_id = serializers.IntegerField(write_only=True)
     class UserSerializer(serializers.ModelSerializer):
         class Meta:
             model = get_user_model()
@@ -165,3 +172,8 @@ class SavingJoinSerializer(serializers.ModelSerializer):
         model = SavingJoin
         fields = '__all__'
         read_only_fields = ('product', 'expiration_date')
+
+    def create(self, validated_data):
+        option_id = validated_data.pop('option_id')
+        option = SavingOptions.objects.filter(id=option_id).first()
+        return super().create({**validated_data, 'option': option})
