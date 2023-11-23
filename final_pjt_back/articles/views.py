@@ -30,14 +30,18 @@ def article_detail(request, article_pk):
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     elif request.method == 'PUT':
-        serializer = ArticleSerializer(article, data=request.data, partial=True)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        if request.user == article.user:
+            serializer = ArticleSerializer(article, data=request.data, partial=True)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
         
     elif request.method == 'DELETE':
-        article.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if request.user == article.user or request.user.is_staff:
+            article.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
     
 
 @api_view(['POST'])
@@ -55,11 +59,15 @@ def comment_create(request, article_pk):
 def comment_detail(request, comment_pk):
     comment = Comment.objects.get(pk=comment_pk)
     if request.method == 'PUT':
-        serializer = CommentSerializer(comment, data=request.data)
-        if serializer.is_valid(raise_exception=True):
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
+        if request.user == comment.user:
+            serializer = CommentSerializer(comment, data=request.data)
+            if serializer.is_valid(raise_exception=True):
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
     
     elif request.method == 'DELETE':
-        comment.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if request.user == comment.user or request.user.is_staff:
+            comment.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response({"message": "권한이 없습니다."}, status=status.HTTP_403_FORBIDDEN)
