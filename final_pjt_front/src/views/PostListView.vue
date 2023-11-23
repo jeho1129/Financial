@@ -73,7 +73,6 @@ onMounted(() => {
   })
     .then((res) => {
       posts.value = res.data;
-      console.log(res.data);
     })
     .catch((err) => {
       console.log(err);
@@ -86,7 +85,6 @@ const sortPosts = computed(() => {
 
 const pushData = (args) => {
   posts.value.push(args);
-  console.log(posts.value);
 };
 
 const showModal = () => {

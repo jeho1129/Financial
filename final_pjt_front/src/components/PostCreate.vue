@@ -1,11 +1,20 @@
 <template>
   <dialog @click="closeModal" ref="postCreateDom">
-    <div class="position-relative p-4">
+    <div class="position-relative p-4 heightFull">
       <form method="dialog" class="position-absolute move">
-        <button value="close" class="m-0">❌</button>
+        <button value="close" id="closePostCreateDialog">
+          <font-awesome-icon
+            :icon="['fas', 'xmark']"
+            class="closePostCreateDialog"
+          />
+        </button>
       </form>
       <h2 class="text-center">게시글 생성</h2>
-      <form @submit.prevent="submitPost" class="d-flex flex-column gap-3">
+      <form
+        @submit.prevent="submitPost"
+        class="d-flex flex-column gap-3"
+        id="postCreateForm"
+      >
         <div>
           <label for="postTitle">제목</label>
           <br />
@@ -17,11 +26,11 @@
           <textarea
             id="postContent"
             cols="30"
-            rows="10"
+            rows="7"
             v-model.trim="content"
           />
         </div>
-        <button class="btn btn-primary px-5">게시글 생성</button>
+        <button id="postCreateCk" class="px-4 py-2 mt-2">게시글 생성</button>
       </form>
     </div>
   </dialog>
@@ -41,6 +50,11 @@ const title = ref("");
 const content = ref("");
 const emit = defineEmits(["someEvent"]);
 
+const resetData = () => {
+  title.value = "";
+  content.value = "";
+};
+
 const submitPost = () => {
   axios({
     method: "post",
@@ -54,8 +68,8 @@ const submitPost = () => {
     },
   })
     .then((res) => {
-      console.log(res.data);
       postCreateDom.value.close();
+      resetData();
       emit("someEvent", res.data);
     })
     .catch((err) => {
@@ -66,6 +80,7 @@ const submitPost = () => {
 const closeModal = (e) => {
   if (e.target.nodeName === "DIALOG") {
     postCreateDom.value.close();
+    resetData();
   }
 };
 </script>
@@ -80,19 +95,48 @@ dialog {
   border: 0;
   border-radius: 10px;
   padding: 0;
+  height: 500px;
   width: 500px;
 }
 
 input,
-select,
-textarea,
-button {
+textarea {
   width: 100%;
+  padding: 10px;
   border: 1px solid lightgray;
   border-radius: 5px;
 }
 
 .move {
-  right: 10px;
+  top: 20px;
+  right: 20px;
+}
+
+.heightFull {
+  height: 100%;
+}
+
+#postCreateForm {
+  margin: 0 auto;
+  padding: 20px 20px 0;
+  border-radius: 5px;
+}
+
+#postCreateCk {
+  background-color: #5fb9a6;
+  border: 0px;
+  border-radius: 5px;
+  font-weight: bold;
+}
+
+#closePostCreateDialog {
+  border: 0px;
+  background-color: transparent;
+}
+
+.closePostCreateDialog {
+  width: 30px;
+  height: 30px;
+  color: lightgray;
 }
 </style>

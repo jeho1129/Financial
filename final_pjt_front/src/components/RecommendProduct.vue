@@ -1,19 +1,32 @@
 <template>
   <div class="defaultMyProfile p-4">
     <h4>상품 추천 받기</h4>
-    <p>{{ authStore.user.name || "admin" }}님만을 위해 준비한 특별한 추천</p>
-    <p>당신의 선호도를 반영한 최적의 금융 상품을 찾아봤어요.</p>
+    <div
+      style="font-weight: bolder; text-align: center"
+      class="d-flex flex-column gap-2 m-4 text-secondary"
+    >
+      <p class="m-0">
+        {{ authStore.user.name || "admin" }}님만을 위해 준비한 특별한 추천
+      </p>
+      <p class="m-0">당신의 선호도를 반영한 최적의 금융 상품을 찾아봤어요.</p>
+    </div>
     <div v-if="recommendDeposit.length">
       <div v-for="deposit in recommendDeposit" :key="deposit">
-        <div>
+        <div class="searchProduct">
           (정기예금){{ depositStore.deposit[deposit - 1].kor_co_nm }} -
-          <span @click="moveDeposit(depositStore.deposit[deposit - 1].fin_prdt_cd)">{{ depositStore.deposit[deposit - 1].fin_prdt_nm }}</span>
+          <span
+            @click="moveDeposit(depositStore.deposit[deposit - 1].fin_prdt_cd)"
+            >{{ depositStore.deposit[deposit - 1].fin_prdt_nm }}</span
+          >
         </div>
       </div>
       <div v-for="saving in recommendSaving" :key="saving">
-        <div>
+        <div class="searchProduct">
           (정기적금){{ savingStore.saving[saving - 1].kor_co_nm }} -
-          <span @click="moveSaving(savingStore.saving[saving - 1].fin_prdt_cd)">{{ savingStore.saving[saving - 1].fin_prdt_nm }}</span>
+          <span
+            @click="moveSaving(savingStore.saving[saving - 1].fin_prdt_cd)"
+            >{{ savingStore.saving[saving - 1].fin_prdt_nm }}</span
+          >
         </div>
       </div>
     </div>
@@ -114,5 +127,12 @@ span {
   color: #5fb9a6;
   font-weight: bold;
   cursor: pointer;
+}
+
+.searchProduct {
+  /* border: 1px solid lightgray; */
+  /* border-radius: 5px; */
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
 </style>

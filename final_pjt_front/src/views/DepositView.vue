@@ -67,6 +67,7 @@
               style="cursor: pointer"
             />
           </th>
+          <th v-if="authStore.user?.is_superuser" scope="col">변경</th>
         </tr>
       </thead>
       <tbody>
@@ -119,9 +120,13 @@
               "-"
             }}
           </td>
+          <td v-if="authStore.user?.is_superuser">
+            <button @click="changePassword(base)">변경</button>
+          </td>
         </tr>
       </tbody>
     </table>
+    <ChangeRate :deposit-data="depositData" id="moveChangeRate" />
   </div>
 </template>
 
@@ -129,20 +134,27 @@
 import { RouterLink, useRouter } from "vue-router";
 import { onMounted, ref } from "vue";
 import { useDepositStore } from "../stores/deposit";
+import { useAuthStore } from "../stores/auth";
+import ChangeRate from "../components/ChangeRate.vue";
 
 const depositStore = useDepositStore();
 const router = useRouter();
+const authStore = useAuthStore();
 
 const category = ref("all");
 const period = ref("all");
 const deposit = ref(depositStore.deposit);
 const ck = ref([0, 0, 0, 0]);
+const depositData = ref({});
+
+const changePassword = (data) => {
+  depositData.value = data;
+  const dialog = document.querySelector("#moveChangeRate");
+  dialog.showModal();
+};
 
 onMounted(() => {
-  if (!depositStore.deposit.length) {
-    depositStore.callDeposit();
-  }
-  console.log(deposit.value);
+  depositStore.callDeposit();
 });
 
 const changeDeposit = () => {
@@ -255,6 +267,7 @@ button {
   background-color: #5fb9a6;
   border: 0px;
   border-radius: 5px;
+  font-weight: bolder;
 }
 
 button:hover {

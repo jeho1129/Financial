@@ -1,7 +1,7 @@
 <template>
   <form class="defaultMyProfile p-4" @submit.prevent="editProfile">
     <div class="d-flex justify-content-between">
-      <h4>기본 정보</h4>
+      <h4>기본 정보 수정</h4>
       <button class="p-2" id="moveProfile">수정하기</button>
       <!-- <button v-else @click="dddd" class="p-2" id="moveProfile">수정하기</button> -->
     </div>

@@ -16,7 +16,6 @@ export const useDepositStore = defineStore(
         url: `${authStore.API_URL}/banking/deposits/list/`,
       })
         .then((res) => {
-          console.log(res.data);
           deposit.value = res.data;
         })
         .catch((err) => {

@@ -1,25 +1,37 @@
 <template>
   <div class="container my-4">
     <div v-if="deposit" class="d-flex flex-column gap-3">
-      <div class="depositDetailInfo p-4">
+      <div class="depositDetailInfo p-4 position-relative">
         <h3>{{ deposit.fin_prdt_nm }}</h3>
+        <img :src="imgUrl" alt="ㅜㅜ" />
         <p>{{ deposit.kor_co_nm }}</p>
         <p>#{{ deposit.join_way }}</p>
         <div class="d-flex gap-4">
           <div>
             <p>최고</p>
             <!-- <p>{{ deposit.depositoptions_set }}</p> -->
-            <p v-for="option in deposit.depositoptions_set" :key="option.id">연 {{ option.intr_rate2 }}%</p>
+            <p v-for="option in deposit.depositoptions_set" :key="option.id">
+              연 {{ option.intr_rate2 }}%
+            </p>
           </div>
           <div>
             <p>기본</p>
             <p v-for="option in deposit.depositoptions_set" :key="option.id">
-              연 {{ option.intr_rate ?? option.intr_rate2 }}% ({{ option.save_trm }}개월, 세전)
+              연 {{ option.intr_rate ?? option.intr_rate2 }}% ({{
+                option.save_trm
+              }}개월, 세전)
             </p>
           </div>
         </div>
         <div v-if="authStore.user">
-          <button v-if="!authStore.user.financial_products || !(depositId in authStore.user.financial_products)" @click="Join" class="px-4 py-2 exChange">
+          <button
+            v-if="
+              !authStore.user.financial_products ||
+              !(depositId in authStore.user.financial_products)
+            "
+            @click="Join"
+            class="px-4 py-2 exChange"
+          >
             가입하기
           </button>
           <form v-else @submit.prevent="joinDeposit">
@@ -35,24 +47,42 @@
             <br />
             <input type="number" v-model="amount" />
           </div>
-          <!-- <p>{{ deposit.depositoptions_set }}</p> -->
           <div class="select d-flex gap-4 justify-content-center flex-wrap">
             <div
-              @click="calculate(amount, option.intr_rate ?? option.intr_rate2, option.save_trm, option.intr_rate_type_nm)"
+              @click="
+                calculate(
+                  amount,
+                  option.intr_rate ?? option.intr_rate2,
+                  option.save_trm,
+                  option.intr_rate_type_nm
+                )
+              "
               v-for="option in deposit.depositoptions_set"
               :key="option.id"
             >
-              <input type="radio" v-model="btn" :id="`select${option.id}`" name="shop" :value="option.save_trm" /><label
+              <input
+                type="radio"
+                v-model="btn"
+                :id="`select${option.id}`"
+                name="shop"
+                :value="option.save_trm"
+              /><label
                 :for="`select${option.id}`"
                 class="py-3 d-flex flex-column gap-2"
               >
-                <p class="m-0">{{ option.save_trm }}개월({{ option.intr_rate_type_nm }})</p>
-                <p class="m-0">기본 {{ option.intr_rate ?? option.intr_rate2 }}%</p>
+                <p class="m-0">
+                  {{ option.save_trm }}개월({{ option.intr_rate_type_nm }})
+                </p>
+                <p class="m-0">
+                  기본 {{ option.intr_rate ?? option.intr_rate2 }}%
+                </p>
               </label>
             </div>
           </div>
           <div>
-            <p class="text-center">{{ amount }}원 예금하면 총 세전 이자 {{ result }}원</p>
+            <p class="text-center">
+              {{ amount }}원 예금하면 총 세전 이자 {{ result }}원
+            </p>
           </div>
         </form>
       </div>
@@ -88,7 +118,13 @@
               <option :value="4">4</option>
               <option :value="5">5</option>
             </select>
-            <input type="text" class="detailDepositContent" placeholder="리뷰를 남겨보세요" v-model.trim="inputContent" style="border-radius: 0 5px 5px 0" />
+            <input
+              type="text"
+              class="detailDepositContent"
+              placeholder="리뷰를 남겨보세요"
+              v-model.trim="inputContent"
+              style="border-radius: 0 5px 5px 0"
+            />
             <button id="submitReviewBtn">
               <font-awesome-icon :icon="['fas', 'pen']" />
             </button>
@@ -104,29 +140,63 @@
             />
           </div>
         </form>
-        <div v-for="review in deposit.depositreviews_set" :key="review.id" class="d-flex align-items-center justify-content-between my-3">
-          <div>
-            <p class="m-0">{{ review.user.username }}</p>
-            <p>{{ review.rating }}</p>
-            <p class="m-0">{{ review.content }}</p>
-            <p class="m-0">
-              {{
-                new Date(new Date(review.created_at).getTime() + 9 * 60 * 60 * 1000).toISOString().split("T")[0] +
-                " " +
-                new Date(review.created_at).toTimeString().split(" ")[0]
-              }}
-            </p>
-          </div>
-          <div v-if="authStore.user">
-            <div class="d-flex align-items-center gap-1" v-if="authStore.user.id === review.user.pk">
-              <button id="depositEditButton" :to="{ name: 'update', params: deposit.id }">
-                <font-awesome-icon :icon="['far', 'pen-to-square']" class="depositEditButton" />
-              </button>
-              <button @click="delComment(review.id)" id="reviewDelButton">
-                <font-awesome-icon :icon="['far', 'trash-can']" class="reviewDelButton" />
-              </button>
+        <div v-for="review in sortReview" :key="review.id">
+          <div class="d-flex align-items-center justify-content-between my-3">
+            <div>
+              <div class="d-flex gap-3">
+                <p class="m-0">{{ review.user.username }}</p>
+                <div>
+                  <span v-for="n in review.rating" :key="n">
+                    <font-awesome-icon
+                      :icon="['fas', 'star']"
+                      class="fillStar"
+                    />
+                  </span>
+                  <span v-for="n in 5 - review.rating" :key="n">
+                    <font-awesome-icon
+                      :icon="['far', 'star']"
+                      class="emptyStar"
+                    />
+                  </span>
+                </div>
+              </div>
+              <p class="m-0">{{ review.content || "dummyData" }}</p>
+              <p class="m-0">
+                {{
+                  new Date(
+                    new Date(review.created_at).getTime() + 9 * 60 * 60 * 1000
+                  )
+                    .toISOString()
+                    .split("T")[0] +
+                  " " +
+                  new Date(review.created_at).toTimeString().split(" ")[0]
+                }}
+              </p>
+            </div>
+            <div v-if="authStore.user">
+              <div
+                class="d-flex align-items-center gap-1"
+                v-if="authStore.user.id === review.user.pk"
+              >
+                <button
+                  id="depositEditButton"
+                  :to="{ name: 'update', params: deposit.id }"
+                >
+                  <font-awesome-icon
+                    :icon="['far', 'pen-to-square']"
+                    class="depositEditButton"
+                  />
+                </button>
+                <button @click="delComment(review.id)" id="reviewDelButton">
+                  <font-awesome-icon
+                    :icon="['far', 'trash-can']"
+                    class="reviewDelButton"
+                  />
+                </button>
+              </div>
             </div>
           </div>
+          <hr />
         </div>
       </div>
     </div>
@@ -141,7 +211,8 @@ import { onMounted, ref } from "vue";
 import { useRoute } from "vue-router";
 import { useAuthStore } from "../stores/auth";
 import DepositJoin from "../components/DepositJoin.vue";
-// period ? deposit.depositoptions_set.find((item) => item.save_trm == period).intr_rate2 : 0
+import { computed } from "@vue/reactivity";
+
 const route = useRoute();
 const authStore = useAuthStore();
 const depositId = route.params.depositId;
@@ -151,6 +222,7 @@ const amount = ref(0);
 const result = ref(0);
 const btn = ref(0);
 const inputContent = ref("");
+const imgUrl = ref("");
 
 onMounted(() => {
   axios({
@@ -159,7 +231,7 @@ onMounted(() => {
   })
     .then((res) => {
       deposit.value = res.data;
-      console.log(res.data);
+      imgUrl.value = `../assets/${deposit.value.kor_co_nm}.png`;
     })
     .catch((err) => {
       console.log(err);
@@ -176,7 +248,6 @@ const joinDeposit = () => {
       },
     })
       .then((res) => {
-        console.log(res.data.message);
         delete authStore.user.financial_products[deposit.value.fin_prdt_cd];
       })
       .catch((err) => {
@@ -222,7 +293,9 @@ const delComment = (id) => {
     },
   })
     .then(() => {
-      const idx = deposit.value.depositreviews_set.findIndex((item) => item.id === id);
+      const idx = deposit.value.depositreviews_set.findIndex(
+        (item) => item.id === id
+      );
       deposit.value.depositreviews_set.splice(idx, 1);
       deposit.value.depositreviews_count -= 1;
     })
@@ -233,18 +306,22 @@ const delComment = (id) => {
 
 function calculate(principal, rate, time, method) {
   rate /= 100;
-  // console.log(method);
   if (method === "단리") {
     // 예금액 * 이자율 * 기간
     console.log((principal * rate * time) / 12);
     result.value = ((principal * rate * time) / 12).toFixed();
   } else if (method === "복리") {
     // 예금액 * (1 + 이자율) ^ 기간
-    result.value = principal * Math.pow(1 + rate, time / 12).toFixed() - principal;
+    result.value =
+      principal * Math.pow(1 + rate, time / 12).toFixed() - principal;
   } else {
     result.value = 0;
   }
 }
+
+const sortReview = computed(() => {
+  return deposit.value.depositreviews_set.toSorted((a, b) => b.id - a.id);
+});
 </script>
 
 <style scoped>
@@ -344,5 +421,22 @@ input[type="number"] {
 
 .depositEditButton {
   color: #5fb9a6;
+}
+
+img {
+  width: 50px;
+  position: absolute;
+  border-radius: 90%;
+  top: 30px;
+  right: 30px;
+}
+
+.fillStar {
+  color: #5fb9a6;
+}
+
+.emptyStar {
+  color: darkgray;
+  /* border: 1px solid lightgray; */
 }
 </style>

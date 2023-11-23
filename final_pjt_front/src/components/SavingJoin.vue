@@ -10,7 +10,7 @@
         </button>
       </form>
       <!-- <p>{{ deposit }}</p> -->
-      <h2 class="text-center">정기예금 가입</h2>
+      <h2 class="text-center">정기적금 가입</h2>
       <form
         id="savingForm"
         class="d-flex flex-column gap-3"
@@ -31,13 +31,12 @@
         <div>
           <label for="months">가입개월:</label>
           <br />
-          <!-- <input type="number" id="months" name="months" required /> -->
           <select name="" id="months" v-model="savingJoinPeriod">
-            <option :value="0">기간을 선택하세요</option>
+            <option :value="0" disabled>기간을 선택하세요</option>
             <option
               v-for="option in saving.savingoptions_set"
               :key="option.id"
-              :value="option.save_trm"
+              :value="option.id"
             >
               {{ option.save_trm }} 개월
             </option>
@@ -79,10 +78,6 @@ const closeModal = (e) => {
 };
 
 const joinSaving = () => {
-  console.log(savingJoinPeriod.value);
-  console.log(typeof savingJoinPeriod.value);
-  console.log(savingJoinAmount.value);
-  console.log(typeof savingJoinAmount.value);
   axios({
     method: "post",
     url: `${authStore.API_URL}/banking/savings/${route.params.savingId}/`,
@@ -90,7 +85,7 @@ const joinSaving = () => {
       Authorization: `Token ${authStore.token}`,
     },
     data: {
-      month: savingJoinPeriod.value,
+      option_id: savingJoinPeriod.value,
       amount: savingJoinAmount.value,
     },
   })

@@ -3,7 +3,9 @@
     <div>
       <div class="d-flex justify-content-between">
         <h4>기본 정보</h4>
-        <button @click="someEvent" class="p-2" id="moveProfileEdit">수정하기</button>
+        <button @click="someEvent" class="p-2" id="moveProfileEdit">
+          수정하기
+        </button>
         <!-- <button v-else @click="dddd" class="p-2" id="moveProfileEdit">수정하기</button> -->
       </div>
       <div class="d-flex align-items-center gap-4">
@@ -22,6 +24,14 @@
             <td>{{ authStore.user.email || "이메일을 설정해주세요" }}</td>
           </tr>
           <tr>
+            <th>비밀번호</th>
+            <td>
+              <button id="changePassword" @click="changePassword">
+                비밀번호 변경
+              </button>
+            </td>
+          </tr>
+          <tr>
             <th>나이</th>
             <td>{{ authStore.user.age || "나이를 설정해주세요" }}</td>
           </tr>
@@ -36,17 +46,24 @@
         </tbody>
       </table>
     </div>
+    <ChangePassWord id="moveChangePassWord" />
   </div>
 </template>
 
 <script setup>
 import { useAuthStore } from "../stores/auth";
+import ChangePassWord from "./ChangePassWord.vue";
 
 const authStore = useAuthStore();
 
 const emit = defineEmits("someEvent");
 const someEvent = () => {
   emit("someEvent");
+};
+
+const changePassword = () => {
+  const dialog = document.querySelector("#moveChangePassWord");
+  dialog.showModal();
 };
 </script>
 
@@ -65,6 +82,8 @@ img {
 #moveProfileEdit {
   background-color: #5fb9a6;
   border: 0px;
+  color: white;
+  font-weight: bolder;
   border-radius: 5px;
 }
 
@@ -74,5 +93,14 @@ img {
 
 td {
   padding: 10px;
+}
+
+#changePassword {
+  background-color: #5fb9a6;
+  color: white;
+  font-weight: bolder;
+  border: 0px;
+  border-radius: 5px;
+  border: 1px solid lightgray;
 }
 </style>

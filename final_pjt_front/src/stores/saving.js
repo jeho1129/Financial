@@ -16,7 +16,6 @@ export const useSavingStore = defineStore(
         url: `${authStore.API_URL}/banking/savings/list/`,
       })
         .then((res) => {
-          console.log(res.data);
           saving.value = res.data;
         })
         .catch((err) => {

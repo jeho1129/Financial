@@ -1,8 +1,15 @@
 <template>
   <div class="container my-4" v-if="authStore.user">
     <div class="d-flex justify-content-center gap-4 my-4">
-      <RouterLink :to="{ name: 'myProfile' }" id="toMyProfile" class="py-2">기본 정보</RouterLink>
-      <RouterLink :to="{ name: 'recommendProduct' }" id="fromRecommend" class="m-0 py-2">상품 추천 받기</RouterLink>
+      <RouterLink :to="{ name: 'myProfile' }" id="toMyProfile" class="py-2"
+        >기본 정보</RouterLink
+      >
+      <RouterLink
+        :to="{ name: 'recommendProduct' }"
+        id="fromRecommend"
+        class="m-0 py-2"
+        >상품 추천 받기</RouterLink
+      >
     </div>
     <!-- <h1 class="text-center">{{ authStore.user.username }} 님의 프로필 페이지</h1> -->
     <div class="d-flex flex-column gap-3">
