@@ -52,6 +52,7 @@ export const useAuthStore = defineStore(
           user.value.email = res.data.email;
           user.value.asset = res.data.asset;
           user.value.salary = res.data.salary;
+          user.value.job = res.data.job;
         })
         .catch((err) => {
           console.log(err);

@@ -12,6 +12,7 @@ import PostCreateView from "../views/PostCreateView.vue";
 import PostDetailView from "../views/PostDetailView.vue";
 import MyProfileView from "../views/MyProfileView.vue";
 import RecommendProductView from "../views/RecommendProductView.vue";
+import RecommendProductInfoView from "../views/RecommendProductInfoView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -80,6 +81,11 @@ const router = createRouter({
       path: "/recommendProduct",
       name: "recommendProduct",
       component: RecommendProductView,
+    },
+    {
+      path: "/recommendProductInfo",
+      name: "recommendProductInfo",
+      component: RecommendProductInfoView,
     },
   ],
 });

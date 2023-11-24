@@ -3,49 +3,22 @@
     <div class="position-relative p-4 heightFull">
       <form method="dialog" class="position-absolute move">
         <button value="close" id="closeChangeRateDialog">
-          <font-awesome-icon
-            :icon="['fas', 'xmark']"
-            class="closeChangeRateDialog"
-          />
+          <font-awesome-icon :icon="['fas', 'xmark']" class="closeChangeRateDialog" />
         </button>
       </form>
       <h2 class="text-center">금리 정보 변경</h2>
-      <form
-        @submit.prevent="changeRate"
-        class="d-flex flex-column"
-        id="changeRateForm"
-      >
-        <div
-          v-for="(option, index) in depositData.depositoptions_set"
-          :key="option.id"
-          class="d-flex flex-column gap-2"
-        >
-          <h4 class="m-0">
-            {{ option.save_trm }}개월 ({{ option.intr_rate_type_nm }})
-          </h4>
+      <form @submit.prevent="changeRate" class="d-flex flex-column" id="changeRateForm">
+        <div v-for="(option, index) in depositData.depositoptions_set" :key="option.id" class="d-flex flex-column gap-2">
+          <h4 class="m-0">{{ option.save_trm }}개월 ({{ option.intr_rate_type_nm }})</h4>
           <div>
             <label for="normalRate">기본 금리 </label>
             <br />
-            <input
-              v-model.trim="depositData.depositoptions_set[index].intr_rate"
-              type="number"
-              style="width: 100%"
-              step="0.01"
-              id="save_trm"
-              required
-            />
+            <input v-model.trim="depositData.depositoptions_set[index].intr_rate" type="number" style="width: 100%" step="0.01" id="save_trm" required />
           </div>
           <div>
             <label for="bestRate">우대 금리 </label>
             <br />
-            <input
-              v-model.trim="depositData.depositoptions_set[index].intr_rate2"
-              type="number"
-              style="width: 100%"
-              step="0.01"
-              id="bestRate"
-              required
-            />
+            <input v-model.trim="depositData.depositoptions_set[index].intr_rate2" type="number" style="width: 100%" step="0.01" id="bestRate" required />
           </div>
           <hr />
         </div>
@@ -94,7 +67,8 @@ const changeRate = () => {
       }),
     })
       .then((res) => {
-        console.log(res.data);
+        const modal = document.querySelector("#moveChangeRate");
+        modal.close();
       })
       .catch((err) => {
         console.log(err);

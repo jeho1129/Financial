@@ -5,28 +5,11 @@
         <h3>{{ posts.title }}</h3>
         <div class="d-flex align-items-center gap-1">
           <!-- <RouterLink v-if="authStore.user.id === posts.user.pk" :to="{ name: 'update', params: posts.id }">수정</RouterLink> -->
-          <button
-            v-if="authStore.user?.id === posts.user.pk"
-            id="postEditButton"
-            :to="{ name: 'update', params: posts.id }"
-          >
-            <font-awesome-icon
-              :icon="['far', 'pen-to-square']"
-              class="postEditButton"
-            />
-          </button>
-          <button
-            v-if="
-              authStore.user?.is_superuser ||
-              authStore.user?.id === posts.user.pk
-            "
-            @click="delPost"
-            id="postDelButton"
-          >
-            <font-awesome-icon
-              :icon="['far', 'trash-can']"
-              class="postDelButton"
-            />
+          <!-- <button v-if="authStore.user?.id === posts.user.pk" id="postEditButton" :to="{ name: 'update', params: posts.id }">
+            <font-awesome-icon :icon="['far', 'pen-to-square']" class="postEditButton" />
+          </button> -->
+          <button v-if="authStore.user?.is_superuser || authStore.user?.id === posts.user.pk" @click="delPost" id="postDelButton">
+            <font-awesome-icon :icon="['far', 'trash-can']" class="postDelButton" />
           </button>
         </div>
       </div>
@@ -45,78 +28,39 @@
       <p>댓글 {{ posts.comment_set.length }} ></p>
       <form @submit.prevent="submitComment" class="position-relative">
         <div v-if="authStore.user">
-          <input
-            type="text"
-            id="detailPostContent"
-            placeholder="댓글을 남겨보세요"
-            v-model.trim="inputContent"
-            required
-          />
+          <input type="text" id="detailPostContent" placeholder="댓글을 남겨보세요" v-model.trim="inputContent" required />
           <button id="submitCommentBtn">
             <font-awesome-icon :icon="['fas', 'pen']" />
           </button>
         </div>
         <div v-else>
-          <input
-            type="text"
-            id="detailPostContent"
-            placeholder="로그인 후 댓글 작성이 가능해요"
-            readonly
-          />
+          <input type="text" id="detailPostContent" placeholder="로그인 후 댓글 작성이 가능해요" readonly />
         </div>
       </form>
       <template v-if="posts.comment_set.length">
-        <div
-          v-for="comment in posts.comment_set"
-          :key="comment.id"
-          class="d-flex align-items-center justify-content-between my-3"
-        >
+        <div v-for="comment in posts.comment_set" :key="comment.id" class="d-flex align-items-center justify-content-between my-3">
           <div>
             <p class="m-0">{{ comment.user.username }}</p>
             <p class="m-0">{{ comment.content }}</p>
             <p class="m-0">
               {{
-                new Date(
-                  new Date(comment.created_at).getTime() + 9 * 60 * 60 * 1000
-                )
-                  .toISOString()
-                  .split("T")[0] +
+                new Date(new Date(comment.created_at).getTime() + 9 * 60 * 60 * 1000).toISOString().split("T")[0] +
                 " " +
                 new Date(comment.created_at).toTimeString().split(" ")[0]
               }}
             </p>
           </div>
           <div class="d-flex align-items-center gap-1">
-            <button
-              v-if="authStore.user?.id === comment.user.pk"
-              id="postEditButton"
-              :to="{ name: 'update', params: posts.id }"
-            >
-              <font-awesome-icon
-                :icon="['far', 'pen-to-square']"
-                class="postEditButton"
-              />
-            </button>
-            <button
-              v-if="
-                authStore.user?.is_superuser ||
-                authStore.user?.id === comment.user.pk
-              "
-              @click="delComment(comment.id)"
-              id="commentDelButton"
-            >
-              <font-awesome-icon
-                :icon="['far', 'trash-can']"
-                class="commentDelButton"
-              />
+            <!-- <button @click="console.log()" v-if="authStore.user?.id === comment.user.pk" id="postEditButton" :to="{ name: 'update', params: posts.id }">
+              <font-awesome-icon :icon="['far', 'pen-to-square']" class="postEditButton" />
+            </button> -->
+            <button v-if="authStore.user?.is_superuser || authStore.user?.id === comment.user.pk" @click="delComment(comment.id)" id="commentDelButton">
+              <font-awesome-icon :icon="['far', 'trash-can']" class="commentDelButton" />
             </button>
           </div>
         </div>
       </template>
-      <div
-        v-else
-        class="my-3 d-flex flex-column align-items-center text-secondary m-5"
-      >
+      <div v-else class="my-3 d-flex flex-column align-items-center text-secondary m-5">
         <p class="m-0 fs-1">
           <font-awesome-icon :icon="['far', 'comment-dots']" />
         </p>
@@ -141,6 +85,7 @@ const posts = ref(null);
 const inputContent = ref("");
 const date = ref("");
 const time = ref("");
+const comment = ref([]);
 
 onMounted(() => {
   axios({
@@ -152,9 +97,7 @@ onMounted(() => {
       const TIME_ZONE = 9 * 60 * 60 * 1000; // 9시간
       const d = new Date(res.data.created_at);
 
-      date.value = new Date(d.getTime() + TIME_ZONE)
-        .toISOString()
-        .split("T")[0];
+      date.value = new Date(d.getTime() + TIME_ZONE).toISOString().split("T")[0];
       time.value = d.toTimeString().split(" ")[0];
     })
     .catch((err) => {

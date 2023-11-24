@@ -2,8 +2,8 @@
   <div class="container my-4" v-if="authStore.user">
     <div class="d-flex justify-content-center gap-4 my-4">
       <RouterLink :to="{ name: 'myProfile' }" id="fromMyProfile" class="py-2">기본 정보</RouterLink>
-      <!-- <RouterLink :to="{ name: 'checkProduct' }" id="toJoinProduct" class="py-2">가입 상품 확인</RouterLink> -->
-      <RouterLink :to="{ name: 'recommendProduct' }" id="toRecommend" class="m-0 py-2">상품 추천 받기</RouterLink>
+      <RouterLink :to="{ name: 'recommendProduct' }" id="toRecommend" class="m-0 py-2">상품 추천 받기 (선호도)</RouterLink>
+      <RouterLink :to="{ name: 'recommendProductInfo' }" id="toRecommend" class="py-2">상품 추천 받기 (유저 정보)</RouterLink>
     </div>
     <!-- <h1 class="text-center">{{ authStore.user.username }} 님의 프로필 페이지</h1> -->
     <div class="d-flex flex-column gap-3">
@@ -16,7 +16,7 @@
 
 <script setup>
 import { useAuthStore } from "../stores/auth";
-import ProfileShow from "../components/profileShow.vue";
+import ProfileShow from "../components/ProfileShow.vue";
 import ProfileEdit from "../components/ProfileEdit.vue";
 import CkJoinProduct from "../components/CkJoinProduct.vue";
 import { RouterLink, RouterView } from "vue-router";
@@ -42,7 +42,7 @@ a {
 }
 
 #fromMyProfile {
-  width: 130px;
+  width: 200px;
   color: #5fb9a6;
   border: 2px solid #5fb9a6;
   font-weight: bold;
@@ -52,7 +52,7 @@ a {
 
 #toJoinProduct,
 #toRecommend {
-  width: 130px;
+  width: 200px;
   color: #333;
   border: 1px solid lightgray;
   font-weight: bold;

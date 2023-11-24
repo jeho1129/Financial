@@ -18,19 +18,39 @@
         </tr>
         <tr>
           <th>이메일</th>
-          <td><input type="email" v-model="editEmail" min="0" /></td>
+          <td><input type="email" v-model.trim="editEmail" min="0" /></td>
+        </tr>
+        <tr>
+          <th>비밀번호</th>
+          <td style="font-size: 10px" class="d-flex gap-1"><font-awesome-icon v-for="a in 6" :key="a" :icon="['fas', 'circle']" /></td>
         </tr>
         <tr>
           <th>나이</th>
-          <td><input type="number" v-model="editAge" min="0" /></td>
+          <td><input type="number" v-model.trim="editAge" min="0" /></td>
+        </tr>
+        <tr>
+          <th>직업</th>
+          <td>
+            <select v-model.trim="editJob">
+              <option value="" disabled>직업 선택하기</option>
+              <option
+                :value="data"
+                style="width: 100%"
+                v-for="data in ['공무원', '변호사', '의사', '회사원', '엔지니어', '개발자', '교수', '간호사']"
+                :key="data"
+              >
+                {{ data }}
+              </option>
+            </select>
+          </td>
         </tr>
         <tr>
           <th>자산</th>
-          <td><input type="number" v-model="editAsset" min="0" /></td>
+          <td><input type="number" v-model.trim="editAsset" min="0" /></td>
         </tr>
         <tr>
           <th>연봉</th>
-          <td><input type="number" v-model="editSalary" min="0" /></td>
+          <td><input type="number" v-model.trim="editSalary" min="0" /></td>
         </tr>
       </tbody>
     </table>
@@ -47,6 +67,7 @@ const editEmail = ref(authStore.user.email);
 const editAge = ref(authStore.user.age);
 const editAsset = ref(authStore.user.asset);
 const editSalary = ref(authStore.user.salary);
+const editJob = ref(authStore.user.job);
 
 const emit = defineEmits(["editProfile"]);
 
@@ -60,6 +81,7 @@ const editProfile = function () {
       age: editAge.value,
       asset: editAsset.value,
       salary: editSalary.value,
+      job: editJob.value,
     };
 
     console.log(payload);
@@ -95,7 +117,8 @@ td {
   padding: 10px;
 }
 
-input {
+input,
+select {
   padding: 0 0 0 10px;
   width: 200px;
   border: 1px solid lightgray;
