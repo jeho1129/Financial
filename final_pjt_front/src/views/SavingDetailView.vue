@@ -10,28 +10,15 @@
           <div>
             <p>최고</p>
             <!-- <p>{{ deposit.depositoptions_set }}</p> -->
-            <p v-for="option in saving.savingoptions_set" :key="option.id">
-              연 {{ option.intr_rate2 }}%
-            </p>
+            <p v-for="option in saving.savingoptions_set" :key="option.id">연 {{ option.intr_rate2 }}%</p>
           </div>
           <div>
             <p>기본</p>
-            <p v-for="option in saving.savingoptions_set" :key="option.id">
-              연 {{ option.intr_rate ?? option.intr_rate2 }}% ({{
-                option.save_trm
-              }}개월, 세전)
-            </p>
+            <p v-for="option in saving.savingoptions_set" :key="option.id">연 {{ option.intr_rate ?? option.intr_rate2 }}% ({{ option.save_trm }}개월, 세전)</p>
           </div>
         </div>
         <div v-if="authStore.user">
-          <button
-            v-if="
-              !authStore.user.financial_products ||
-              !(savingId in authStore.user.financial_products)
-            "
-            @click="Join"
-            class="px-4 py-2 exChange"
-          >
+          <button v-if="!authStore.user.financial_products || !(savingId in authStore.user.financial_products)" @click="Join" class="px-4 py-2 exChange">
             가입하기
           </button>
           <form v-else @submit.prevent="joinSaving">
@@ -49,40 +36,21 @@
           </div>
           <div class="select d-flex gap-4 justify-content-center flex-wrap">
             <div
-              @click="
-                calculate(
-                  amount,
-                  option.intr_rate ?? option.intr_rate2,
-                  option.save_trm,
-                  option.intr_rate_type_nm
-                )
-              "
+              @click="calculate(amount, option.intr_rate ?? option.intr_rate2, option.save_trm, option.intr_rate_type_nm)"
               v-for="option in saving.savingoptions_set"
               :key="option.id"
             >
-              <input
-                type="radio"
-                v-model="btn"
-                :id="`select${option.id}`"
-                name="shop"
-                :value="option.save_trm"
-              /><label
+              <input type="radio" v-model="btn" :id="`select${option.id}`" name="shop" :value="option.save_trm" /><label
                 :for="`select${option.id}`"
                 class="py-3 d-flex flex-column gap-2"
               >
-                <p class="m-0">
-                  {{ option.save_trm }}개월({{ option.intr_rate_type_nm }})
-                </p>
-                <p class="m-0">
-                  기본 {{ option.intr_rate ?? option.intr_rate2 }}%
-                </p>
+                <p class="m-0">{{ option.save_trm }}개월({{ option.intr_rate_type_nm }})</p>
+                <p class="m-0">기본 {{ option.intr_rate ?? option.intr_rate2 }}%</p>
               </label>
             </div>
           </div>
           <div>
-            <p class="text-center">
-              {{ amount }}원 예금하면 총 세전 이자 {{ result }}원
-            </p>
+            <p class="text-center">{{ amount }}원 예금하면 총 세전 이자 {{ result }}원</p>
           </div>
         </form>
       </div>
@@ -109,27 +77,7 @@
         <h3>상품 리뷰</h3>
         <p>리뷰 {{ saving.savingreviews_count }} ></p>
         <form @submit.prevent="submitComment" class="position-relative">
-          <div v-if="authStore.user" class="d-flex">
-            <select name="" id="" v-model="rate" class="detailSavingRate">
-              <option :value="0" disabled>평점</option>
-              <option :value="1">1</option>
-              <option :value="2">2</option>
-              <option :value="3">3</option>
-              <option :value="4">4</option>
-              <option :value="5">5</option>
-            </select>
-            <input
-              type="text"
-              class="detailSavingContent"
-              placeholder="리뷰를 남겨보세요"
-              v-model.trim="inputContent"
-              style="border-radius: 0 5px 5px 0"
-            />
-            <button id="submitReviewBtn">
-              <font-awesome-icon :icon="['fas', 'pen']" />
-            </button>
-          </div>
-          <div v-else>
+          <div v-if="!authStore?.user">
             <input
               type="text"
               class="detailSavingContent"
@@ -139,6 +87,30 @@
               readonly
             />
           </div>
+          <div v-else-if="!authStore.user.financial_products || !(savingId in authStore.user.financial_products)">
+            <input
+              type="text"
+              class="detailSavingContent"
+              placeholder="상품에 가입 후 리뷰 작성이 가능해요"
+              v-model.trim="inputContent"
+              style="border-radius: 5px"
+              readonly
+            />
+          </div>
+          <div v-else class="d-flex">
+            <select name="" id="" v-model="rate" class="detailSavingRate" required>
+              <option value="" disabled>평점</option>
+              <option :value="1">1</option>
+              <option :value="2">2</option>
+              <option :value="3">3</option>
+              <option :value="4">4</option>
+              <option :value="5">5</option>
+            </select>
+            <input type="text" class="detailSavingContent" placeholder="리뷰를 남겨보세요" v-model.trim="inputContent" style="border-radius: 0 5px 5px 0" />
+            <button id="submitReviewBtn">
+              <font-awesome-icon :icon="['fas', 'pen']" />
+            </button>
+          </div>
         </form>
         <div v-for="review in sortReview" :key="review.id">
           <div class="d-flex align-items-center justify-content-between my-3">
@@ -147,51 +119,29 @@
                 <p class="m-0">{{ review.user.username }}</p>
                 <div>
                   <span v-for="n in review.rating" :key="n">
-                    <font-awesome-icon
-                      :icon="['fas', 'star']"
-                      class="fillStar"
-                    />
+                    <font-awesome-icon :icon="['fas', 'star']" class="fillStar" />
                   </span>
                   <span v-for="n in 5 - review.rating" :key="n">
-                    <font-awesome-icon
-                      :icon="['far', 'star']"
-                      class="emptyStar"
-                    />
+                    <font-awesome-icon :icon="['far', 'star']" class="emptyStar" />
                   </span>
                 </div>
               </div>
               <p class="m-0">{{ review.content || "dummyData" }}</p>
               <p class="m-0">
                 {{
-                  new Date(
-                    new Date(review.created_at).getTime() + 9 * 60 * 60 * 1000
-                  )
-                    .toISOString()
-                    .split("T")[0] +
+                  new Date(new Date(review.created_at).getTime() + 9 * 60 * 60 * 1000).toISOString().split("T")[0] +
                   " " +
                   new Date(review.created_at).toTimeString().split(" ")[0]
                 }}
               </p>
             </div>
             <div v-if="authStore.user">
-              <div
-                class="d-flex align-items-center gap-1"
-                v-if="authStore.user.id === review.user.pk"
-              >
-                <button
-                  id="savingEditButton"
-                  :to="{ name: 'update', params: saving.id }"
-                >
-                  <font-awesome-icon
-                    :icon="['far', 'pen-to-square']"
-                    class="savingEditButton"
-                  />
+              <div class="d-flex align-items-center gap-1" v-if="authStore.user.id === review.user.pk">
+                <button id="savingEditButton" :to="{ name: 'update', params: saving.id }">
+                  <font-awesome-icon :icon="['far', 'pen-to-square']" class="savingEditButton" />
                 </button>
                 <button @click="delComment(review.id)" id="reviewDelButton">
-                  <font-awesome-icon
-                    :icon="['far', 'trash-can']"
-                    class="reviewDelButton"
-                  />
+                  <font-awesome-icon :icon="['far', 'trash-can']" class="reviewDelButton" />
                 </button>
               </div>
             </div>
@@ -216,7 +166,7 @@ const route = useRoute();
 const authStore = useAuthStore();
 const savingId = route.params.savingId;
 const saving = ref(null);
-const rate = ref(0);
+const rate = ref("");
 const amount = ref(0);
 const result = ref(0);
 const btn = ref(0);
@@ -292,9 +242,7 @@ const delComment = (id) => {
     },
   })
     .then(() => {
-      const idx = saving.value.savingreviews_set.findIndex(
-        (item) => item.id === id
-      );
+      const idx = saving.value.savingreviews_set.findIndex((item) => item.id === id);
       saving.value.savingreviews_set.splice(idx, 1);
       saving.value.savingreviews_count -= 1;
     })
@@ -305,12 +253,8 @@ const delComment = (id) => {
 
 const changeRate = (period) => {
   if (period) {
-    rate.value = saving.value.savingoptions_set.find(
-      (item) => item.save_trm == period
-    ).intr_rate2;
-    method.value = saving.value.savingoptions_set.find(
-      (item) => item.save_trm == period
-    ).intr_rate_type_nm;
+    rate.value = saving.value.savingoptions_set.find((item) => item.save_trm == period).intr_rate2;
+    method.value = saving.value.savingoptions_set.find((item) => item.save_trm == period).intr_rate_type_nm;
   } else {
     rate.value = "-";
     method.value = "";

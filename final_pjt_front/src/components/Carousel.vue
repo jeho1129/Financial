@@ -7,26 +7,14 @@
         <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
       </div>
       <div class="carousel-inner">
-        <div class="carousel-item active">
-          <img
-            src="https://png.pngtree.com/background/20230527/original/pngtree-bank-vault-doors-in-the-dark-room-and-two-doors-picture-image_2770672.jpg"
-            class="d-block w-100"
-            alt="..."
-          />
+        <div class="carousel-item active position-relative">
+          <img src="../../public/assets/c1.png" class="c1 d-block w-100" alt="..." />
         </div>
         <div class="carousel-item">
-          <img
-            src="https://png.pngtree.com/background/20230616/original/pngtree-3d-rendered-bank-vault-unlocked-revealing-rows-of-deposit-boxes-picture-image_3637507.jpg"
-            class="d-block w-100"
-            alt="..."
-          />
+          <img src="../../public/assets/c2.webp" class="c2 d-block w-100" alt="..." />
         </div>
         <div class="carousel-item">
-          <img
-            src="https://png.pngtree.com/thumb_back/fw800/background/20230527/pngtree-metal-bank-vaults-and-doors-on-the-black-background-image_2658300.jpg"
-            class="d-block w-100"
-            alt="..."
-          />
+          <img src="../../public/assets/c3.jfif" class="c3 d-block w-100" alt="..." />
         </div>
       </div>
       <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
@@ -44,14 +32,36 @@
 <script setup></script>
 
 <style scoped>
-img {
+img.c1 {
+  background-color: rgb(183, 127, 68);
+  width: 350px;
   height: 350px;
-  object-fit: cover;
+  object-fit: contain;
+}
+
+img.c2 {
+  background-color: #fba014;
+  width: 350px;
+  height: 350px;
+  object-fit: contain;
+}
+
+img.c3 {
+  background-color: #9a7deb;
+  width: 350px;
+  height: 350px;
+  object-fit: contain;
 }
 
 .carousel-indicators button {
   height: 10px;
   width: 10px;
   border-radius: 50%;
+}
+
+p.c1 {
+  position: absolute;
+  z-index: 3;
+  color: red;
 }
 </style>
