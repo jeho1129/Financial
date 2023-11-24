@@ -5,21 +5,21 @@
         <div style="position: sticky" class="top-0" id="bankSearch">
           <div id="bankSearchTitle">은행 찾기</div>
           <div class="d-flex flex-column p-3 gap-3">
-            <select @change="city = ''" value="" v-model="state">
-              <option value="" disabled>지역 전체</option>
-              <option v-for="city in Object.keys(cities)" name="" id="">
+            <select v-model="state">
+              <option value="">지역 전체</option>
+              <option v-for="city in Object.keys(cities)">
                 {{ city }}
               </option>
             </select>
-            <select value="" v-model="city">
-              <option value="" disabled>시/군/구 전체</option>
-              <option v-for="city in cities[state]" :key="city" name="" id="">
+            <select v-model="city">
+              <option value="">시/군/구 전체</option>
+              <option v-for="city in cities[state]" :key="city">
                 {{ city }}
               </option>
             </select>
             <button @click="geo">검색</button>
             <!-- <select value="">
-        <option value="" disabled>지역선택하기</option>
+        <option value="" >지역선택하기</option>
         <option
           v-for="bank in Array.from(new Set(bankCategory))"
           :key="bank"
@@ -359,7 +359,7 @@ const removeInfowindow = () => {
 };
 
 const geo = () => {
-  if (city.value) {
+  if (city.value && state.value) {
     geocoder.value.addressSearch(`${state.value} ${city.value}`, function (result, status) {
       // 정상적으로 검색이 완료됐으면
       if (status === kakao.maps.services.Status.OK) {

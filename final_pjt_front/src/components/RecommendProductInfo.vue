@@ -19,6 +19,7 @@
           <span @click="moveSaving(saving)">{{ savingStore.saving.find((item) => item.fin_prdt_cd === saving).fin_prdt_nm }}</span>
         </div>
       </div>
+      <hr />
     </div>
     <div v-if="jobDeposit.length">
       <div v-for="deposit in jobDeposit" :key="deposit">
@@ -33,6 +34,7 @@
           <span @click="moveSaving(saving)">{{ savingStore.saving.find((item) => item.fin_prdt_cd === saving).fin_prdt_nm }}</span>
         </div>
       </div>
+      <hr />
     </div>
     <div v-if="assetDeposit.length">
       <div v-for="deposit in assetDeposit" :key="deposit">
@@ -47,6 +49,7 @@
           <span @click="moveSaving(saving)">{{ savingStore.saving.find((item) => item.fin_prdt_cd === saving).fin_prdt_nm }}</span>
         </div>
       </div>
+      <hr />
     </div>
     <div v-if="salaryDeposit.length">
       <div v-for="deposit in salaryDeposit" :key="deposit">
