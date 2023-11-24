@@ -3,10 +3,7 @@
     <div class="position-relative p-4">
       <form method="dialog" class="position-absolute move">
         <button value="close" class="m-0" id="closeSignUpDialog">
-          <font-awesome-icon
-            :icon="['fas', 'xmark']"
-            class="closeSignUpDialog"
-          />
+          <font-awesome-icon :icon="['fas', 'xmark']" class="closeSignUpDialog" />
         </button>
       </form>
       <h2 class="text-center">회원가입</h2>
@@ -19,13 +16,7 @@
               <span>*</span>
             </label>
             <br />
-            <input
-              type="text"
-              v-model="signUpId"
-              id="signUpId"
-              style="width: 100%"
-              required
-            />
+            <input type="text" v-model="signUpId" id="signUpId" style="width: 100%" required />
           </div>
           <div>
             <label for="signUpPw"
@@ -33,14 +24,7 @@
               <span>*</span>
             </label>
             <br />
-            <input
-              type="password"
-              v-model="signUpPw"
-              id="signUpPw"
-              autoComplete="off"
-              style="width: 100%"
-              required
-            />
+            <input type="password" v-model="signUpPw" id="signUpPw" autoComplete="off" style="width: 100%" required />
           </div>
           <div>
             <label for="signUpPwCk"
@@ -48,14 +32,7 @@
               <span>*</span>
             </label>
             <br />
-            <input
-              type="password"
-              v-model="signUpPwCk"
-              id="signUpPwCk"
-              autoComplete="off"
-              style="width: 100%"
-              required
-            />
+            <input type="password" v-model="signUpPwCk" id="signUpPwCk" autoComplete="off" style="width: 100%" required />
           </div>
           <div class="d-flex gap-3">
             <div style="width: 70%">
@@ -64,13 +41,7 @@
                 <span>*</span>
               </label>
               <br />
-              <input
-                type="text"
-                v-model="signUpName"
-                id="signUpName"
-                style="width: 100%"
-                required
-              />
+              <input type="text" v-model="signUpName" id="signUpName" style="width: 100%" required />
             </div>
             <div style="width: 30%">
               <label for="signUpAge"
@@ -78,25 +49,28 @@
                 <span>*</span>
               </label>
               <br />
-              <input
-                type="number"
-                v-model="signUpAge"
-                id="signUpAge"
-                style="width: 100%"
-                required
-              />
+              <input type="number" v-model.trim="signUpAge" id="signUpAge" style="width: 100%" required />
             </div>
           </div>
           <div>
             <label for="signUpMail">이메일 <span>*</span></label>
             <br />
-            <input
-              type="email"
-              v-model="signUpEmail"
-              id="signUpMail"
-              style="width: 100%"
-              required
-            />
+            <input type="email" v-model.trim="signUpEmail" id="signUpMail" style="width: 100%" required />
+          </div>
+          <div>
+            <label for="signUpJob">직업 <span>*</span></label>
+            <br />
+            <select name="" id="signUpJob" v-model="signUpJob">
+              <option value="" disabled>직업 선택하기</option>
+              <option
+                :value="data"
+                style="width: 100%"
+                v-for="data in ['공무원', '변호사', '의사', '회사원', '엔지니어', '개발자', '교수', '간호사']"
+                :key="data"
+              >
+                {{ data }}
+              </option>
+            </select>
           </div>
         </div>
         <hr />
@@ -105,23 +79,12 @@
           <div>
             <label for="signUpMoney">자산</label>
             <br />
-            <input
-              type="text"
-              v-model="signUpMoney"
-              id="signUpMoney"
-              style="width: 100%"
-            />
+            <input type="text" v-model="signUpMoney" id="signUpMoney" style="width: 100%" />
           </div>
           <div>
             <label for="signUpSalary">연봉</label>
             <br />
-            <input
-              type="password"
-              v-model="signUpSalary"
-              id="signUpSalary"
-              autoComplete="off"
-              style="width: 100%"
-            />
+            <input type="password" v-model="signUpSalary" id="signUpSalary" autoComplete="off" style="width: 100%" />
           </div>
         </div>
         <button class="px-4 py-2 mt-4" id="signUpCk">회원가입</button>
@@ -143,6 +106,7 @@ const signUpAge = ref(null);
 const signUpEmail = ref(null);
 const signUpMoney = ref(null);
 const signUpSalary = ref(null);
+const signUpJob = ref(null);
 
 const authStore = useAuthStore();
 
@@ -156,6 +120,7 @@ const resetData = () => {
   signUpEmail.value = null;
   signUpMoney.value = null;
   signUpSalary.value = null;
+  signUpJob.value = null;
 };
 
 const signUp = function () {
@@ -168,6 +133,7 @@ const signUp = function () {
     age: signUpAge.value,
     asset: signUpMoney.value,
     salary: signUpSalary.value,
+    job: signUpJob.value,
   };
   const dialog = document.querySelector("#moveSignUpPage");
   dialog.close();
@@ -212,7 +178,8 @@ label {
   font-weight: bold;
 }
 
-input {
+input,
+select {
   width: 100%;
   padding: 10px;
   border: 1px solid lightgray;

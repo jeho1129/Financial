@@ -32,8 +32,7 @@
           </div>
           <hr class="m-0" />
         </div>
-        <div v-for="bank in bankList" class="m-3">
-          <!-- <p>{{ bank }}</p> -->
+        <div v-for="bank in bankList" class="m-3" @click="aaa(bank.x, bank.y, bank)">
           <p>{{ bank.place_name }}</p>
           <p>{{ bank.address_name }}</p>
           <p>{{ bank.phone || "전화번호 없음" }}</p>
@@ -103,28 +102,8 @@ const cities = {
     "사상구",
     "기장군",
   ],
-  대구광역시: [
-    "중구",
-    "동구",
-    "서구",
-    "남구",
-    "북구",
-    "수성구",
-    "달서구",
-    "달성군",
-  ],
-  인천광역시: [
-    "중구",
-    "동구",
-    "미추홀구",
-    "연수구",
-    "남동구",
-    "부평구",
-    "계양구",
-    "서구",
-    "강화군",
-    "옹진군",
-  ],
+  대구광역시: ["중구", "동구", "서구", "남구", "북구", "수성구", "달서구", "달성군"],
+  인천광역시: ["중구", "동구", "미추홀구", "연수구", "남동구", "부평구", "계양구", "서구", "강화군", "옹진군"],
   광주광역시: ["동구", "서구", "남구", "북구", "광산구"],
   대전광역시: ["동구", "중구", "서구", "유성구", "대덕구"],
   울산광역시: ["중구", "남구", "동구", "북구", "울주군"],
@@ -181,19 +160,7 @@ const cities = {
     "화천군",
     "횡성군",
   ],
-  충청북도: [
-    "제천시",
-    "청주시",
-    "충주시",
-    "괴산군",
-    "단양군",
-    "보은군",
-    "영동군",
-    "옥천군",
-    "음성군",
-    "증평군",
-    "진천군",
-  ],
+  충청북도: ["제천시", "청주시", "충주시", "괴산군", "단양군", "보은군", "영동군", "옥천군", "음성군", "증평군", "진천군"],
   충청남도: [
     "계룡시",
     "공주시",
@@ -211,22 +178,7 @@ const cities = {
     "태안군",
     "홍성군",
   ],
-  전라북도: [
-    "군산시",
-    "김제시",
-    "남원시",
-    "익산시",
-    "전주시",
-    "정읍시",
-    "고창군",
-    "무주군",
-    "부안군",
-    "순창군",
-    "완주군",
-    "임실군",
-    "장수군",
-    "진안군",
-  ],
+  전라북도: ["군산시", "김제시", "남원시", "익산시", "전주시", "정읍시", "고창군", "무주군", "부안군", "순창군", "완주군", "임실군", "장수군", "진안군"],
   전라남도: [
     "광양시",
     "나주시",
@@ -344,13 +296,12 @@ function displayMarker(place) {
   });
 
   markers.value.push(marker);
+  // console.log(marker);
 
   //   // 마커에 클릭이벤트를 등록합니다
   kakao.maps.event.addListener(marker, "click", function () {
     // 마커를 클릭하면 장소명이 인포윈도우에 표출됩니다
-    infowindow.setContent(
-      '<div style="padding:5px;font-size:12px;">' + place.place_name + "</div>"
-    );
+    infowindow.setContent('<div style="padding:5px;font-size:12px;">' + place.place_name + "</div>");
     infowindow.open(map, marker);
     infowindows.value.push(infowindow);
   });
@@ -369,6 +320,14 @@ function displayMarker(place) {
     infowindow.close();
   });
 }
+
+const aaa = (x, y, marker) => {
+  var coords = new kakao.maps.LatLng(y, x);
+  la.value = coords.La;
+  ma.value = coords.Ma;
+  removeInfowindow();
+  map.setCenter(new kakao.maps.LatLng(ma.value, la.value));
+};
 
 onMounted(() => {
   if (window.kakao && window.kakao.maps) {
@@ -401,25 +360,22 @@ const removeInfowindow = () => {
 
 const geo = () => {
   if (city.value) {
-    geocoder.value.addressSearch(
-      `${state.value} ${city.value}`,
-      function (result, status) {
-        // 정상적으로 검색이 완료됐으면
-        if (status === kakao.maps.services.Status.OK) {
-          var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
-          la.value = coords.La;
-          ma.value = coords.Ma;
-          removeMarker();
-          removeInfowindow();
-          map.setCenter(new kakao.maps.LatLng(ma.value, la.value));
-          map.setLevel(3);
+    geocoder.value.addressSearch(`${state.value} ${city.value}`, function (result, status) {
+      // 정상적으로 검색이 완료됐으면
+      if (status === kakao.maps.services.Status.OK) {
+        var coords = new kakao.maps.LatLng(result[0].y, result[0].x);
+        la.value = coords.La;
+        ma.value = coords.Ma;
+        removeMarker();
+        removeInfowindow();
+        map.setCenter(new kakao.maps.LatLng(ma.value, la.value));
+        map.setLevel(3);
 
-          infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
-          ps = new kakao.maps.services.Places(map);
-          ps.categorySearch("BK9", placesSearchCB, { useMapBounds: true });
-        }
+        infowindow = new kakao.maps.InfoWindow({ zIndex: 1 });
+        ps = new kakao.maps.services.Places(map);
+        ps.categorySearch("BK9", placesSearchCB, { useMapBounds: true });
       }
-    );
+    });
   } else {
     removeMarker();
     removeInfowindow();
@@ -465,6 +421,7 @@ const geo = () => {
   text-align: center;
   padding: 20px;
   border-radius: 10px;
+  font-weight: bolder;
 }
 
 #bankSearch {
@@ -478,5 +435,14 @@ select {
   border: 1px solid lightgray;
   border-radius: 4px;
   /* box-sizing: border-box; */
+}
+
+button {
+  color: #5fb9a6;
+  background-color: white;
+  border: 1px solid #5fb9a6;
+  padding: 5px;
+  border-radius: 10px;
+  font-weight: bolder;
 }
 </style>

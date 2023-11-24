@@ -12,6 +12,7 @@ from datetime import datetime
 import pandas as pd
 import requests
 import random
+import json
 from .models import DepositProducts, DepositOptions, DepositReviews, DepositJoin, SavingProducts, SavingOptions, SavingReviews, SavingJoin
 from .serializers import DepositProductsSerializer, DepositOptionsSerializer, DepositReviewsSerializer, DepositProductsViewSerializer, DepositProductsChangeSerializer, DepositJoinSerializer, SavingProductsSerializer, SavingOptionsSerializer, SavingReviewsSerializer, SavingProductsViewSerializer, SavingProductsChangeSerializer, SavingJoinSerializer
 
@@ -106,7 +107,8 @@ def change_deposits(request, fin_prdt_cd):
     serializer = DepositProductsChangeSerializer(deposit, data=request.data, partial=True)
     if serializer.is_valid(raise_exception=True):
         serializer.save()
-        depositoptions_data = request.data.get('depositoptions_set')
+        depositoptions_data = json.loads(list(request.data.keys())[0]).get('depositoptions_set')
+        print(depositoptions_data)
         if depositoptions_data:
             for option_data in depositoptions_data:
                 option_id = option_data.get('id')
@@ -254,7 +256,7 @@ def change_savings(request, fin_prdt_cd):
     serializer = SavingProductsChangeSerializer(saving, data=request.data, partial=True)
     if serializer.is_valid(raise_exception=True):
         serializer.save()
-        savingoptions_data = request.data.get('savingoptions_set')
+        savingoptions_data =json.loads(list(request.data.keys())[0]).get('savingoptions_set')
         if savingoptions_data:
             for option_data in savingoptions_data:
                 option_id = option_data.get('id')
@@ -351,7 +353,7 @@ deposit_item_similarity_df = None
 
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated])
 def deposit_rating_matrix(request):
     # 사용자와 상품에 대한 평점 행렬을 생성
     reviews = DepositReviews.objects.all()
@@ -418,7 +420,7 @@ saving_item_similarity_df = None
 
 
 @api_view(['GET'])
-@permission_classes([IsAdminUser])
+@permission_classes([IsAuthenticated])
 def saving_rating_matrix(request):
     reviews = SavingReviews.objects.all()
     df = read_frame(reviews, fieldnames=['user__id', 'product__id', 'rating'])

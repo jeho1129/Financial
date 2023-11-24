@@ -3,9 +3,7 @@
     <div>
       <div class="d-flex justify-content-between">
         <h4>기본 정보</h4>
-        <button @click="someEvent" class="p-2" id="moveProfileEdit">
-          수정하기
-        </button>
+        <button @click="someEvent" class="p-2" id="moveProfileEdit">수정하기</button>
         <!-- <button v-else @click="dddd" class="p-2" id="moveProfileEdit">수정하기</button> -->
       </div>
       <div class="d-flex align-items-center gap-4">
@@ -26,14 +24,16 @@
           <tr>
             <th>비밀번호</th>
             <td>
-              <button id="changePassword" @click="changePassword">
-                비밀번호 변경
-              </button>
+              <button id="changePassword" @click="changePassword">비밀번호 변경</button>
             </td>
           </tr>
           <tr>
             <th>나이</th>
-            <td>{{ authStore.user.age || "나이를 설정해주세요" }}</td>
+            <td>{{ authStore.user.age }}</td>
+          </tr>
+          <tr>
+            <th>직업</th>
+            <td>{{ authStore.user.job }}</td>
           </tr>
           <tr>
             <th>자산</th>
